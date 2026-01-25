@@ -8,6 +8,30 @@ const nextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  async rewrites() {
+    return [
+      {
+        source: '/admin',
+        destination: '/admin.html',
+      },
+      {
+        source: '/cart',
+        destination: '/cart.html',
+      },
+      {
+        source: '/checkout',
+        destination: '/checkout.html',
+      },
+      {
+        source: '/my-orders',
+        destination: '/my-orders.html',
+      },
+      {
+        source: '/order-success',
+        destination: '/order-success.html',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
