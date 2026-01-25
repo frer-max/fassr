@@ -1467,6 +1467,7 @@ async function saveMeal(event) {
 // IMAGE CROPPER LOGIC
 // =====================================================
 
+let cropper = null;
 const cropModal = document.getElementById('cropModal');
 const cropImage = document.getElementById('cropImage');
 const imageInput = document.getElementById('mealImageInput'); // Re-declare locally or ensure global
