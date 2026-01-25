@@ -425,13 +425,27 @@ function saveOrders(orders) {
 
 async function refreshOrders() {
     try {
-        const orders = await ApiClient.getOrders();
-        appState.orders = orders.map(o => normalizeOrder(o));
+        const serverOrders = await ApiClient.getOrders();
+        let combinedOrders = (serverOrders || []).map(o => normalizeOrder(o));
+
+        // Merge Local Orders
+        try {
+            const localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
+            if (localOrders.length > 0) {
+                 const existingIds = new Set(combinedOrders.map(o => o.id));
+                 const newLocalOrders = localOrders.filter(o => !existingIds.has(o.id));
+                 combinedOrders = [...newLocalOrders, ...combinedOrders];
+            }
+        } catch (e) { console.error("Failed to merge local orders during refresh", e); }
+
+        appState.orders = combinedOrders;
         document.dispatchEvent(new CustomEvent('orders-updated'));
         return appState.orders;
     } catch (e) {
         console.error("Failed to refresh orders", e);
-        return [];
+        // On error, don't wipe data, just keep existing or reload local?
+        // Safe to just return existing
+        return appState.orders;
     }
 }
 
