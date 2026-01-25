@@ -96,6 +96,18 @@ async function initializeData() {
             appState.meals = (meals && meals.length > 0) ? meals : FALLBACK_DATA.meals;
             // For settings, merge fallback with API result (if any)
             appState.settings = { ...FALLBACK_DATA.settings, ...(settings || {}) };
+            
+            // --- MERGE LOCAL DATA (CRITICAL FOR DEMO IMAGES) ---
+            try {
+                const localMeals = JSON.parse(localStorage.getItem('localMeals') || '[]');
+                if (localMeals.length > 0) {
+                    // Merge strategy: Local overwrites Initial if ID matches, else append
+                    const mealMap = new Map(appState.meals.map(m => [m.id, m]));
+                    localMeals.forEach(m => mealMap.set(m.id, m));
+                    appState.meals = Array.from(mealMap.values());
+                }
+            } catch(e) { console.error("Failed to load local meals", e); }
+
 
             // Polyfill orderNumber and normalize items for frontend compatibility
             appState.orders = (orders || []).map(o => normalizeOrder(o));
@@ -233,26 +245,56 @@ function saveCategories(categories) {
 
 // --- Meals ---
 
+// --- Meals ---
+
 async function createMealData(meal) {
+    // 1. Assign local ID if valid one missing
+    if (!meal.id) meal.id = Date.now();
+    
+    // 2. Optimistic Update
     appState.meals.push(meal);
+    persistLocalMeals(); // Save to localStorage
+
     try {
         const saved = await ApiClient.saveMeal(meal);
-        const idx = appState.meals.indexOf(meal);
-        if (idx !== -1) appState.meals[idx] = saved;
+        // If success, update with real ID/data but keep image if server didn't return it
+        const idx = appState.meals.findIndex(m => m.id === meal.id);
+        if (idx !== -1) {
+             const image = appState.meals[idx].image; // Keep local image
+             appState.meals[idx] = { ...saved, image: saved.image || image };
+        }
         return saved;
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error("Create Meal Failed (Demo Mode)", e);
+        return meal; // Return local meal as success
+    }
 }
 
 async function updateMealData(meal) {
     const idx = appState.meals.findIndex(m => m.id === meal.id);
-    if (idx !== -1) appState.meals[idx] = meal;
+    if (idx !== -1) {
+        appState.meals[idx] = meal;
+        persistLocalMeals(); // Save to localStorage
+    }
+
     try {
-        return await ApiClient.saveMeal(meal); // UPSERT
-    } catch (e) { console.error(e); }
+        return await ApiClient.saveMeal(meal); 
+    } catch (e) { 
+        console.error("Update Meal Failed (Demo Mode)", e);
+        return meal;
+    }
+}
+
+function persistLocalMeals() {
+    // Save all meals that have IDs > 10000 (assumed local/new) or just all of them for demo
+    // For a robust demo, let's save ALL modified meals to localStorage
+    localStorage.setItem('localMeals', JSON.stringify(appState.meals));
 }
 
 async function deleteMealData(id) {
     appState.meals = appState.meals.filter(m => m.id !== id);
+    persistLocalMeals(); 
+
     try {
          await ApiClient.request(`/meals?id=${id}`, { method: 'DELETE' });
     } catch (e) { console.error(e); }
