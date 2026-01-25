@@ -42,7 +42,7 @@ const FALLBACK_DATA = {
 const appState = {
     categories: [],
     meals: [],
-    settings: JSON.parse(localStorage.getItem('appSettings')) || {}, 
+    settings: {}, 
     orders: []
 };
 
@@ -97,26 +97,8 @@ async function initializeData() {
             // For settings, merge fallback with API result (if any)
             appState.settings = { ...FALLBACK_DATA.settings, ...(settings || {}) };
             
-            // --- MERGE LOCAL DATA (CRITICAL FOR DEMO IMAGES & ORDERS) ---
-            try {
-                // Meals
-                const localMeals = JSON.parse(localStorage.getItem('localMeals') || '[]');
-                if (localMeals.length > 0) {
-                    const mealMap = new Map(appState.meals.map(m => [m.id, m]));
-                    localMeals.forEach(m => mealMap.set(m.id, m));
-                    appState.meals = Array.from(mealMap.values());
-                }
-                
-                // Orders (New!)
-                const localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
-                if (localOrders.length > 0) {
-                    // Combine local orders with backend orders, deduplicating by ID
-                    const existingIds = new Set(appState.orders.map(o => o.id));
-                    const newLocalOrders = localOrders.filter(o => !existingIds.has(o.id));
-                    // Prepend local orders (usually newer)
-                    appState.orders = [...newLocalOrders, ...appState.orders];
-                }
-            } catch(e) { console.error("Failed to load local data", e); }
+            // MERGE LOCAL DATA REMOVED - FULL CLOUD SYNC MODE
+            console.log('☁️ Syncing with Cloud Database...');
 
 
             // Polyfill orderNumber and normalize items for frontend compatibility
@@ -258,56 +240,44 @@ function saveCategories(categories) {
 // --- Meals ---
 
 async function createMealData(meal) {
-    // 1. Assign local ID if valid one missing
-    if (!meal.id) meal.id = Date.now();
-    
-    // 2. Optimistic Update
-    appState.meals.push(meal);
-    persistLocalMeals(); // Save to localStorage
-
     try {
         const saved = await ApiClient.saveMeal(meal);
-        // If success, update with real ID/data but keep image if server didn't return it
-        const idx = appState.meals.findIndex(m => m.id === meal.id);
-        if (idx !== -1) {
-             const image = appState.meals[idx].image; // Keep local image
-             appState.meals[idx] = { ...saved, image: saved.image || image };
-        }
+        // Optimistic Update / Sync
+        appState.meals.push(saved);
         return saved;
     } catch (e) { 
-        console.error("Create Meal Failed (Demo Mode)", e);
-        return meal; // Return local meal as success
+        console.error("Create Meal Failed", e);
+        throw e;
     }
 }
 
 async function updateMealData(meal) {
+    // Optimistic Update
     const idx = appState.meals.findIndex(m => m.id === meal.id);
-    if (idx !== -1) {
-        appState.meals[idx] = meal;
-        persistLocalMeals(); // Save to localStorage
-    }
+    if (idx !== -1) appState.meals[idx] = meal;
 
     try {
-        return await ApiClient.saveMeal(meal); 
+        const saved = await ApiClient.saveMeal(meal); 
+        // Sync local state
+        const idx = appState.meals.findIndex(m => m.id === meal.id);
+        if (idx !== -1) appState.meals[idx] = saved;
+        return saved;
     } catch (e) { 
-        console.error("Update Meal Failed (Demo Mode)", e);
-        return meal;
+        console.error("Update Meal Failed", e);
+        throw e;
     }
 }
 
-function persistLocalMeals() {
-    // Save all meals that have IDs > 10000 (assumed local/new) or just all of them for demo
-    // For a robust demo, let's save ALL modified meals to localStorage
-    localStorage.setItem('localMeals', JSON.stringify(appState.meals));
-}
+// Deprecated functions removed
+function persistLocalMeals() {}
+function persistLocalOrders() {}
+
 
 async function deleteMealData(id) {
     appState.meals = appState.meals.filter(m => m.id !== id);
-    persistLocalMeals(); 
-
     try {
          await ApiClient.request(`/meals?id=${id}`, { method: 'DELETE' });
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error(e); throw e; }
 }
 
 function saveMeals(meals) {
@@ -325,15 +295,13 @@ async function updateSettingsData(settings) {
     const updated = { ...current, ...settings };
     
     appState.settings = updated;
-    localStorage.setItem('appSettings', JSON.stringify(updated));
     
     try {
         await ApiClient.saveSettings(updated);
         return updated;
     } catch (e) { 
-        console.error("Save Settings Failed (Demo Fallback)", e); 
-        // Return updated anyway for demo
-        return updated;
+        console.error("Save Settings Failed", e); 
+        throw e;
     }
 }
 
@@ -347,29 +315,11 @@ async function submitOrder(orderData) {
         const savedOrder = await ApiClient.createOrder(orderData);
         // Polyfill ID for frontend and normalize
         const normalized = normalizeOrder(savedOrder);
-        
         appState.orders.unshift(normalized);
-        persistLocalOrders(); // Save!
         return normalized;
     } catch (e) {
-        console.error("Submit Order Failed (Demo Fallback Active)", e);
-        
-        // Mock success for Demo
-        const mockOrder = {
-            ...orderData,
-            id: Date.now(),
-            orderNumber: Math.floor(1000 + Math.random() * 9000),
-            status: 'new',
-            createdAt: new Date().toISOString(),
-            items: orderData.items || []
-        };
-        
-        const normalized = normalizeOrder(mockOrder);
-        appState.orders.unshift(normalized);
-        
-        persistLocalOrders(); // Save locally for persistence
-        
-        return normalized;
+        console.error("Submit Order Failed", e);
+        throw e;
     }
 }
 
@@ -398,25 +348,22 @@ function normalizeOrder(order) {
 async function updateOrderStatusData(orderId, status) {
     const order = appState.orders.find(o => o.id == orderId); // Loose equality for string/int IDs
     if (order) {
+        // Optimistic UI update
+        const oldStatus = order.status;
         order.status = status;
         
-        persistLocalOrders(); // Save status change locally!
-
         try {
              if (ApiClient.updateOrderStatus) await ApiClient.updateOrderStatus(orderId, status);
              else await ApiClient.request(`/orders?id=${orderId}&status=${status}`, { method: 'PUT' });
         } catch(e) { 
-            console.error("Update Status Failed (Demo Fallback Active)", e); 
-            // Swallow error for demo so UI doesn't revert or hang if we had optimistic UI
+            console.error("Update Status Failed", e); 
+            order.status = oldStatus; // Revert on failure
+            throw e;
         }
     }
 }
 
-function persistLocalOrders() {
-    // Only save recent orders to avoid bloating storage indefinitely
-    const recent = appState.orders.slice(0, 50); 
-    localStorage.setItem('localOrders', JSON.stringify(recent));
-}
+// function persistLocalOrders() removed
 
 function saveOrders(orders) {
     // Mainly used by client-side logic previously
@@ -429,14 +376,8 @@ async function refreshOrders() {
         let combinedOrders = (serverOrders || []).map(o => normalizeOrder(o));
 
         // Merge Local Orders
-        try {
-            const localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
-            if (localOrders.length > 0) {
-                 const existingIds = new Set(combinedOrders.map(o => o.id));
-                 const newLocalOrders = localOrders.filter(o => !existingIds.has(o.id));
-                 combinedOrders = [...newLocalOrders, ...combinedOrders];
-            }
-        } catch (e) { console.error("Failed to merge local orders during refresh", e); }
+        // Local merge removed
+
 
         appState.orders = combinedOrders;
         document.dispatchEvent(new CustomEvent('orders-updated'));
