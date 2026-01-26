@@ -790,17 +790,20 @@ function viewOrderDetails(orderId) {
         `;
 
 
-    } else if (order.orderType === 'delivery' && order.address) {
-        // Fallback for text address
-        const safeAddr = order.address.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
+    } else if (order.orderType === 'delivery') {
+        // Fallback for text address (or empty)
+        // We show buttons even if address is empty, as per request
+        const addrText = order.address || '';
+        const safeAddr = addrText.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
+        
         locationButtons = `
             <div class="location-actions">
-                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.address)}" target="_blank" class="btn-location map" style="text-decoration:none;">
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addrText)}" target="_blank" class="btn-location map" style="text-decoration:none;">
                     <span>📍</span> بحث في الخريطة
                 </a>
                 <button onclick="copyAddressToClipboard('${safeAddr}')" 
                         class="btn-location copy">
-                    <span>📋</span> نسخ العنوان
+                    <span>📋</span> ${addrText ? 'نسخ العنوان' : 'نسخ (فارغ)'}
                 </button>
             </div>
         `;
@@ -847,7 +850,7 @@ function viewOrderDetails(orderId) {
                 ${order.orderType === 'delivery' ? `
                 <div class="info-row">
                     <span class="icon">📍</span>
-                    <span class="text">${order.address || 'موقع محدد على الخريطة'}</span>
+                    <span class="text">${order.address || (order.location ? 'موقع محدد على الخريطة' : '⚠️ لا يوجد عنوان')}</span>
                 </div>
                 ` : ''}
 
