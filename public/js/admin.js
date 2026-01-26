@@ -1130,14 +1130,7 @@ function printOrder(orderId) {
                             ? `<div style="margin-top:2px;">📍 موقع محدد على الخريطة<br><span style="font-size: 10px; color: #555;">(${Number(order.location.lat).toFixed(5)}, ${Number(order.location.lng).toFixed(5)})</span></div>` 
                             : '')
                     }
-                    
-                    ${order.orderType === 'delivery' && order.location ? `
-                    <div style="margin-top: 5px;" class="no-print-paper">
-                         <a href="https://www.google.com/maps?q=${order.location.lat},${order.location.lng}" target="_blank" style="display: inline-block; background: #eee; padding: 3px 8px; border-radius: 4px; text-decoration: none; color: #000; font-size: 11px; border: 1px solid #ccc;">
-                            📍 فتح الخريطة
-                         </a>
-                    </div>
-                    ` : ''}
+                </div>
                 </div>
                 
                 ${order.notes ? `
