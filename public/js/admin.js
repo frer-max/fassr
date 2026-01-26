@@ -778,13 +778,26 @@ function viewOrderDetails(orderId) {
     if (order.location && order.location.lat && order.location.lng) {
         locationButtons = `
             <div class="location-actions">
-                <button onclick="openLocationInMaps('${order.location.lat}', '${order.location.lng}')" 
+                <button onclick="openLocationInMaps(${order.location.lat}, ${order.location.lng})" 
                         class="btn-location map">
                     <span>📍</span> فتح الخريطة
                 </button>
-                <button onclick="copyLocation('${order.location.lat}', '${order.location.lng}')" 
+                <button onclick="copyLocation(${order.location.lat}, ${order.location.lng})" 
                         class="btn-location copy">
                     <span>📋</span> نسخ
+                </button>
+            </div>
+        `;
+    } else if (order.orderType === 'delivery' && order.address) {
+        // Fallback for text address
+        locationButtons = `
+            <div class="location-actions">
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.address)}" target="_blank" class="btn-location map" style="text-decoration:none;">
+                    <span>📍</span> بحث في الخريطة
+                </a>
+                <button onclick="navigator.clipboard.writeText('${order.address}').then(() => showToast('تم النسخ', 'success'))" 
+                        class="btn-location copy">
+                    <span>📋</span> نسخ العنوان
                 </button>
             </div>
         `;
@@ -1114,9 +1127,17 @@ function printOrder(orderId) {
                     ${order.address 
                         ? `<div style="margin-top:2px;">${order.address}</div>` 
                         : (order.orderType === 'delivery' && order.location 
-                            ? `<div style="margin-top:2px;">📍 موقع محدد على الخريطة<br><span style="font-size: 10px; color: #555;">(${order.location.lat.toFixed(5)}, ${order.location.lng.toFixed(5)})</span></div>` 
+                            ? `<div style="margin-top:2px;">📍 موقع محدد على الخريطة<br><span style="font-size: 10px; color: #555;">(${Number(order.location.lat).toFixed(5)}, ${Number(order.location.lng).toFixed(5)})</span></div>` 
                             : '')
                     }
+                    
+                    ${order.orderType === 'delivery' && order.location ? `
+                    <div style="margin-top: 5px;" class="no-print-paper">
+                         <a href="https://www.google.com/maps?q=${order.location.lat},${order.location.lng}" target="_blank" style="display: inline-block; background: #eee; padding: 3px 8px; border-radius: 4px; text-decoration: none; color: #000; font-size: 11px; border: 1px solid #ccc;">
+                            📍 فتح الخريطة
+                         </a>
+                    </div>
+                    ` : ''}
                 </div>
                 
                 ${order.notes ? `
