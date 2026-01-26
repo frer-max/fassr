@@ -337,8 +337,23 @@ function normalizeOrder(order) {
         }));
     }
     
+    // Parse location if it's a string
+    let location = order.location;
+    if (typeof location === 'string') {
+        try {
+            // Check if it looks like JSON
+            if (location.trim().startsWith('{')) {
+                location = JSON.parse(location);
+            }
+        } catch (e) {
+            console.warn('Failed to parse location JSON', e);
+            location = null;
+        }
+    }
+
     return {
         ...order,
+        location: location,
         orderNumber: order.orderNumber || order.id,
         items: items
     };
