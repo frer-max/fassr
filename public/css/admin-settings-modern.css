@@ -1,0 +1,341 @@
+/* =========================================
+   MODERN SETTINGS PAGE DESIGN
+   ========================================= */
+
+/* --- Layout & Grid --- */
+.settings-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    opacity: 0;
+    animation: fadeInPage 0.6s ease-out forwards;
+}
+
+@keyframes fadeInPage {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Section Cards --- */
+.settings-card {
+    background: var(--bg-surface, #ffffff);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+[data-theme="dark"] .settings-card {
+    background: #101010;
+    border-color: rgba(255,255,255,0.06);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.settings-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+}
+
+/* Decorative top line for cards */
+.settings-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary, #F97316), transparent);
+    opacity: 0.7;
+}
+
+/* --- Header inside Card --- */
+.card-header-flex {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding-bottom: 20px;
+}
+
+[data-theme="dark"] .card-header-flex {
+    border-bottom-color: rgba(255,255,255,0.06);
+}
+
+.card-icon-box {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+/* Specific Icon Colors */
+.icon-restaurant { background: #fee2e2; color: #ef4444; }
+.icon-delivery { background: #e0f2fe; color: #0284c7; }
+.icon-security { background: #fef3c7; color: #d97706; }
+
+[data-theme="dark"] .icon-restaurant { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+[data-theme="dark"] .icon-delivery { background: rgba(2, 132, 199, 0.2); color: #bae6fd; }
+[data-theme="dark"] .icon-security { background: rgba(217, 119, 6, 0.2); color: #fde68a; }
+
+.card-titles h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-main, #111827);
+    letter-spacing: -0.02em;
+}
+
+.card-titles p {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: var(--text-muted, #6b7280);
+}
+
+/* --- Form Grids --- */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+@media (max-width: 768px) {
+    .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+}
+
+/* --- Input Groups --- */
+.input-group-modern {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+}
+
+.input-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main, #374151);
+    margin-left: 4px;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--text-muted, #9ca3af);
+    font-size: 1.1rem;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Adjust RTL support */
+[dir="rtl"] .input-icon {
+    left: auto;
+    right: 16px;
+}
+
+.form-input-modern {
+    width: 100%;
+    padding: 14px 16px;
+    padding-inline-start: 48px; /* space for icon */
+    border-radius: 16px;
+    border: 2px solid rgba(0,0,0,0.08);
+    background: var(--bg-body, #f9fafb);
+    color: var(--text-main, #111827);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .form-input-modern {
+    background: #1a1a1a;
+    border-color: rgba(255,255,255,0.1);
+}
+
+.form-input-modern:focus {
+    background: var(--bg-surface, #ffffff);
+    border-color: var(--primary, #F97316);
+    box-shadow: 0 0 0 4px var(--primary-glow, rgba(249, 115, 22, 0.2));
+    outline: none;
+}
+
+[data-theme="dark"] .form-input-modern:focus {
+    background: #0f0f0f;
+}
+
+/* --- Toggles & Switches Enhanced --- */
+.switch-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: rgba(0,0,0,0.02);
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] .switch-card {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.06);
+}
+
+.switch-info h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 700; }
+.switch-info p { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+
+/* --- Delivery Type Selector --- */
+.delivery-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    background: rgba(0,0,0,0.03);
+    padding: 6px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+}
+[data-theme="dark"] .delivery-options { background: rgba(255,255,255,0.05); }
+
+.delivery-opt-label {
+    padding: 12px;
+    text-align: center;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.delivery-opt-input {
+    display: none;
+}
+
+.delivery-opt-input:checked + .delivery-opt-label {
+    background: var(--bg-surface, #ffffff);
+    color: var(--primary, #F97316);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] .delivery-opt-input:checked + .delivery-opt-label {
+    background: #2a2a2a;
+    color: var(--primary);
+}
+
+/* --- Location Map Area --- */
+.location-preview-box {
+    height: 180px;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg') no-repeat center center;
+    background-size: cover;
+    background-color: #e5e7eb;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 10px;
+    border: 2px dashed rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .location-preview-box {
+    background-color: #1f2937;
+    border-color: rgba(255,255,255,0.1);
+}
+
+.location-coords {
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-family: monospace;
+}
+
+/* --- Save Bar (Sticky) --- */
+.save-bar-sticky {
+    position: sticky;
+    bottom: 20px;
+    margin-top: 20px;
+    z-index: 50;
+    pointer-events: none; /* Let clicks pass through if not active */
+}
+
+.save-bar-content {
+    background: rgba(17, 24, 39, 0.9);
+    backdrop-filter: blur(12px);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    max-width: 600px;
+    margin: 0 auto;
+    pointer-events: auto;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.save-bar-sticky.visible .save-bar-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+[data-theme="dark"] .save-bar-content {
+    background: rgba(255,255,255,0.9);
+    color: black;
+}
+
+.btn-floating-save {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+    transition: all 0.2s;
+}
+
+.btn-floating-save:hover {
+    transform: scale(1.05);
+    background: #ea580c;
+}
+
+/* --- Section Title --- */
+.settings-page-title {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.settings-page-title h1 {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--text-main) 0%, var(--text-muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.settings-page-title p {
+    color: var(--text-muted);
+}

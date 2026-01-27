@@ -13,6 +13,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin-settings-modern.css">
 </head>
 <body>
 
@@ -84,113 +85,184 @@
 
             <div class="content-wrapper">
                 
-                <!-- ================== SETTINGS SECTION ================== -->
-                <section id="section-settings" style="display: block;">
-                    
-                    <div class="settings-grid">
-                        <!-- General Settings -->
-                        <div class="settings-card">
-                            <h3 class="card-title">🏢 معلومات المطعم</h3>
-                            <div class="form-group">
-                                <label class="form-label">اسم المطعم</label>
-                                <input type="text" id="settingName" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">رقم الهاتف</label>
-                                <input type="text" id="settingPhone" class="form-input" dir="ltr" style="text-align: right;">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">العنوان</label>
-                                <textarea id="settingAddress" class="form-textarea"></textarea>
-                            </div>
-                            <!-- Restaurant Status -->
-                            <div class="form-group">
-                                <label class="form-label">حالة المطعم (مفتوح/مغلق)</label>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <label class="switch">
-                                        <input type="checkbox" id="settingIsOpen">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span style="font-size: 0.9rem; color: #666;">إظهار المطعم كمفتوح لاستقبال الطلبات</span>
-                                </div>
-                            </div>
-                        </div>
+                <div class="settings-page-title">
+                    <h1>⚙️ إعدادات المتجر</h1>
+                    <p>تحكم في تفاصيل مطعمك، التوصيل، والأمان من مكان واحد</p>
+                </div>
 
-                        <!-- Delivery Settings -->
-                        <div class="settings-card">
-                            <h3 class="card-title">🛵 إعدادات التوصيل</h3>
-                            <div class="form-group">
-                                <label class="form-label">نوع تكلفة التوصيل</label>
-                                <select id="settingDeliveryType" class="form-select" onchange="toggleDeliveryType()">
-                                    <option value="fixed">سعر ثابت</option>
-                                    <option value="distance">حسب المسافة</option>
-                                    <option value="free">مجاني</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Fixed Cost -->
-                            <div id="fixedCostGroup">
-                                <div class="form-group">
-                                    <label class="form-label">سعر التوصيل (دج)</label>
-                                    <input type="number" id="settingFixedCost" class="form-input">
-                                </div>
-                            </div>
-                            
-                            <!-- Distance Based -->
-                            <div id="distanceCostGroup" style="display: none;">
-                                <div class="form-group">
-                                    <label class="form-label">سعر الكيلومتر (دج)</label>
-                                    <input type="number" id="settingCostPerKm" class="form-input">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">أقصى مسافة توصيل (كم)</label>
-                                    <input type="number" id="settingMaxDistance" class="form-input">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="form-label">موقع المطعم (للإحداثيات)</label>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                                        <input type="text" id="settingRestLat" class="form-input" placeholder="Latitude" readonly>
-                                        <input type="text" id="settingRestLng" class="form-input" placeholder="Longitude" readonly>
-                                    </div>
-                                    <button onclick="detectRestaurantLocation()" class="btn btn-secondary" style="width: 100%;">
-                                        📍 تحديد موقعي الحالي
-                                    </button>
-                                </div>
+                <div class="settings-wrapper">
+                    
+                    <!-- Restaurant Info Card -->
+                    <div class="settings-card">
+                        <div class="card-header-flex">
+                            <div class="card-icon-box icon-restaurant">🏢</div>
+                            <div class="card-titles">
+                                <h3>معلومات المطعم</h3>
+                                <p>البيانات الأساسية التي تظهر للعملاء</p>
                             </div>
                         </div>
                         
-                        <!-- Actions -->
-                        <div class="settings-card" style="grid-column: 1/-1;">
-                            <button onclick="handleSaveSettings()" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">
-                                حفظ التغييرات
-                            </button>
-                        </div>
-
-                        <!-- Security -->
-                        <div class="settings-card" style="grid-column: 1/-1; margin-top: 20px; border-top: 4px solid #ef4444;">
-                            <h3 class="card-title">🔒 الأمان (تغيير كلمة المرور)</h3>
-                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                                <div class="form-group">
-                                    <label class="form-label">كلمة السر الحالية</label>
-                                    <input type="password" id="currentPassword" class="form-input">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">كلمة السر الجديدة</label>
-                                    <input type="password" id="newPassword" class="form-input">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">تأكيد كلمة السر</label>
-                                    <input type="password" id="confirmPassword" class="form-input">
+                        <div class="form-grid-2">
+                            <div class="input-group-modern">
+                                <label class="input-label">اسم المطعم</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">🏪</span>
+                                    <input type="text" id="settingName" class="form-input-modern" placeholder="اسم المطعم">
                                 </div>
                             </div>
-                            <button onclick="changePassword()" class="btn btn-secondary" style="margin-top: 15px;">
-                                🔐 تحديث كلمة السر
+                            
+                            <div class="input-group-modern">
+                                <label class="input-label">رقم الهاتف</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">📞</span>
+                                    <input type="text" id="settingPhone" class="form-input-modern" dir="ltr" style="text-align: right;" placeholder="05XX...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group-modern" style="margin-top: 20px;">
+                            <label class="input-label">العنوان</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">📍</span>
+                                <input type="text" id="settingAddress" class="form-input-modern" placeholder="العنوان بالتفصيل">
+                            </div>
+                        </div>
+
+                        <div class="switch-card" style="margin-top: 24px;">
+                            <div class="switch-info">
+                                <h4>حالة المتجر</h4>
+                                <p>عند الإيقاف، لن يتمكن العملاء من إرسال طلبات جديدة</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="settingIsOpen">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Settings Card -->
+                    <div class="settings-card">
+                        <div class="card-header-flex">
+                            <div class="card-icon-box icon-delivery">🛵</div>
+                            <div class="card-titles">
+                                <h3>إعدادات التوصيل</h3>
+                                <p>خيارات وتكلفة التوصيل للمناطق المختلفة</p>
+                            </div>
+                        </div>
+
+                        <label class="input-label" style="margin-bottom: 12px; display: block;">نظام الاحتساب</label>
+                        <div class="delivery-options">
+                            <input type="radio" name="deliveryType" id="dt_fixed" value="fixed" class="delivery-opt-input" onchange="toggleDeliveryMode()">
+                            <label for="dt_fixed" class="delivery-opt-label">💵 سعر ثابت</label>
+
+                            <input type="radio" name="deliveryType" id="dt_distance" value="distance" class="delivery-opt-input" onchange="toggleDeliveryMode()">
+                            <label for="dt_distance" class="delivery-opt-label">📏 حسب المسافة</label>
+                            
+                            <input type="radio" name="deliveryType" id="dt_free" value="free" class="delivery-opt-input" onchange="toggleDeliveryMode()">
+                            <label for="dt_free" class="delivery-opt-label">🎉 توصيل مجاني</label>
+                        </div>
+
+                        <!-- Fixed Mode -->
+                        <div id="fixedCostGroup" class="delivery-mode-group">
+                            <div class="input-group-modern">
+                                <label class="input-label">سعر التوصيل (دج)</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">💰</span>
+                                    <input type="number" id="settingFixedCost" class="form-input-modern" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Distance Mode -->
+                        <div id="distanceCostGroup" class="delivery-mode-group" style="display: none;">
+                            <div class="form-grid-2">
+                                <div class="input-group-modern">
+                                    <label class="input-label">سعر الكيلومتر (دج)</label>
+                                    <div class="input-wrapper">
+                                        <span class="input-icon">🚕</span>
+                                        <input type="number" id="settingCostPerKm" class="form-input-modern" placeholder="مثال: 50">
+                                    </div>
+                                </div>
+                                <div class="input-group-modern">
+                                    <label class="input-label">أقصى نطاق (كم)</label>
+                                    <div class="input-wrapper">
+                                        <span class="input-icon">🚧</span>
+                                        <input type="number" id="settingMaxDistance" class="form-input-modern" placeholder="مثال: 20">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="location-section" style="margin-top: 24px;">
+                                <div class="header-with-action" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <label class="input-label">موقع المطعم (GPS)</label>
+                                    <button type="button" onclick="detectRestaurantLocation()" class="btn-secondary" style="padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">
+                                        📍 تحديد موقعي الحالي
+                                    </button>
+                                </div>
+                                
+                                <div class="form-grid-2">
+                                    <div class="input-group-modern">
+                                        <input type="text" id="settingRestLat" class="form-input-modern" placeholder="خط العرض (Lat)" readonly style="background: #f3f4f6;">
+                                    </div>
+                                    <div class="input-group-modern">
+                                        <input type="text" id="settingRestLng" class="form-input-modern" placeholder="خط الطول (Lng)" readonly style="background: #f3f4f6;">
+                                    </div>
+                                </div>
+
+                                <div class="location-preview-box">
+                                    <span style="font-size: 3rem; opacity: 0.5;">🗺️</span>
+                                    <span class="location-coords" id="coordsDisplay" style="margin-top: 10px;">لم يتم تحديد الموقع بعد</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Card -->
+                    <div class="settings-card">
+                        <div class="card-header-flex">
+                            <div class="card-icon-box icon-security">🔒</div>
+                            <div class="card-titles">
+                                <h3>الأمان</h3>
+                                <p>تحديث كلمة مرور المسؤول</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-3">
+                            <div class="input-group-modern">
+                                <label class="input-label">الحالية</label>
+                                <input type="password" id="currentPassword" class="form-input-modern" placeholder="••••••">
+                            </div>
+                            <div class="input-group-modern">
+                                <label class="input-label">الجديدة</label>
+                                <input type="password" id="newPassword" class="form-input-modern" placeholder="••••••">
+                            </div>
+                            <div class="input-group-modern">
+                                <label class="input-label">تأكيد الجديدة</label>
+                                <input type="password" id="confirmPassword" class="form-input-modern" placeholder="••••••">
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: left; margin-top: 20px;">
+                            <button onclick="changePassword()" class="btn-secondary" style="border-radius: 50px; padding: 10px 24px;">
+                                تحديث كلمة المرور 🔐
                             </button>
                         </div>
                     </div>
 
-                </section>
+                </div>
+
+                <!-- Sticky Save Bar -->
+                <div class="save-bar-sticky" id="saveBar">
+                    <div class="save-bar-content">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 1.2rem;">📝</span>
+                            <span style="font-weight: 500;">يوجد تغييرات غير محفوظة</span>
+                        </div>
+                        <button onclick="handleSaveSettings()" class="btn-floating-save">
+                            حفظ التغييرات
+                        </button>
+                    </div>
+                </div>
 
             </div>
         </main>
