@@ -1715,43 +1715,45 @@ button, input { font-family: inherit; }
   
   /* Meal Card Enhancements */
   .meal-card {
-    display: flex; /* Horizontal Layout for Mobile? */
+    display: flex; /* Horizontal Layout for Mobile */
     flex-direction: row;
-    align-items: center;
-    padding: 10px;
+    align-items: flex-start; /* Align top, allow content to dictate height */
+    padding: 12px;
     gap: 12px;
+    min-height: 110px; /* Ensure minimum height */
+    height: auto;
   }
   
-  /* If we switch to horizontal card for mobile */
-  .meal-image {
-    width: 100px;
-    height: 100px;
-    flex-shrink: 0;
-    border-radius: 12px;
-  }
-  
+  /* Vertical stack for content */
   .meal-content {
-    padding: 0;
+    padding: 0 0 0 4px; /* Slight left padding */
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    min-width: 0; /* Fix flex text overflow */
+    justify-content: flex-start; /* Start from top */
+    min-width: 0;
+    height: 100%;
   }
   
   .meal-name { 
     font-size: 1rem; 
-    margin-bottom: 4px; 
+    margin: 0 0 8px 0; /* Clear margins */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    line-height: 1.3;
+    line-height: 1.4;
+    white-space: normal; /* Force wrap */
   }
   
-  .meal-description { display: none; /* Hide desc on small mobile list to save space */ }
-  .meal-footer { margin-top: 8px; }
+  .meal-description { display: none; }
+  
+  /* Push footer to bottom of content if needed, or just flow */
+  .meal-footer { 
+    margin-top: auto; 
+    width: 100%;
+  }
   
   /* Modals - Bottom Sheet Style or Full Width */
   .modal, .meal-modal {
