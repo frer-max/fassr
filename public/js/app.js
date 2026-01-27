@@ -38,7 +38,15 @@ async function initializeApp() {
     // إعداد تفاعل الرأس مع التمرير
     setupHeaderScroll();
     
-    // إخفاء التحميل تدريجياً - تم ذلك عبر renderMeals الذي يستبدل المحتوى
+    // إخفاء التحميل تدريجياً
+    const loader = document.getElementById('loadingOverlay');
+    if (loader) {
+        // Minimum wait to ensure animation is seen (optional aesthetic choice)
+        setTimeout(() => {
+            loader.classList.add('fade-out');
+            setTimeout(() => loader.remove(), 500); // Wait for transition
+        }, 800); 
+    }
 }
 
 // عرض واجهة التحميل (Skeleton)
