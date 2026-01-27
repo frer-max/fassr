@@ -196,6 +196,94 @@
     <script src="js/cart.js"></script>
     <script src="js/orders.js"></script>
     <script>
+        // Render Items in Checkout
+        function renderCheckoutItems() {
+            const container = document.getElementById('checkoutItems');
+            const cart = getCart();
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--text-muted);">السلة فارغة</div>';
+                return;
+            }
+            
+            container.innerHTML = cart.map(item => `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px dashed rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="position: relative;">
+                            ${item.image ? `<img src="${item.image}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">` : '<div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">🍽️</div>'}
+                            <span style="position: absolute; -top: -5px; -right: -5px; background: var(--primary); color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">${item.quantity}</span>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.95rem;">${item.name}</div>
+                            ${item.sizeName ? `<div style="font-size: 0.8rem; color: var(--text-muted);">${item.sizeName}</div>` : ''}
+                        </div>
+                    </div>
+                    <div style="font-weight: 700;">${formatPrice(item.price * item.quantity)}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Update Summary
+        function updateCheckoutSummary() {
+            const subtotal = getCartTotal();
+            const orderType = document.querySelector('input[name="orderType"]:checked').value;
+            const settings = getSettings();
+            
+            let deliveryCost = 0;
+            const deliveryRow = document.getElementById('deliveryRow');
+            
+            if (orderType === 'dineIn') {
+                deliveryCost = 0;
+                if(deliveryRow) deliveryRow.style.display = 'none';
+                
+                // Hide Map Section
+                document.getElementById('addressSection').style.display = 'none';
+            } else {
+                if(deliveryRow) deliveryRow.style.display = 'flex';
+                document.getElementById('addressSection').style.display = 'block';
+                
+                // Calculate Delivery
+                const deliverySettings = settings.delivery;
+                if (deliverySettings && deliverySettings.enabled) {
+                    if (deliverySettings.type === 'fixed') {
+                        deliveryCost = deliverySettings.fixedCost || 0;
+                    } else if (deliverySettings.type === 'free') {
+                        deliveryCost = 0;
+                    } else if (deliverySettings.type === 'distance') {
+                        // Calculate distance if user location is set
+                         // We need restaurant location from settings
+                         if (userLocation && settings.restLat && settings.restLng) {
+                             const dist = getDistance(userLocation.lat, userLocation.lng, settings.restLat, settings.restLng);
+                             deliveryCost = calculateDeliveryCost(subtotal, dist);
+                         } else {
+                             // Default or unknown
+                             deliveryCost = 0; // Or show 'Needs Location'
+                         }
+                    } else {
+                         deliveryCost = 0; // Fallback
+                    }
+                }
+            }
+            
+            document.getElementById('checkoutSubtotal').textContent = formatPrice(subtotal);
+            document.getElementById('checkoutDelivery').textContent = formatPrice(deliveryCost);
+            document.getElementById('checkoutTotal').textContent = formatPrice(subtotal + deliveryCost);
+        }
+        
+        function toggleOrderType(type) {
+             const deliveryCard = document.getElementById('deliveryCard');
+             const dineInCard = document.getElementById('dineInCard');
+             
+             if (type === 'delivery') {
+                 deliveryCard.classList.add('selected');
+                 dineInCard.classList.remove('selected');
+             } else {
+                 dineInCard.classList.add('selected');
+                 deliveryCard.classList.remove('selected');
+             }
+             updateCheckoutSummary();
+        }
+
         // Map variables
         let map = null;
         let marker = null;
