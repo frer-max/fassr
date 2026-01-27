@@ -510,123 +510,26 @@
                 if (acc <= 30) {
                     showToast(`تم تحديد موقعك بدقة ممتازة (${acc} متر)`, 'success');
                 } else if (acc <= 100) {
-                    showToast(`دقة الموقع متوسطة (${acc} متر). يفضل استخدام GPS في مكان مفتوح`, 'warning');
+                    showToast(`دقة الموقع متوسطة (${acc} متر).`, 'warning');
                 } else {
-                    showToast(`دقة الموقع منخفضة (${acc} متر). الرجاء تفعيل GPS والتأكد من عدم وجود عوائق`, 'error');
+                    showToast(`دقة الموقع منخفضة (${acc} متر). يرجى الخروج لمكان مفتوح`, 'warning');
                 }
                 
-                // Zoom to fit accuracy circle if it's large, otherwise standard zoom
-                if (acc > 50) {
-                    map.fitBounds(accuracyCircle.getBounds());
-                }
+                if (acc > 50) map.fitBounds(accuracyCircle.getBounds());
 
             } catch (error) {
-                showToast(error.message, 'error');
+                // Specific handling for permission denied
+                if (error.message.includes('رفض') || error.message.includes('permission') || error.message.includes('denied')) {
+                    showToast('⚠️ يجب عليك السماح بتحديد الموقع (GPS) للمتابعة.', 'error');
+                } else {
+                    showToast(error.message, 'error');
+                }
             }
             
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
-        
-        function renderCheckoutItems() {
-            const container = document.getElementById('checkoutItems');
-            const cart = getCart();
-            
-            container.innerHTML = cart.map(item => `
-                <div class="checkout-item">
-                    <div>
-                        <span style="font-weight: 600;">${item.name}</span>
-                        ${item.sizeName ? `<span style="color: var(--text-muted);"> (${item.sizeName})</span>` : ''}
-                        <span style="color: var(--text-muted);"> × ${item.quantity}</span>
-                    </div>
-                    <div style="font-weight: 600;">${formatPrice(item.price * item.quantity)}</div>
-                </div>
-            `).join('');
-        }
-        
-        function updateCheckoutSummary() {
-            const subtotal = getCartTotal();
-            const orderType = document.querySelector('input[name="orderType"]:checked').value;
-            const settings = getSettings();
-            
-            document.getElementById('checkoutSubtotal').textContent = formatPrice(subtotal);
-            
-            let deliveryText = 'مجاني';
-            let total = subtotal;
-            
-            if (orderType === 'delivery' && settings.delivery?.enabled) {
-                if (settings.delivery.type === 'fixed') {
-                    const cost = settings.delivery.fixedCost || 0;
-                    deliveryText = formatPrice(cost);
-                    total += cost;
-                } else if (settings.delivery.type === 'distance') {
-                    if (settings.location && settings.location.lat && document.getElementById('locationLat').value) {
-                         // Calculate distance
-                         const userLat = parseFloat(document.getElementById('locationLat').value);
-                         const userLng = parseFloat(document.getElementById('locationLng').value);
-                         const dist = getDistance(userLat, userLng, settings.location.lat, settings.location.lng);
-                         
-                         // Check max distance
-                         if (settings.delivery.maxDistance && dist > settings.delivery.maxDistance) {
-                             deliveryText = 'خارج نطاق التوصيل';
-                             document.getElementById('checkoutTotal').style.color = 'var(--danger)';
-                         } else {
-                             const cost = Math.ceil(dist * (settings.delivery.costPerKm || 50));
-                             deliveryText = formatPrice(cost);
-                             total += cost;
-                             document.getElementById('checkoutTotal').style.color = '';
-                         }
-                    } else {
-                        deliveryText = 'يُحسب بعد تحديد الموقع';
-                    }
-                } else if (settings.delivery.type === 'free') {
-                    deliveryText = 'مجاني';
-                } else if (settings.delivery.type === 'not_specified') {
-                    deliveryText = 'غير محدد';
-                } else {
-                    deliveryText = 'غير محدد';
-                }
-            } else {
-                 deliveryText = 'مجاني';
-            }
-            
-            document.getElementById('checkoutDelivery').textContent = deliveryText;
-            
-            // If total assumes delivery cost is known add it, otherwise just subtotal or show suffix
-            if (deliveryText === 'يُحسب حسب المسافة' || deliveryText === 'غير محدد') {
-                 document.getElementById('checkoutTotal').textContent = formatPrice(subtotal) + ' + التوصيل';
-            } else {
-                 document.getElementById('checkoutTotal').textContent = formatPrice(total);
-            }
-            
-            document.getElementById('deliveryRow').style.display = orderType === 'delivery' ? 'flex' : 'none';
-        }
-        
-        function toggleOrderType(type) {
-            document.querySelectorAll('.radio-card').forEach(card => {
-                if (card.id === 'deliveryCard' || card.id === 'dineInCard') {
-                    card.classList.remove('selected');
-                }
-            });
-            
-            if (type === 'delivery') {
-                document.getElementById('deliveryCard').classList.add('selected');
-                document.getElementById('addressSection').style.display = 'block';
-                document.getElementById('address').required = false; // Optional
-                setTimeout(() => {
-                    if (map) map.invalidateSize();
-                }, 100);
-            } else {
-                document.getElementById('dineInCard').classList.add('selected');
-                document.getElementById('addressSection').style.display = 'none';
-                document.getElementById('address').required = false;
-            }
-            
-            updateCheckoutSummary();
-        }
-        
 
-        
         async function handleCheckout(e) {
             e.preventDefault();
             
@@ -649,7 +552,11 @@
                 }
             }
             
-            showLoading(true);
+            // Fast inline loading, no full screen overlay
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ جاري الإرسال...';
+            btn.disabled = true;
             
             const orderData = {
                 customerName,
@@ -664,16 +571,22 @@
                 notes
             };
             
-            const order = await createOrder(orderData);
-            
-            showLoading(false);
-            
-            if (order) {
-                sessionStorage.setItem('lastOrderNumber', order.orderNumber);
-                sessionStorage.setItem('lastOrderId', order.id);
-                window.location.href = 'order-success.html';
-            } else {
+            try {
+                const order = await createOrder(orderData);
+                
+                if (order) {
+                    sessionStorage.setItem('lastOrderNumber', order.orderNumber);
+                    sessionStorage.setItem('lastOrderId', order.id);
+                    // Immediate redirect
+                    window.location.replace('order-success.html');
+                } else {
+                    throw new Error('Order creation failed');
+                }
+            } catch (err) {
+                console.error(err);
                 showToast('حدث خطأ أثناء إرسال الطلب', 'error');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         }
     </script>
