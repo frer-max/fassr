@@ -212,29 +212,50 @@
                 window.location.href = 'cart.html';
                 return;
             }
-            
-            // Wait for settings to load
+
+            // 1. Immediate Header Update (Cache)
+            try {
+                // Try from local storage directly for speed
+                const cachedSettings = localStorage.getItem('app_settings');
+                if (cachedSettings) {
+                    const parsed = JSON.parse(cachedSettings);
+                    if (parsed.restaurantName) {
+                        document.getElementById('logoName').textContent = parsed.restaurantName;
+                    }
+                }
+            } catch(e) {}
+
+            // 2. Load Data
             if (typeof initializeData === 'function') {
                 await initializeData();
             }
 
-            // Load Header Name
+            // 3. Update UI with fresh data
             const settings = getSettings();
             if (settings.restaurantName) {
                 const logoName = document.getElementById('logoName');
                 if (logoName) logoName.textContent = settings.restaurantName;
             }
 
+            // 4. Render Cart
             renderCheckoutItems();
             updateCheckoutSummary();
             
-            // Artificial delay for professional feel + valid map resizing
+            // 5. Initialize Map safely
             setTimeout(() => {
-                initMap();
                 const loader = document.getElementById('mapLoader');
-                if (loader) {
-                    loader.style.opacity = '0';
-                    setTimeout(() => loader.style.display = 'none', 300);
+                try {
+                    initMap();
+                } catch (e) {
+                    console.error("Map Init Failed", e);
+                    // Show error in map container
+                    const container = document.getElementById('mapContainer');
+                    if(container) container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;">تعذر تحميل الخريطة. يرجى تفعيل الموقع يدوياً.</div>';
+                } finally {
+                    if (loader) {
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.style.display = 'none', 300);
+                    }
                 }
             }, 1000);
 
@@ -242,10 +263,10 @@
             
             // Listen for any latent updates
             document.addEventListener('data-ready', () => {
-                const settings = getSettings();
-                if (settings.restaurantName) {
+                const newSettings = getSettings();
+                if (newSettings.restaurantName) {
                     const logoName = document.getElementById('logoName');
-                    if (logoName) logoName.textContent = settings.restaurantName;
+                    if (logoName) logoName.textContent = newSettings.restaurantName;
                 }
                 updateCheckoutSummary();
             });
