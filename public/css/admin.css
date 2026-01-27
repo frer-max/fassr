@@ -1923,6 +1923,18 @@ input:focus + .slider {
 
 .category-icon {
     font-size: 3rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.category-icon svg,
+.category-icon img {
+    width: 1em !important;
+    height: 1em !important;
+    object-fit: contain;
+    display: block;
 }
 
 .category-icon-wrapper.dimmed .category-icon {
