@@ -28,49 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Setup Category SVG Input
-    const categoryIconInput = document.getElementById('categoryIconInput');
-    if (categoryIconInput) {
-        categoryIconInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Validate SVG
-                if (file.type !== 'image/svg+xml' && !file.name.toLowerCase().endsWith('.svg')) {
-                    showToast('يرجى اختيار ملف SVG صحيح', 'error');
-                    this.value = ''; // Reset input
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const svgContent = e.target.result;
-                    if (!svgContent.trim().startsWith('<svg') && !svgContent.includes('<svg')) {
-                         showToast('الملف لا يحتوي على كود SVG صحيح', 'error');
-                         return;
-                    }
-                    
-                    // Set to hidden input
-                    document.getElementById('categoryIcon').value = svgContent;
-                    
-                    // Show Preview
-                    const preview = document.getElementById('categoryIconPreview');
-                    preview.innerHTML = svgContent;
-                    preview.style.display = 'flex';
-                    
-                    // Fix SVG dimensions for preview
-                    const svgEl = preview.querySelector('svg');
-                    if(svgEl) {
-                        svgEl.removeAttribute('width');
-                        svgEl.removeAttribute('height');
-                        svgEl.style.width = '100%';
-                        svgEl.style.height = '100%';
-                    }
-                }
-                reader.readAsText(file);
-            }
-        });
-    }
-
     // Setup Order Filter Tabs
     const tabs = document.querySelectorAll('.orders-tab');
     tabs.forEach(tab => {
@@ -833,20 +790,17 @@ function viewOrderDetails(orderId) {
         `;
 
 
-    } else if (order.orderType === 'delivery') {
-        // Fallback for text address (or empty)
-        // We show buttons even if address is empty, as per request
-        const addrText = order.address || '';
-        const safeAddr = addrText.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
-        
+    } else if (order.orderType === 'delivery' && order.address) {
+        // Fallback for text address
+        const safeAddr = order.address.replace(/'/g, "\\'");
         locationButtons = `
             <div class="location-actions">
-                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addrText)}" target="_blank" class="btn-location map" style="text-decoration:none;">
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.address)}" target="_blank" class="btn-location map" style="text-decoration:none;">
                     <span>📍</span> بحث في الخريطة
                 </a>
                 <button onclick="copyAddressToClipboard('${safeAddr}')" 
                         class="btn-location copy">
-                    <span>📋</span> ${addrText ? 'نسخ العنوان' : 'نسخ (فارغ)'}
+                    <span>📋</span> نسخ العنوان
                 </button>
             </div>
         `;
@@ -893,7 +847,7 @@ function viewOrderDetails(orderId) {
                 ${order.orderType === 'delivery' ? `
                 <div class="info-row">
                     <span class="icon">📍</span>
-                    <span class="text">${order.address || (order.location ? 'موقع محدد على الخريطة' : '⚠️ لا يوجد عنوان')}</span>
+                    <span class="text">${order.address || 'موقع محدد على الخريطة'}</span>
                 </div>
                 ` : ''}
 
@@ -2138,11 +2092,4 @@ function openCropperModal(imageSrc) {
 // closeCropperModal is handled by closeCropModal (line 1525)
 // cropAndSave handles applyCrop logic
 // editExistingImage uses openCropperModal
-
-// Helper to copy text to clipboard
-function copyAddressToClipboard(text) {
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(() => showToast('تم نسخ العنوان', 'success'))
-    .catch(() => showToast('فشل النسخ', 'error'));
-}
 

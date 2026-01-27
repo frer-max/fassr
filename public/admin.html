@@ -447,8 +447,18 @@
                         <input type="text" id="categoryName" class="form-input" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">الأيقونة (Emoji)</label>
-                        <input type="text" id="categoryIcon" class="form-input" placeholder="مثال: 🍔">
+                        <label class="form-label">أيقونة القسم (SVG)</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="categoryIconInput" class="file-input" accept=".svg" hidden>
+                            <label for="categoryIconInput" class="file-label">
+                                <span class="file-icon">📂</span>
+                                <span class="file-text">رفع أيقونة SVG</span>
+                            </label>
+                        </div>
+                        <div id="categoryIconPreview" style="margin-top: 10px; height: 80px; width: 80px; background: #f9f9f9; border-radius: 8px; display: none; align-items: center; justify-content: center; border: 1px dashed #ccc;">
+                            <!-- Preview -->
+                        </div>
+                        <input type="hidden" id="categoryIcon">
                     </div>
                 </div>
                 <div class="modal-footer">

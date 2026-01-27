@@ -1,0 +1,26 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   public/admin.html
+	modified:   public/js/admin.js
+	modified:   public/js/orders.js
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	debug_git.bat
+	debug_log.txt
+	git_status_check.txt
+	public/js/admin.js.bak
+	public/js/admin.js.bak2
+	update_git.bat
+
+no changes added to commit (use "git add" and/or "git commit -a")
+---LOG--- 
+commit a9d0f2670a97643f1f0088ab4a1ee236f20463ff
+Author: zitounianes <157304141+zitounianes@users.noreply.github.com>
+Date:   Tue Jan 27 04:05:54 2026 +0100
+
+    "Fix_checkout_functionality_Add_missing_render_and_summary_functions"
