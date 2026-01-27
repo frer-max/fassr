@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (!preview.querySelector('.btn-delete-image')) {
                             const deleteBtn = document.createElement('button');
                             deleteBtn.className = 'btn-delete-image';
-                            deleteBtn.innerHTML = '🗑️ حذف الصورة';
+                            deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> حذف الصورة';
                             deleteBtn.type = 'button';
                             deleteBtn.onclick = function(e) {
                                 e.stopPropagation(); 
@@ -137,7 +137,7 @@ function renderMeals(categoryId = 'all') {
         return `
             <div class="meal-card-admin ${!meal.active ? 'meal-inactive' : ''}" onclick="openMealModal(${meal.id})">
                 <div class="meal-card-image">
-                    ${meal.image ? `<img src="${meal.image}" alt="${meal.name}">` : '<div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:3rem;">🍽️</div>'}
+                    ${meal.image ? `<img src="${meal.image}" alt="${meal.name}">` : '<div style="height:100%; display:flex; align-items:center; justify-content:center; color:#cbd5e1;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>'}
                 </div>
                 <div class="meal-card-content">
                     <div class="meal-header">
@@ -152,8 +152,8 @@ function renderMeals(categoryId = 'all') {
                     <div class="meal-footer">
                         ${priceDisplay}
                         <div class="meal-actions">
-                            <button class="action-btn edit" onclick="event.stopPropagation(); openMealModal(${meal.id})">✏️</button>
-                            <button class="action-btn danger" onclick="event.stopPropagation(); deleteMealFunc(${meal.id})">🗑️</button>
+                            <button class="action-btn edit" onclick="event.stopPropagation(); openMealModal(${meal.id})"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                            <button class="action-btn danger" onclick="event.stopPropagation(); deleteMealFunc(${meal.id})"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
                         </div>
                     </div>
                 </div>
@@ -171,9 +171,9 @@ function updateMealsStats(meals) {
     const inactive = total - active;
     
     statsEl.innerHTML = `
-        <span class="stat-pill stat-total">📦 ${total} وجبة</span>
-        <span class="stat-pill stat-active">✅ ${active} متوفر</span>
-        <span class="stat-pill stat-inactive">⏸️ ${inactive} غير متوفر</span>
+        <span class="stat-pill stat-total"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> ${total} وجبة</span>
+        <span class="stat-pill stat-active"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg> ${active} متوفر</span>
+        <span class="stat-pill stat-inactive"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> ${inactive} غير متوفر</span>
     `;
 }
 
@@ -223,7 +223,7 @@ function openMealModal(mealId = null) {
                 if (!preview.querySelector('.btn-delete-image')) {
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-delete-image';
-                    deleteBtn.innerHTML = '🗑️ حذف الصورة';
+                    deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> حذف الصورة';
                     deleteBtn.type = 'button';
                     deleteBtn.onclick = function(e) {
                          e.stopPropagation();
@@ -338,7 +338,7 @@ function addSizeRow(sizeName = '', sizePrice = '') {
     row.innerHTML = `
         <input type="text" class="form-input size-name" placeholder="اسم الحجم" value="${sizeName}">
         <input type="number" class="form-input size-price" placeholder="السعر" value="${sizePrice}">
-        <button type="button" class="btn-remove-size" onclick="removeSizeRow('size-row-${rowId}')">🗑️</button>
+        <button type="button" class="btn-remove-size" onclick="removeSizeRow('size-row-${rowId}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
     `;
     container.appendChild(row);
 }

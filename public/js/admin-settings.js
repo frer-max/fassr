@@ -1,5 +1,5 @@
 // ===================================
-// Admin Settings Logic
+// Admin Settings Logic (Modern)
 // ===================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,54 +8,85 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+let originalSettings = null; // To track changes if needed
+
 function loadSettings() {
     const settings = getSettings();
-    document.getElementById('settingName').value = settings.restaurantName || '';
-    document.getElementById('settingPhone').value = settings.phone || '';
-    document.getElementById('settingAddress').value = settings.address || '';
+    originalSettings = JSON.stringify(settings); // Deep copy for comparison if needed
+
+    // Basic Info
+    setValue('settingName', settings.restaurantName);
+    setValue('settingPhone', settings.phone);
+    setValue('settingAddress', settings.address);
+    setChecked('settingIsOpen', settings.isOpen);
     
-    // Checkboxes might need explicit handling if value is string "true" in some legacy cases, but assume boolean
-    document.getElementById('settingIsOpen').checked = settings.isOpen;
-    
+    // Delivery
     if (settings.delivery) {
-        document.getElementById('settingDeliveryType').value = settings.delivery.type || 'fixed';
-        document.getElementById('settingFixedCost').value = settings.delivery.fixedCost || 0;
+        const type = settings.delivery.type || 'fixed';
+        const radio = document.querySelector(`input[name="deliveryType"][value="${type}"]`);
+        if (radio) radio.checked = true;
         
-        document.getElementById('settingCostPerKm').value = settings.delivery.costPerKm || 50;
-        document.getElementById('settingMaxDistance').value = settings.delivery.maxDistance || 20;
+        setValue('settingFixedCost', settings.delivery.fixedCost);
+        setValue('settingCostPerKm', settings.delivery.costPerKm);
+        setValue('settingMaxDistance', settings.delivery.maxDistance);
         
         if (settings.location) {
-            document.getElementById('settingRestLat').value = settings.location.lat || '';
-            document.getElementById('settingRestLng').value = settings.location.lng || '';
+            setValue('settingRestLat', settings.location.lat);
+            setValue('settingRestLng', settings.location.lng);
+            updateCoordsDisplay(settings.location.lat, settings.location.lng);
         }
-        
-        toggleDeliveryType();
     }
+    
+    toggleDeliveryMode();
+    setupChangeDetection();
 }
 
-function toggleDeliveryType() {
-    const type = document.getElementById('settingDeliveryType').value;
+function setValue(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.value = (val !== undefined && val !== null) ? val : '';
+}
+
+function setChecked(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!val;
+}
+
+function toggleDeliveryMode() {
+    const selected = document.querySelector('input[name="deliveryType"]:checked');
+    const type = selected ? selected.value : 'fixed';
+    
     const fixedGroup = document.getElementById('fixedCostGroup');
     const distanceGroup = document.getElementById('distanceCostGroup');
     
-    if (type === 'fixed') {
-        fixedGroup.style.display = 'block';
-        distanceGroup.style.display = 'none';
-    } else if (type === 'distance') {
-        fixedGroup.style.display = 'none';
-        distanceGroup.style.display = 'block';
-    } else {
-        fixedGroup.style.display = 'none';
-        distanceGroup.style.display = 'none';
+    if (fixedGroup) fixedGroup.style.display = (type === 'fixed') ? 'block' : 'none';
+    if (distanceGroup) distanceGroup.style.display = (type === 'distance') ? 'block' : 'none';
+}
+
+function updateCoordsDisplay(lat, lng) {
+    const display = document.getElementById('coordsDisplay');
+    if (display) {
+        if (lat && lng) {
+            display.textContent = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`;
+            display.style.color = '#10B981';
+            display.style.fontWeight = 'bold';
+        } else {
+            display.textContent = 'لم يتم تحديد الموقع';
+            display.style.color = '#EF4444';
+        }
     }
 }
 
 async function handleSaveSettings() {
-    const submitBtn = document.querySelector('button[onclick="handleSaveSettings()"]');
-    if (submitBtn) { submitBtn.textContent = '⏳ جاري الحفظ...'; submitBtn.disabled = true; }
+    const btn = document.querySelector('.btn-floating-save');
+    const originalText = btn ? btn.innerHTML : 'حفظ';
+    if (btn) {
+        // Spinner SVG
+        btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> جاري الحفظ...`;
+        btn.disabled = true;
+    }
     
     try {
-        let settings = getSettings();
+        let settings = getSettings() || {};
         
         // Basic Info
         settings.restaurantName = document.getElementById('settingName').value;
@@ -66,7 +97,10 @@ async function handleSaveSettings() {
         // Delivery
         if (!settings.delivery) settings.delivery = {};
         settings.delivery.enabled = true;
-        settings.delivery.type = document.getElementById('settingDeliveryType').value;
+        
+        const selectedType = document.querySelector('input[name="deliveryType"]:checked');
+        settings.delivery.type = selectedType ? selectedType.value : 'fixed';
+        
         settings.delivery.fixedCost = parseFloat(document.getElementById('settingFixedCost').value) || 0;
         settings.delivery.costPerKm = parseFloat(document.getElementById('settingCostPerKm').value) || 0;
         settings.delivery.maxDistance = parseFloat(document.getElementById('settingMaxDistance').value) || 0;
@@ -87,66 +121,80 @@ async function handleSaveSettings() {
         // Save
         if (typeof updateSettingsData === 'function') {
             await updateSettingsData(settings);
-            // Re-render handled by page reload or toast?
-            // Usually settings update is silent regarding other parts unless needed.
         } else {
-            // Fallback local
             localStorage.setItem('settings', JSON.stringify(settings));
         }
         
         showToast('تم حفظ الإعدادات بنجاح', 'success');
+        hideSaveBar();
         
     } catch (e) {
         showToast('فشل حفظ الإعدادات: ' + e.message, 'error');
+        console.error(e);
     } finally {
-        if (submitBtn) { submitBtn.textContent = 'حفظ التغييرات'; submitBtn.disabled = false; }
+        if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
     }
 }
 
 async function detectRestaurantLocation() {
+    const btn = document.querySelector('button[onclick="detectRestaurantLocation()"]');
+    const originalText = btn ? btn.innerHTML : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>`;
+    if(btn) { 
+        btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> ...`; 
+        btn.disabled = true; 
+    }
+
     try {
-        const btn = document.querySelector('button[onclick="detectRestaurantLocation()"]');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳ جاري التحديد...';
-        btn.disabled = true;
-        
-        // getCurrentLocation is in utils.js usually or admin needs it.
-        // utils.js has getCurrentLocation if not I need to create it?
-        // Let's assume utils.js has it or use navigator directly
-        
-        if (typeof getCurrentLocation === 'function') {
-             const position = await getCurrentLocation();
-             document.getElementById('settingRestLat').value = position.lat;
-             document.getElementById('settingRestLng').value = position.lng;
-             showToast('تم تحديد الموقع بنجاح', 'success');
-        } else {
-             // Basic implementation
-             navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    document.getElementById('settingRestLat').value = pos.coords.latitude;
-                    document.getElementById('settingRestLng').value = pos.coords.longitude;
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    document.getElementById('settingRestLat').value = lat;
+                    document.getElementById('settingRestLng').value = lng;
+                    
+                    updateCoordsDisplay(lat, lng);
+                    showSaveBar(); // Auto show save bar as fields changed
                     showToast('تم تحديد الموقع بنجاح', 'success');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
                 },
-                (err) => {
-                    throw err;
+                (error) => {
+                    showToast('تعذر الوصول للموقع: ' + error.message, 'error');
                 }
-             );
-             return; // Async handling splits here
+            );
+        } else {
+            showToast('المتصفح لا يدعم تحديد الموقع', 'error');
         }
-        
-        btn.innerHTML = originalText;
-        btn.disabled = false;
     } catch (e) {
-        showToast('فشل تحديد الموقع. يرجى السماح بالوصول للموقع.', 'error');
-        const btn = document.querySelector('button[onclick="detectRestaurantLocation()"]');
-        if(btn) { btn.innerHTML = '📍 تحديد موقعي الحالي'; btn.disabled = false; }
+        showToast('حدث خطأ أثناء تحديد الموقع', 'error');
+    } finally {
+        if(btn) { btn.innerHTML = originalText; btn.disabled = false; }
     }
 }
 
-async function changePassword() {
-    const currentPassword = document.getElementById('currentPassword').value;
+function setupChangeDetection() {
+    const inputs = document.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('input', showSaveBar);
+        input.addEventListener('change', showSaveBar);
+    });
+}
+
+function showSaveBar() {
+    const bar = document.getElementById('saveBar');
+    if (bar) bar.classList.add('visible');
+}
+
+function hideSaveBar() {
+    const bar = document.getElementById('saveBar');
+    if (bar) bar.classList.remove('visible');
+}
+
+function changePassword() {
+     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
     
@@ -155,14 +203,8 @@ async function changePassword() {
         return;
     }
     
-    // Verify current (in real app, send to backend, here we check locally if loaded)
     const settings = getSettings();
-    // Start with default if not set
     const storedPassword = settings.adminPassword || 'admin123'; 
-    
-    // If backend handles auth, we should call an API endpoint.
-    // Assuming backend data.js handles updateSettingsData which saves it.
-    // But verification of old password should ideally happen on backend.
     
     if (currentPassword !== storedPassword) {
         showToast('كلمة السر الحالية غير صحيحة', 'error');
@@ -182,7 +224,7 @@ async function changePassword() {
     settings.adminPassword = newPassword;
     
     if (typeof updateSettingsData === 'function') {
-        await updateSettingsData(settings);
+        updateSettingsData(settings); 
     } else {
         localStorage.setItem('settings', JSON.stringify(settings));
     }
@@ -191,5 +233,5 @@ async function changePassword() {
     document.getElementById('newPassword').value = '';
     document.getElementById('confirmPassword').value = '';
     
-    showToast('تم تغيير كلمة السر بنجاح ✅', 'success');
+    showToast('تم تغيير كلمة السر بنجاح', 'success');
 }

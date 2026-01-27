@@ -62,7 +62,7 @@ function renderOrders() {
     if (orders.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 40px; color: #9ca3af;">
-                <div style="font-size: 3rem; margin-bottom: 10px;">📦</div>
+                <div style="margin-bottom: 10px; display:inline-block;"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
                 <p>لا توجد طلبات في هذه القائمة</p>
             </div>
         `;
@@ -81,17 +81,17 @@ function renderOrders() {
             `;
         } else if (order.status === 'preparing') {
             actionButtons = `
-                <button class="btn-status-action prev" onclick="updateStatus('${order.id}', 'new')" title="رجوع للحالة السابقة">↩️</button>
+                <button class="btn-status-action prev" onclick="updateStatus('${order.id}', 'new')" title="رجوع للحالة السابقة"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg></button>
                 <button class="btn-status-action next" onclick="updateStatus('${order.id}', 'ready')">جاهز</button>
             `;
         } else if (order.status === 'ready') {
             actionButtons = `
-                <button class="btn-status-action prev" onclick="updateStatus('${order.id}', 'preparing')" title="رجوع للحالة السابقة">↩️</button>
+                <button class="btn-status-action prev" onclick="updateStatus('${order.id}', 'preparing')" title="رجوع للحالة السابقة"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg></button>
                 <button class="btn-status-action next" onclick="updateStatus('${order.id}', 'delivered')">تم التسليم</button>
             `;
         } else if (order.status === 'delivered') {
             actionButtons = `
-                <button class="btn-status-action prev" onclick="safeUpdateStatus('${order.id}', 'ready', 'delivered')" title="رجوع للحالة السابقة">↩️ تراجع</button>
+                <button class="btn-status-action prev" onclick="safeUpdateStatus('${order.id}', 'ready', 'delivered')" title="رجوع للحالة السابقة"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg> تراجع</button>
             `;
         }
         
@@ -113,23 +113,25 @@ function renderOrders() {
                         <h4>
                             ${order.customerName}
                             <span class="order-type-badge ${order.orderType === 'delivery' ? 'type-delivery' : 'type-dinein'}">
-                                ${order.orderType === 'delivery' ? '🛵 توصيل' : '🍽️ طاولة'}
+                            <span class="order-type-badge ${order.orderType === 'delivery' ? 'type-delivery' : 'type-dinein'}">
+                                ${order.orderType === 'delivery' ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> توصيل' : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3"></path></svg> طاولة'}
                             </span>
                         </h4>
                         <p>
-                            <span>📞 ${order.customerPhone}</span>
-                            <span>⏰ ${new Date(order.createdAt).toLocaleTimeString('ar-DZ', {hour:'2-digit', minute:'2-digit'})}</span>
+                        <p>
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.12 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> ${order.customerPhone}</span>
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${new Date(order.createdAt).toLocaleTimeString('ar-DZ', {hour:'2-digit', minute:'2-digit'})}</span>
                         </p>
                     </div>
                     <div style="flex: 1; color: #6b7280; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                        <span>📦</span> ${itemsCount} منتجات
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></span> ${itemsCount} منتجات
                     </div>
                 </div>
                 
                 <div class="order-row-end">
                     <div class="order-total">${formatPrice(order.total)}</div>
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn-order-view" onclick="viewOrderDetails('${order.id}')">👁️</button>
+                        <button class="btn-order-view" onclick="viewOrderDetails('${order.id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
                         ${actionButtons}
                     </div>
                 </div>
@@ -195,12 +197,11 @@ function viewOrderDetails(orderId) {
     let locationButtons = '';
     if (order.location && order.location.lat && order.location.lng) {
         locationButtons = `
-            <div class="location-actions">
                 <button onclick="openLocationInMaps(${order.location.lat}, ${order.location.lng})" class="btn-location map">
-                    <span>📍</span> فتح الخريطة
+                    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg></span> فتح الخريطة
                 </button>
                 <button onclick="copyLocation(${order.location.lat}, ${order.location.lng})" class="btn-location copy">
-                    <span>📋</span> نسخ
+                    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></span> نسخ
                 </button>
             </div>
         `;
@@ -211,10 +212,10 @@ function viewOrderDetails(orderId) {
         locationButtons = `
             <div class="location-actions">
                 <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addrText)}" target="_blank" class="btn-location map" style="text-decoration:none;">
-                    <span>📍</span> بحث في الخريطة
+                    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span> بحث في الخريطة
                 </a>
                 <button onclick="copyToClipboard('${safeAddr}')" class="btn-location copy">
-                    <span>📋</span> ${addrText ? 'نسخ العنوان' : 'نسخ (فارغ)'}
+                    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></span> ${addrText ? 'نسخ العنوان' : 'نسخ (فارغ)'}
                 </button>
             </div>
         `;
@@ -239,24 +240,24 @@ function viewOrderDetails(orderId) {
             <div class="details-card customer-card">
                 <h4 class="card-title">👤 بيانات العميل</h4>
                 <div class="info-row">
-                    <span class="icon">👤</span>
+                    <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
                     <span class="text">${order.customerName}</span>
                 </div>
                 <div class="info-row">
                     <a href="tel:${order.customerPhone}" class="phone-link">
-                        <span class="icon">📞</span>
+                        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.12 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></span>
                         <span class="text">${order.customerPhone}</span>
                     </a>
                 </div>
                 <div class="info-row">
-                    <span class="icon">${order.orderType === 'delivery' ? '🛵' : '🍽️'}</span>
+                    <span class="icon">${order.orderType === 'delivery' ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3"></path></svg>'}</span>
                     <span class="text" style="font-weight: bold; color: var(--primary);">
                         ${order.orderType === 'delivery' ? 'طلب توصيل' : 'تناول في المطعم'}
                     </span>
                 </div>
                 ${order.orderType === 'delivery' ? `
                 <div class="info-row">
-                    <span class="icon">📍</span>
+                    <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
                     <span class="text">${order.address || (order.location ? 'موقع محدد على الخريطة' : '⚠️ لا يوجد عنوان')}</span>
                 </div>
                 ` : ''}
@@ -285,7 +286,7 @@ function viewOrderDetails(orderId) {
             </div>
 
             <div class="modal-actions-footer">
-                <button onclick="printOrder('${order.id}')" class="btn-print-order"><span>🖨️</span> طباعة الفاتورة</button>
+                <button onclick="printOrder('${order.id}')" class="btn-print-order"><span><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></span> طباعة الفاتورة</button>
             </div>
         </div>
     `;
@@ -355,7 +356,7 @@ function printOrder(orderId) {
         <body>
             <div class="receipt-container">
                 <div class="header">
-                    <div class="logo">🍔</div>
+                    <div class="logo"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5s-6 6.5-6 11c0 3 2.5 5.5 6 5.5s6-2.5 6-5.5c0-4.5-6-11-6-11z" fill="#000"/></svg></div>
                     <div class="store-name">${settings.name || 'Fast Food'}</div>
                     <div class="store-info">${settings.phone || ''}</div>
                     <div class="store-info">${new Date().toLocaleString('ar-DZ')}</div>

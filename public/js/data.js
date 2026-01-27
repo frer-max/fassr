@@ -6,13 +6,13 @@
 // Fallback Data (Matches Seed)
 const FALLBACK_DATA = {
     categories: [
-        { id: 1, name: 'بيتزا', icon: '🍕', order: 1, active: true },
-        { id: 2, name: 'برغر', icon: '🍔', order: 2, active: true },
-        { id: 3, name: 'شاورما', icon: '🌯', order: 3, active: true },
-        { id: 4, name: 'طاكوس', icon: '🌮', order: 4, active: true },
-        { id: 5, name: 'سلطات', icon: '🥗', order: 5, active: true },
-        { id: 6, name: 'مشروبات', icon: '🥤', order: 6, active: true },
-        { id: 7, name: 'حلويات', icon: '🍰', order: 7, active: true }
+        { id: 1, name: 'بيتزا', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 11h.01"></path><path d="M11 15h.01"></path><path d="M16.5 16.5h.01"></path><path d="M13.5 13.5h.01"></path><path d="M21.5 21.5L2 2l20 20z"></path><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path></svg>', order: 1, active: true },
+        { id: 2, name: 'برغر', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 9.5a7.5 7.5 0 0 0-15 0"></path><path d="M4 14.5h16"></path><path d="M4 14.5v1.5a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-1.5"></path><path d="M12 14.5v-3"></path></svg>', order: 2, active: true },
+        { id: 3, name: 'شاورما', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path><path d="M7 12h10"></path><path d="M12 7v10"></path></svg>', order: 3, active: true },
+        { id: 4, name: 'طاكوس', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"></path><path d="M2 12c0 5.5 4.5 10 10 10s10-4.5 10-10"></path><path d="M12 12V2"></path></svg>', order: 4, active: true },
+        { id: 5, name: 'سلطات', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"></path><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path><path d="M12 2 12 12"></path></svg>', order: 5, active: true },
+        { id: 6, name: 'مشروبات', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>', order: 6, active: true },
+        { id: 7, name: 'حلويات', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"></path><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"></path><path d="M2 21h20"></path><path d="M7 8v2"></path><path d="M12 8v2"></path><path d="M17 8v2"></path><path d="M7 4h.01"></path><path d="M12 4h.01"></path><path d="M17 4h.01"></path></svg>', order: 7, active: true }
     ],
     settings: {
         restaurantName: 'مطعمي',

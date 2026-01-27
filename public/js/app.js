@@ -155,7 +155,9 @@ function renderCategories() {
     // إضافة زر "الكل"
     let html = `
         <button class="category-btn ${!currentCategory ? 'active' : ''}" onclick="filterByCategory(null)">
-            <span class="category-icon" style="font-family: 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif;">🍽️</span>
+            <span class="category-icon" style="display:flex;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </span>
             <span class="category-name">الكل</span>
         </button>
     `;
@@ -220,7 +222,9 @@ function renderMeals() {
     if (meals.length === 0) {
         container.innerHTML = `
             <div class="no-meals">
-                <div class="no-meals-icon" style="font-family: 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif;">🍽️</div>
+                <div class="no-meals-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                </div>
                 <h3>لا توجد وجبات</h3>
                 <p>${searchQuery ? 'لم نجد وجبات تطابق بحثك' : 'لا توجد وجبات في هذه الفئة'}</p>
             </div>
@@ -361,7 +365,7 @@ function openMealModal(mealId) {
                         </svg>
                        </div>`
                 }
-                ${meal.popular ? '<span class="meal-badge popular">⭐ مميز</span>' : ''}
+                ${meal.popular ? '<span class="meal-badge popular"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> مميز</span>' : ''}
             </div>
             
             <div class="meal-modal-content">
@@ -385,7 +389,7 @@ function openMealModal(mealId) {
                         <span class="modal-total-price" id="modalTotalPrice">${formatPrice(currentPrice)}</span>
                     </div>
                     <button class="btn btn-primary btn-lg btn-block" onclick="addMealFromModal(${meal.id})">
-                        🛒 أضف للسلة
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> أضف للسلة
                     </button>
                 </div>
             </div>

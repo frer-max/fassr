@@ -8,7 +8,7 @@
     <title id="pageTitle">اطلب الآن</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/mobile.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff6b00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 2.5s-6 6.5-6 11c0 3 2.5 5.5 6 5.5s6-2.5 6-5.5c0-4.5-6-11-6-11z' fill='%23fff'/><path d='M12 9a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z' fill='%23ff6b00'/><path d='M5.5 14L2 19h5l1-2.5M18.5 14L22 19h-5l-1-2.5' fill='%23ff6b00'/></svg>">
 </head>
 <body>
     <!-- Premium Loading Overlay -->
@@ -16,7 +16,9 @@
         <div class="spinner-container">
             <div class="spinner-ring-blur"></div>
             <div class="spinner-ring"></div>
-            <div class="spinner-logo">🍽️</div>
+            <div class="spinner-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
         </div>
         <p class="loading-text">جاري تحضير القائمة...</p>
     </div>
@@ -43,10 +45,14 @@
                 
                 <div class="header-actions">
                     <a href="my-orders.html" class="btn btn-secondary">
-                        📋 طلباتي
+                        <span style="display:flex; align-items:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        </span> طلباتي
                     </a>
                     <a href="cart.html" class="cart-btn">
-                        <span>🛒</span>
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        </span>
                         <span>السلة</span>
                         <span class="cart-count"></span>
                     </a>
@@ -59,10 +65,17 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1>🍕 <span>أشهى الوجبات</span> بين يديك</h1>
+                <h1>
+                    <span style="display:inline-flex; align-items:center; color:#f97316;">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"></path><path d="M20 12v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1"></path><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2a22 22 0 0 1 20 0z"></path><path d="M12 2v4"></path></svg>
+                    </span> <span>أشهى الوجبات</span> بين يديك
+                </h1>
                 <p>اكتشف قائمتنا المميزة واطلب وجبتك المفضلة الآن. توصيل سريع وطعم لا يُقاوم!</p>
                 <a href="#meals" class="btn btn-primary btn-lg">
-                    تصفح القائمة ⬇️
+                    تصفح القائمة 
+                    <span style="display:inline-flex; align-items:center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                    </span>
                 </a>
             </div>
         </div>
@@ -81,10 +94,16 @@
     <section class="meals-section" id="meals">
         <div class="container">
             <div class="section-header">
-                <h2>🍔 قائمة الطعام</h2>
+                <h2>
+                    <span style="display:inline-flex; align-items:center;">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    </span> قائمة الطعام
+                </h2>
                 <div class="search-container">
                     <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن وجبة...">
-                    <span class="search-icon">🔍</span>
+                    <span class="search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </span>
                 </div>
             </div>
             
@@ -99,7 +118,11 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>🍽️ <span id="footerName"></span></h4>
+                    <h4>
+                        <span style="display:inline-flex; align-items:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        </span> <span id="footerName"></span>
+                    </h4>
                     <p>نقدم لكم أشهى الوجبات المحضرة بعناية من أجود المكونات الطازجة.</p>
                 </div>
                 <div class="footer-section">
@@ -113,8 +136,14 @@
                 <div class="footer-section">
                     <h4>تواصل معنا</h4>
                     <ul class="footer-links">
-                        <li id="contactPhone">📞 0555 123 456</li>
-                        <li id="contactAddress">📍 الجزائر العاصمة</li>
+                        <li id="contactPhone" style="display: flex; align-items: center; gap: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            0555 123 456
+                        </li>
+                        <li id="contactAddress" style="display: flex; align-items: center; gap: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                             الجزائر العاصمة
+                        </li>
                         <!-- <li>⏰ 10:00 - 23:00</li> -->
                     </ul>
                 </div>

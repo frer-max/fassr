@@ -241,7 +241,7 @@ button, input { font-family: inherit; }
   color: #FF1744; /* Bright/Vibrant Red */
   transition: transform 0.2s ease;
 }
-.logo:hover { }
+/* .logo:hover { } Removed empty rule */
 
 .logo-icon { 
   display: flex;
@@ -385,11 +385,9 @@ button, input { font-family: inherit; }
 }
 
 .hero::after {
-  content: '🍕 🍔 🌮 🍟 🥗 🍜';
-  position: absolute; top: 30%; left: 50%; transform: translateX(-50%);
-  font-size: 2.5rem; letter-spacing: 1.5rem; opacity: 0.08;
-  animation: float-food 12s ease-in-out infinite alternate;
-  pointer-events: none;
+  /* content: '🍕 🍔 🌮 🍟 🥗 🍜'; REMOVED: No emojis allowed */
+  content: ''; /* Replaced with empty content for now */
+  /* Could use: background-image: url(...) with SVGs if needed */
 }
 @keyframes float-food { 
   0% { transform: translateX(-50%) translate3d(0, 0, 0); } 
