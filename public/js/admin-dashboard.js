@@ -155,6 +155,7 @@ function loadMonthlyChart() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: false, // Instant Render
                 plugins: {
                     legend: { display: false },
                     tooltip: {
