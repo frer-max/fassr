@@ -29,15 +29,42 @@ function startBadgeUpdates() {
         if (typeof getOrders !== 'function') return;
         
         const orders = getOrders();
-        const newOrdersCount = orders.filter(o => o.status === 'new').length;
         
-        const badge = document.getElementById('newOrdersBadge');
-        if (badge) {
-            if (newOrdersCount > 0) {
-                badge.textContent = newOrdersCount;
-                badge.style.display = 'inline-block';
+        // 1. Orders Badge (New/Active Orders)
+        // Usually "new" is what we want to highlight most, 
+        // but user might want all active (new, preparing, ready).
+        // Let's stick to 'new' for the sidebar badge to be less noisy, or follow dashboard logic.
+        // Dashboard uses !['delivered', 'cancelled']. Let's use that for "Active Tasks".
+        const activeOrdersCount = orders.filter(o => !['delivered', 'cancelled'].includes(o.status)).length;
+        
+        const oBadge = document.getElementById('newOrdersBadge');
+        if (oBadge) {
+            if (activeOrdersCount > 0) {
+                oBadge.textContent = activeOrdersCount;
+                oBadge.style.display = 'inline-block';
+                oBadge.classList.add('pulse-animation');
             } else {
-                badge.style.display = 'none';
+                oBadge.style.display = 'none';
+            }
+        }
+
+        // 2. Ratings Badge
+        const ratedOrders = orders.filter(o => o.rating > 0);
+        if (ratedOrders.length > 0) {
+            const seenIds = (() => {
+                try { return JSON.parse(localStorage.getItem('seenRatingIds') || '[]'); } catch(e) { return []; }
+            })();
+            const newRatings = ratedOrders.filter(o => !seenIds.includes(o.id.toString()));
+            
+            const rBadge = document.getElementById('newRatingsBadge');
+            if (rBadge) {
+                if (newRatings.length > 0) {
+                    rBadge.textContent = newRatings.length;
+                    rBadge.style.display = 'inline-block';
+                    rBadge.classList.add('pulse-animation');
+                } else {
+                    rBadge.style.display = 'none';
+                }
             }
         }
     };
@@ -49,10 +76,21 @@ function startBadgeUpdates() {
     document.addEventListener('orders-updated', updateBadges);
     document.addEventListener('data-ready', updateBadges);
     
-    // Background refresh every 30 seconds if not already polling (like in admin-orders.js)
-    // Only start a global interval if we are NOT on the orders page 
-    // to avoid double polling, though refreshOrders handles concurrency well.
-    if (!window.location.pathname.includes('admin-orders.html')) {
+    // Ensure we have data initially if other scripts didn't load it
+    // Small delay to let page-specific initializeData run first
+    setTimeout(async () => {
+        if (typeof getOrders === 'function' && getOrders().length === 0) {
+            if (typeof refreshOrders === 'function') {
+                await refreshOrders();
+            }
+        }
+    }, 500);
+
+    // Background refresh every 30 seconds if not already polling faster (dashboard/orders)
+    const isHighTrafficPage = window.location.pathname.includes('admin-orders.html') || 
+                             window.location.pathname.includes('admin-dashboard.html');
+    
+    if (!isHighTrafficPage) {
         setInterval(async () => {
             if (typeof refreshOrders === 'function') {
                 await refreshOrders();

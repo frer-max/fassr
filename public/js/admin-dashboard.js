@@ -94,44 +94,7 @@ function loadDashboardStats() {
         `;
     }
     
-    // Update sidebar badges if elements exist (e.g., if we are using the common sidebar)
-    updateSidebarBadges(orders);
-}
-
-function updateSidebarBadges(orders) {
-    const activeOrdersCount = orders.filter(o => !['delivered', 'cancelled'].includes(o.status)).length;
-    const badge = document.getElementById('newOrdersBadge');
-    if (badge) {
-        if (activeOrdersCount > 0) {
-            badge.textContent = activeOrdersCount;
-            badge.style.display = 'inline-block';
-            badge.classList.add('pulse-animation');
-        } else {
-            badge.style.display = 'none';
-            badge.classList.remove('pulse-animation');
-        }
-    }
-    
-    // Ratings Badge
-    const ratedOrders = orders.filter(o => o.rating > 0);
-    if (ratedOrders.length > 0) {
-        const seenIds = (() => {
-            try { return JSON.parse(localStorage.getItem('seenRatingIds') || '[]'); } catch(e) { return []; }
-        })();
-        const newRatings = ratedOrders.filter(o => !seenIds.includes(o.id.toString()));
-        
-        const rBadge = document.getElementById('newRatingsBadge');
-        if (rBadge) {
-            if (newRatings.length > 0) {
-                rBadge.textContent = newRatings.length;
-                rBadge.style.display = 'inline-block';
-                rBadge.classList.add('pulse-animation');
-            } else {
-                rBadge.style.display = 'none';
-                rBadge.classList.remove('pulse-animation');
-            }
-        }
-    }
+    // sidebar badges are now handled globally in admin-core.js
 }
 
 function loadMonthlyChart() {

@@ -72,9 +72,26 @@
     <script src="js/admin-core.js"></script>
     
     <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load orders to see if there are ratings
+            await initializeData({ orders: true });
+            markRatingsAsSeen();
+        });
+
+        function markRatingsAsSeen() {
+            const orders = getOrders();
+            const ratedOrderIds = orders.filter(o => o.rating > 0).map(o => o.id.toString());
+            if (ratedOrderIds.length > 0) {
+                localStorage.setItem('seenRatingIds', JSON.stringify(ratedOrderIds));
+                // Notify core to refresh badges
+                document.dispatchEvent(new CustomEvent('orders-updated'));
+            }
+        }
+
         setInterval(() => {
             const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('ar-DZ', {hour: '2-digit', minute:'2-digit'});
+            const timeEl = document.getElementById('currentTime');
+            if (timeEl) timeEl.textContent = now.toLocaleTimeString('ar-DZ', {hour: '2-digit', minute:'2-digit'});
         }, 1000);
     </script>
 </body>
