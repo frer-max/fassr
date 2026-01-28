@@ -63,12 +63,9 @@ function setupAdminNavigation() {
 async function spaNavigate(url, pushState = true) {
     if (window.location.pathname.endsWith(url)) return;
     
-    // Start sleek top bar
-    initNProgress();
-    
-    // Subtle content fade
+    // 1. Exit Animation: Blur & Dim current content
     const mainContent = document.querySelector('.main-content');
-    if (mainContent) mainContent.classList.add('page-loading');
+    if (mainContent) mainContent.classList.add('loading-state');
 
     try {
         const response = await fetch(url);
@@ -76,13 +73,13 @@ async function spaNavigate(url, pushState = true) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        // 1. Cleanup old page (intervals, charts)
+        // 2. Cleanup old page (intervals, charts)
         cleanupPage();
 
-        // 2. Update Title
+        // 3. Update Title
         document.title = doc.title;
 
-        // 3. Update URL
+        // 4. Update URL
         if (pushState) {
             history.pushState({ url }, doc.title, url);
         }
@@ -95,22 +92,32 @@ async function spaNavigate(url, pushState = true) {
         if (newMainContent && mainContent) {
             mainContent.innerHTML = newMainContent.innerHTML;
             window.scrollTo(0, 0);
+            
+            // 7. Entry Animation: Snap in with Spring
+            mainContent.classList.remove('loading-state'); // Remove exit blur
+            mainContent.classList.add('animate-modern-entry'); // Trigger entry spring
+            
+            // Remove animation class after it finishes to be clean
+            setTimeout(() => {
+                mainContent.classList.remove('animate-modern-entry');
+            }, 600);
+            
         } else {
-            // Fallback: If structure doesn't match (e.g. login page, error), force full reload
+            // Fallback: If structure doesn't match, force full reload
             window.location.href = url;
             return;
         }
 
-        // 7. Swap Modals
+        // 8. Swap Modals
         document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
         doc.querySelectorAll('.modal-overlay').forEach(m => {
             document.body.appendChild(m);
         });
 
-        // 8. Highlight active sidebar item
+        // 9. Highlight active sidebar item
         highlightSidebar();
 
-        // 9. Load and Execute Page-Specific Scripts
+        // 10. Load and Execute Page-Specific Scripts
         const scripts = doc.querySelectorAll('script');
         for (const script of scripts) {
              // Handle External Scripts (Libraries like Chart.js)
@@ -138,13 +145,13 @@ async function spaNavigate(url, pushState = true) {
         // Trigger init for new scripts
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
-        // 8. Update timestamps or other core UI elements
+        // 11. Update timestamps or other core UI elements
         const pageTitle = document.getElementById('pageTitle');
         if (pageTitle && doc.getElementById('pageTitle')) {
             pageTitle.innerText = doc.getElementById('pageTitle').innerText;
         }
 
-        // 9. Close sidebar on mobile
+        // 12. Close sidebar on mobile
         const sidebar = document.getElementById('sidebar');
         if (sidebar) sidebar.classList.remove('open');
 
@@ -152,66 +159,12 @@ async function spaNavigate(url, pushState = true) {
         console.error('Navigation error:', error);
         window.location.href = url;
     } finally {
-        // Finish sleek bar
-        finishNProgress();
-        
+        // Fallback cleanup if something went wrong
         if (mainContent) {
-            // Slight delay to ensure DOM is ready before removing fade
             setTimeout(() => {
-                mainContent.classList.remove('page-loading');
+                mainContent.classList.remove('loading-state');
             }, 50);
         }
-    }
-}
-
-/**
- * Top Progress Bar Logic (Light & Professional)
- */
-function initNProgress() {
-    // Inject if missing
-    let container = document.getElementById('nprogress');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'nprogress';
-        container.innerHTML = '<div class="bar"></div>';
-        document.body.appendChild(container);
-    }
-    
-    // Show & Reset
-    container.classList.add('active');
-    const bar = container.querySelector('.bar');
-    if (bar) {
-        bar.style.transition = 'none';
-        bar.style.transform = 'scaleX(0)';
-        
-        // Force reflow
-        bar.offsetHeight; 
-        
-        // Start animation to 70%
-        bar.style.transition = 'transform 10s cubic-bezier(0.1, 0.5, 0, 1)'; // Slow trickle
-        bar.style.transform = 'scaleX(0.7)';
-    }
-}
-
-function finishNProgress() {
-    const container = document.getElementById('nprogress');
-    if (!container) return;
-    
-    const bar = container.querySelector('.bar');
-    if (bar) {
-        // Zip to 100%
-        bar.style.transition = 'transform 0.2s ease-out';
-        bar.style.transform = 'scaleX(1)';
-        
-        // Fade out after completion
-        setTimeout(() => {
-            container.classList.remove('active');
-            // Reset after fade
-            setTimeout(() => {
-                bar.style.transition = 'none';
-                bar.style.transform = 'scaleX(0)';
-            }, 200);
-        }, 200);
     }
 }
 

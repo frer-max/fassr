@@ -2748,60 +2748,57 @@ input:focus + .slider {
    PAGE LOADER - ROCKET ANIMATION
    ======================== */
 /* ========================
-   MODERN TOP LOADER (Light & Professional)
+   MODERN APP-LIKE DISMISS & ENTRY
    ======================== */
-#nprogress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px; /* Thin & Elegant */
-    z-index: 100000;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s linear;
-}
 
-#nprogress.active {
-    opacity: 1;
-}
+#nprogress { display: none !important; }
 
-#nprogress .bar {
-    width: 100%;
-    height: 100%;
-    /* Vibrant Orange Gradient */
-    background: linear-gradient(90deg, #F97316, #F59E0B, #EA580C);
-    background-size: 200% 100%;
-    animation: gradientShift 1s infinite linear;
-    transform-origin: left;
-    transform: scaleX(0);
-    transition: transform 0.1s ease-out;
-    box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
-    border-radius: 0 2px 2px 0;
-}
-
-@keyframes gradientShift {
-    0% { background-position: 100% 0; }
-    100% { background-position: -100% 0; }
+/* 
+   Container Transition Base
+   We animate the container itself for the "Exit" (Load Start)
+*/
+.main-content {
+    /* Hardware acceleration for smooth stickiness */
+    will-change: transform, opacity, filter;
+    transition: 
+        filter 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+        opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 
-   Content Transition 
-   ------------------
-   Subtle fade/slide for the main content only 
-   instead of blocking the whole screen.
+   1. LOADING STATE (Exit)
+   - Blurs out (Modern "Glass" feel)
+   - Dims slightly
+   - Scales down a tiny bit for depth
 */
-.main-content {
-    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 1;
-    transform: translateY(0);
+.main-content.loading-state {
+    filter: blur(12px);
+    opacity: 0.4;
+    transform: scale(0.98);
 }
 
-.main-content.page-loading {
-    opacity: 0.5; /* Keep visible but dimmed */
-    transform: translateY(5px);
-    pointer-events: none;
-    filter: grayscale(10%); /* Subtle desaturation */
+/* 
+   2. ENTRY ANIMATION (Enter)
+   - Spring-like physics (overshoot slightly then settle)
+   - Staggered feeling by animating child sections if possible, 
+     but applying to main-content is safer for generic pages.
+*/
+.animate-modern-entry {
+    animation: modernSpringUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modernSpringUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.99);
+        filter: blur(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
 }
 
 /* Ensure Sidebar stays stable */
