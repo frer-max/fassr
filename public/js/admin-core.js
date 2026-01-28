@@ -103,13 +103,26 @@ async function spaNavigate(url, pushState = true) {
         // 9. Load and Execute Page-Specific Scripts
         const scripts = doc.querySelectorAll('script');
         for (const script of scripts) {
-            if (script.src && script.src.includes('admin-') && !script.src.includes('admin-core.js')) {
-                await reInjectScript(script.src);
-            } else if (!script.src && script.innerText.trim().length > 0) {
-                const newScript = document.createElement('script');
-                newScript.innerText = script.innerText;
-                document.body.appendChild(newScript);
-            }
+             // Handle External Scripts (Libraries like Chart.js)
+             if (script.src) {
+                 // Check if it's already in the DOM
+                 const exists = document.querySelector(`script[src="${script.src}"]`);
+                 
+                 // If not present, load it (e.g. Chart.js when coming from Orders page)
+                 if (!exists) {
+                     await loadScript(script.src);
+                 } else {
+                     // If present but it's a page logic script, we MUST re-run it
+                     if (script.src.includes('admin-') && !script.src.includes('admin-core.js')) {
+                         await reInjectScript(script.src);
+                     }
+                 }
+             } else if (script.innerText.trim().length > 0) {
+                 // Execute inline script
+                 const newScript = document.createElement('script');
+                 newScript.innerText = script.innerText;
+                 document.body.appendChild(newScript);
+             }
         }
         
         // Trigger init for new scripts
@@ -139,6 +152,19 @@ async function spaNavigate(url, pushState = true) {
             }
         }, 300);
     }
+}
+
+/**
+ * Loads an external script dynamically
+ */
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = resolve; // Continue even if fails to avoid blocking
+        document.body.appendChild(script);
+    });
 }
 
 /**
@@ -207,17 +233,13 @@ function reInjectScript(src) {
             `;
             
             document.body.appendChild(script);
-            
-            // Dispatch event for this specific script execution
-            // (In addition to the main one later, but immediate dispatch is safer for inline timing)
-            // Actually, we dispatch DOMContentLoaded once after ALL scripts are processed in spaNavigate.
-            // But some scripts might rely on immediate execution. 
-            // The textContent injection executes IMMEDIATELY upon appendChild.
+            // resolve immediately after append
+            resolve();
             
         } catch (e) {
             console.error('Failed to reload script:', src, e);
+            resolve();
         }
-        resolve();
     });
 }
 
