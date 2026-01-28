@@ -527,12 +527,7 @@ function loadTopSellingMealsList() {
     const topMeals = getPopularMeals('today');
     
     if (topMeals.length === 0) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 30px; color: #9ca3af; background: white; border-radius: 12px; border: 1px dashed #e5e7eb;">
-                <div style="font-size: 2rem; margin-bottom: 10px;">📊</div>
-                <p>لا توجد بيانات كافية بعد</p>
-            </div>
-        `;
+        container.innerHTML = ''; // Empty state without text as requested
         return;
     }
     
@@ -572,7 +567,7 @@ function loadTopMeals() {
     if (!container) return;
     
     if (topMeals.length === 0) {
-        container.innerHTML = '<p class="text-center text-muted">لا توجد بيانات كافية بعد</p>';
+        container.innerHTML = '';
         return;
     }
     
