@@ -904,7 +904,6 @@ button, input { font-family: inherit; }
   font-size: 4rem; 
   margin-bottom: var(--space-3); 
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
-  animation: float-icon 3s ease-in-out infinite;
 }
 @keyframes float-icon {
   0%, 100% { transform: translateY(0); }
