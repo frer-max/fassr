@@ -2604,8 +2604,51 @@ input:focus + .slider {
 /* ========================
    PAGE TRANSITIONS - INSTANT
    ======================== */
+/* ========================
+   PAGE LOADER - ROCKET ANIMATION
+   ======================== */
 .page-loader {
-    display: none !important;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(15, 23, 42, 0.85); /* Dark semi-transparent */
+    backdrop-filter: blur(15px); /* Strong blur for premium feel */
+    display: none; /* JS toggles to flex */
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease;
+}
+
+.rocket-loader-anim {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.rocket-loader-anim svg {
+    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+    animation: rocketFloat 1.2s ease-in-out infinite alternate;
+}
+
+.rocket-shadow {
+    width: 40px;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    margin-top: 20px;
+    animation: shadowPulse 1.2s ease-in-out infinite alternate;
+    filter: blur(4px);
+}
+
+@keyframes rocketFloat {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-20px) rotate(2deg); }
+}
+
+@keyframes shadowPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(0.6); opacity: 0.4; }
 }
 
 /* Main container transition defaults */
