@@ -1,40 +1,249 @@
-// =====================================================
-// Admin Core Logic (Shared across all admin pages)
-// =====================================================
+// Global state for navigation
+window.adminApp = window.adminApp || {
+    isSPA: false,
+    intervals: [],      // Page-specific intervals (cleared on nav)
+    badgeInterval: null // Persistent interval for sidebar
+};
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // If we are in SPA mode (re-triggered manually), skip core init
+    if (window.adminApp.isSPA) {
+        checkLogin();
+        // Just re-highlight sidebar based on new URL
+        highlightSidebar();
+        return;
+    }
+    
+    // First Load (Full Refresh)
+    window.adminApp.isSPA = true;
     checkLogin();
+    setupAdminNavigation();
+    
+    // Load sidebar and start persistent badge updates
     await loadSidebar();
     highlightSidebar();
+    
+    // Listen for browser back/forward buttons
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.url) {
+            spaNavigate(event.state.url, false);
+        }
+    });
 });
 
+/**
+ * Navigation interceptors
+ */
+function setupAdminNavigation() {
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest('[data-spa-link]');
+        if (target) {
+            e.preventDefault();
+            const url = target.getAttribute('data-spa-link');
+            spaNavigate(url);
+        }
+    });
+}
+
+/**
+ * Smart Navigation: Fetch content via AJAX and swap without reload
+ */
+async function spaNavigate(url, pushState = true) {
+    if (window.location.pathname.endsWith(url)) return;
+    
+    const loader = document.getElementById('pageLoader');
+    if (loader) {
+        loader.classList.add('active');
+        loader.style.display = 'flex';
+        loader.style.opacity = '1';
+    }
+
+    try {
+        const response = await fetch(url);
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // 1. Cleanup old page (intervals, charts)
+        cleanupPage();
+
+        // 2. Update Title
+        document.title = doc.title;
+
+        // 3. Update URL
+        if (pushState) {
+            history.pushState({ url }, doc.title, url);
+        }
+
+        // 4. Swap Content
+        const newMainContent = doc.querySelector('.main-content');
+        const currentMainContent = document.querySelector('.main-content');
+        
+        if (newMainContent && currentMainContent) {
+            currentMainContent.innerHTML = newMainContent.innerHTML;
+            window.scrollTo(0, 0);
+        } else {
+            // Fallback: If structure doesn't match (e.g. login page, error), force full reload
+            window.location.href = url;
+            return;
+        }
+
+        // 5. Swap Modals
+        document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+        doc.querySelectorAll('.modal-overlay').forEach(m => {
+            document.body.appendChild(m);
+        });
+
+        // 6. Highlight active sidebar item
+        highlightSidebar();
+
+        // 7. Load and Execute Page-Specific Scripts
+        const scripts = doc.querySelectorAll('script');
+        for (const script of scripts) {
+            if (script.src && script.src.includes('admin-') && !script.src.includes('admin-core.js')) {
+                await reInjectScript(script.src);
+            } else if (!script.src && script.innerText.trim().length > 0) {
+                const newScript = document.createElement('script');
+                newScript.innerText = script.innerText;
+                document.body.appendChild(newScript);
+            }
+        }
+        
+        // Trigger init for new scripts
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        // 8. Update timestamps or other core UI elements
+        const pageTitle = document.getElementById('pageTitle');
+        if (pageTitle && doc.getElementById('pageTitle')) {
+            pageTitle.innerText = doc.getElementById('pageTitle').innerText;
+        }
+
+        // 9. Close sidebar on mobile
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.remove('open');
+
+    } catch (error) {
+        console.error('Navigation error:', error);
+        window.location.href = url;
+    } finally {
+        setTimeout(() => {
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    loader.classList.remove('active');
+                }, 400);
+            }
+        }, 300);
+    }
+}
+
+/**
+ * Re-injects a script to ensure it executes in the new DOM context.
+ * Fetches the script content and wraps it in a block scope to prevent
+ * "Identifier has already been declared" errors for let/const variables
+ * when re-loading the same script (e.g. Dashboard -> Orders -> Dashboard).
+ */
+function reInjectScript(src) {
+    return new Promise(async (resolve) => {
+        // Remove existing script if it exists to avoid duplicate tags (optional)
+        const oldScript = document.querySelector(`script[src="${src}"]`);
+        if (oldScript) oldScript.remove();
+
+        try {
+            const response = await fetch(src);
+            const text = await response.text();
+            
+            const script = document.createElement('script');
+            // Wrap in block scope to protect user's variables
+            script.textContent = `
+                {
+                    // Block Scope Sandbox for ${src}
+                    ${text}
+                }
+                //# sourceURL=${src}
+            `;
+            
+            document.body.appendChild(script);
+            
+            // Dispatch event for this specific script execution
+            // (In addition to the main one later, but immediate dispatch is safer for inline timing)
+            // Actually, we dispatch DOMContentLoaded once after ALL scripts are processed in spaNavigate.
+            // But some scripts might rely on immediate execution. 
+            // The textContent injection executes IMMEDIATELY upon appendChild.
+            
+        } catch (e) {
+            console.error('Failed to reload script:', src, e);
+        }
+        resolve();
+    });
+}
+
+/**
+ * Cleanup timers and events from previous page
+ */
+function cleanupPage() {
+    // Clear page-specific intervals
+    if (window.adminApp && window.adminApp.intervals) {
+        window.adminApp.intervals.forEach(clearInterval);
+        window.adminApp.intervals = [];
+    }
+    
+    // Clear known intervals like dashboard polling
+    if (window.ordersPollInterval) {
+        clearInterval(window.ordersPollInterval);
+        window.ordersPollInterval = null;
+    }
+
+    // Clean up ChartJS instances if they exist
+    if (typeof Chart !== 'undefined') {
+        Object.values(Chart.instances).forEach(chart => chart.destroy());
+    }
+}
+
+/**
+ * Enhanced Sidebar Loading with Caching
+ * This runs ONLY ONCE on full page load.
+ */
 async function loadSidebar() {
     const container = document.getElementById('sidebar-container');
     if (!container) return;
     
+    // 1. Try Cache First (Instant)
+    const cachedHtml = sessionStorage.getItem('adminSidebarCache');
+    if (cachedHtml) {
+        container.innerHTML = cachedHtml;
+        startPersistentBadgeUpdates();
+    }
+    
     try {
         const response = await fetch('admin-sidebar.html');
         const html = await response.text();
-        container.innerHTML = html;
         
-        // Start badge updates
-        startBadgeUpdates();
+        // 2. Only update if changed or no cache
+        if (html !== cachedHtml) {
+            container.innerHTML = html;
+            sessionStorage.setItem('adminSidebarCache', html);
+            // Ensure badge updates logic is running (it handles duplication internally)
+            startPersistentBadgeUpdates();
+        }
     } catch (error) {
         console.error('Error loading sidebar:', error);
     }
 }
 
-function startBadgeUpdates() {
+/**
+ * Starts badge updates using a global interval that survives SPA navigation
+ */
+function startPersistentBadgeUpdates() {
+    // If already running, do nothing
+    if (window.adminApp.badgeInterval) return;
+
     const updateBadges = () => {
         if (typeof getOrders !== 'function') return;
         
         const orders = getOrders();
-        
-        // 1. Orders Badge (New/Active Orders)
-        // Usually "new" is what we want to highlight most, 
-        // but user might want all active (new, preparing, ready).
-        // Let's stick to 'new' for the sidebar badge to be less noisy, or follow dashboard logic.
-        // Dashboard uses !['delivered', 'cancelled']. Let's use that for "Active Tasks".
+        // Active Tasks
         const activeOrdersCount = orders.filter(o => !['delivered', 'cancelled'].includes(o.status)).length;
         
         const oBadge = document.getElementById('newOrdersBadge');
@@ -48,7 +257,7 @@ function startBadgeUpdates() {
             }
         }
 
-        // 2. Ratings Badge
+        // Ratings Badge
         const ratedOrders = orders.filter(o => o.rating > 0);
         if (ratedOrders.length > 0) {
             const seenIds = (() => {
@@ -69,15 +278,13 @@ function startBadgeUpdates() {
         }
     };
 
-    // Initial update
     updateBadges();
-
-    // Listen for data updates from data.js
+    
+    // Listen for data updates
     document.addEventListener('orders-updated', updateBadges);
     document.addEventListener('data-ready', updateBadges);
     
-    // Ensure we have data initially if other scripts didn't load it
-    // Small delay to let page-specific initializeData run first
+    // Initial data fetch check
     setTimeout(async () => {
         if (typeof getOrders === 'function' && getOrders().length === 0) {
             if (typeof refreshOrders === 'function') {
@@ -86,17 +293,15 @@ function startBadgeUpdates() {
         }
     }, 500);
 
-    // Background refresh every 30 seconds if not already polling faster (dashboard/orders)
-    const isHighTrafficPage = window.location.pathname.includes('admin-orders.html') || 
-                             window.location.pathname.includes('admin-dashboard.html');
-    
-    if (!isHighTrafficPage) {
-        setInterval(async () => {
-            if (typeof refreshOrders === 'function') {
-                await refreshOrders();
-            }
-        }, 30000);
-    }
+    // Persistent interval (stored in badgeInterval, NOT intervals array)
+    window.adminApp.badgeInterval = setInterval(async () => {
+        // Only refresh if we are NOT on a high-traffic page that does its own polling
+        const isHighTrafficPage = window.location.pathname.includes('admin-orders.html') || 
+                                 window.location.pathname.includes('admin-dashboard.html');
+        if (!isHighTrafficPage && typeof refreshOrders === 'function') {
+            await refreshOrders();
+        }
+    }, 30000);
 }
 
 function checkLogin() {
@@ -104,7 +309,6 @@ function checkLogin() {
     const isLoginPage = window.location.href.includes('admin-login.html');
     
     if (!isLoggedIn && !isLoginPage) {
-        // Use replace to prevent back button history
         window.location.replace('admin-login.html');
     } else if (isLoggedIn && isLoginPage) {
         window.location.replace('admin-dashboard.html');
@@ -134,30 +338,30 @@ function highlightSidebar() {
         'admin-settings.html': 'nav-settings'
     };
     
-    // Default to dashboard check if we are on 'admin.html' acting as dashboard
     if (path.endsWith('admin.html')) {
         const el = document.getElementById('nav-dashboard');
-        if (el) el.classList.add('active');
+        if (el) {
+             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+             el.classList.add('active');
+        }
         return;
     }
 
-    // Find key that matches current path
     const currentPage = Object.keys(navItems).find(key => path.includes(key));
     if (currentPage) {
         const id = navItems[currentPage];
         const el = document.getElementById(id);
         if (el) {
-            // Remove active from all first
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
         }
     }
 }
 
-// Global error handler for fetch calls to redirect to login on 401
 window.addEventListener('unhandledrejection', function(event) {
     if (event.reason && event.reason.status === 401) {
         sessionStorage.removeItem('adminLoggedIn');
         window.location.href = 'admin-login.html';
     }
 });
+
