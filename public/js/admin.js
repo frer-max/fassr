@@ -162,80 +162,77 @@ function showSection(sectionId) {
     if (loader) loader.style.display = 'flex';
 
     // Artificial Delay for Smoothness (Wait a little...)
-    setTimeout(() => {
-        // Hide all sections
-        const sections = ['dashboard', 'orders', 'meals', 'categories', 'settings', 'ratings'];
-        sections.forEach(s => {
-            const el = document.getElementById(`section-${s}`);
-            if (el) el.style.display = 'none';
-            
-            // Update Nav
-            const navItem = document.getElementById(`nav-${s}`);
-            if (navItem) navItem.classList.remove('active');
-        });
-        
-        // Show target
-        const target = document.getElementById(`section-${sectionId}`);
-        if (target) {
-            target.style.display = 'block';
-            // Trigger optimized entry animation
-            target.classList.remove('section-animate');
-            void target.offsetWidth; // Force reflow
-            target.classList.add('section-animate');
-        }
+    // Immediate execution without artificial delay
+    // Hide all sections
+    const sections = ['dashboard', 'orders', 'meals', 'categories', 'settings', 'ratings'];
+    sections.forEach(s => {
+        const el = document.getElementById(`section-${s}`);
+        if (el) el.style.display = 'none';
         
         // Update Nav
-        const activeNav = document.getElementById(`nav-${sectionId}`);
-        if (activeNav) activeNav.classList.add('active');
-        
-        // Update Title
-        const titles = {
-            'dashboard': 'الرئيسية',
-            'orders': 'الطلبات',
-            'meals': 'إدارة الوجبات',
-            'categories': 'الأقسام',
-            'settings': 'الإعدادات',
-            'ratings': 'تقييمات العملاء'
-        };
-        const titleEl = document.getElementById('pageTitle');
-        if (titleEl) titleEl.textContent = titles[sectionId] || 'لوحة التحكم';
-        
-        // Refresh Data (Heavy lifting happens here hidden behind the loader)
-        try {
-            if (sectionId === 'dashboard') initDashboard();
-            if (sectionId === 'orders') renderOrders();
-            if (sectionId === 'meals') initMealsPage();
-            if (sectionId === 'categories') renderCategories(); // Assuming this function exists or will be added if missing
-            if (sectionId === 'settings') {
-                 if (typeof loadSettings === 'function') loadSettings();
-            }
-            if (sectionId === 'ratings') {
-                renderRatedOrders();
-                markRatingsAsSeen(); 
-            }
-        } catch (e) {
-            console.error('Error rendering section:', e);
+        const navItem = document.getElementById(`nav-${s}`);
+        if (navItem) navItem.classList.remove('active');
+    });
+    
+    // Show target
+    const target = document.getElementById(`section-${sectionId}`);
+    if (target) {
+        target.style.display = 'block';
+        // Trigger optimized entry animation
+        target.classList.remove('section-animate');
+        void target.offsetWidth; // Force reflow
+        target.classList.add('section-animate');
+    }
+    
+    // Update Nav
+    const activeNav = document.getElementById(`nav-${sectionId}`);
+    if (activeNav) activeNav.classList.add('active');
+    
+    // Update Title
+    const titles = {
+        'dashboard': 'الرئيسية',
+        'orders': 'الطلبات',
+        'meals': 'إدارة الوجبات',
+        'categories': 'الأقسام',
+        'settings': 'الإعدادات',
+        'ratings': 'تقييمات العملاء'
+    };
+    const titleEl = document.getElementById('pageTitle');
+    if (titleEl) titleEl.textContent = titles[sectionId] || 'لوحة التحكم';
+    
+    // Refresh Data
+    try {
+        if (sectionId === 'dashboard') initDashboard();
+        if (sectionId === 'orders') renderOrders();
+        if (sectionId === 'meals') initMealsPage();
+        if (sectionId === 'categories') renderCategories(); 
+        if (sectionId === 'settings') {
+                if (typeof loadSettings === 'function') loadSettings();
         }
-
-        currentSection = sectionId;
-        
-        // Mobile: Close sidebar after selection
-        if (window.innerWidth <= 1024) {
-            const sidebar = document.getElementById('sidebar');
-            if(sidebar) sidebar.classList.remove('open');
+        if (sectionId === 'ratings') {
+            renderRatedOrders();
+            markRatingsAsSeen(); 
         }
+    } catch (e) {
+        console.error('Error rendering section:', e);
+    }
 
-        // Hide Loader
-        if (loader) {
-            // Optional: fade out
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-                loader.style.opacity = '1';
-            }, 300); // Matches CSS transition
-        }
+    currentSection = sectionId;
+    
+    // Mobile: Close sidebar after selection
+    if (window.innerWidth <= 1024) {
+        const sidebar = document.getElementById('sidebar');
+        if(sidebar) sidebar.classList.remove('open');
+    }
 
-    }, 600); // 600ms delay to ensure the user feels the "wait" and the heaviness is masked
+    // Hide Loader immediately (or with very short fade)
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+            loader.style.opacity = '1';
+        }, 300); 
+    }
 }
 
 // =====================================================
