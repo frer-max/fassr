@@ -2500,19 +2500,20 @@ input:focus + .slider {
    ======================== */
 
 /* Section Entry Animation */
+/* Section Entry Animation - Optimized for Speed & Feel */
 .section-animate {
-    animation: sectionSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: sectionQuickSlide 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     will-change: transform, opacity;
 }
 
-@keyframes sectionSlideUp {
+@keyframes sectionQuickSlide {
     from {
         opacity: 0;
-        transform: translateY(15px);
+        transform: translateY(10px) scale(0.995);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -2607,18 +2608,14 @@ input:focus + .slider {
     display: none !important;
 }
 
-/* No animations for main content - Instant Show */
+/* Main container transition defaults */
 .main-content {
     opacity: 1;
-    transform: none;
-    animation: none !important;
 }
 
-/* No animations for sidebar items - Instant Show */
+/* Sidebar items transition defaults */
 .nav-item {
     opacity: 1;
-    transform: none;
-    animation: none !important;
 }
 
 
