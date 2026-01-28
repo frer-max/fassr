@@ -13,6 +13,18 @@ let cropperInstance = null;
 document.addEventListener('DOMContentLoaded', () => {
     checkLogin();
     
+    // Auto hide loader on initial load if present - SAFETY NET
+    const initialLoader = document.getElementById('pageLoader');
+    if (initialLoader) {
+        setTimeout(() => {
+            initialLoader.style.opacity = '0';
+            setTimeout(() => {
+                initialLoader.style.display = 'none';
+                initialLoader.style.opacity = '1';
+            }, 500);
+        }, 800); // Slight initial delay for effect
+    }
+    
     // Setup file input - Open Cropper Modal
     const mealImageInput = document.getElementById('mealImageInput');
     if (mealImageInput) {

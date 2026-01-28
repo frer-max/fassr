@@ -2598,7 +2598,7 @@ input:focus + .slider {
     inset: 0;
     z-index: 99999; /* Max z-index */
     background: #0f172a; /* Deep dark background */
-    display: flex;
+    display: none; /* Hidden by default, JS toggles it */
     align-items: center;
     justify-content: center;
     transition: opacity 0.5s ease, visibility 0.5s ease;
