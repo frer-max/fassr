@@ -23,16 +23,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadSidebar();
     highlightSidebar();
     
-    // Hide Loader (Initial Load)
+    // Hide Loader (Initial Load) - Wait until data is fetched
     const loader = document.getElementById('pageLoader');
     if (loader) {
-        setTimeout(() => {
-            loader.style.opacity = '0';
+        const hideLoader = () => {
             setTimeout(() => {
-                loader.style.display = 'none';
-                loader.classList.remove('active');
-            }, 400);
-        }, 500); // Slight delay to let user see the cool rocket
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    loader.classList.remove('active');
+                }, 400);
+            }, 300); // Small breathe time
+        };
+
+        // If data is already loaded or we wait for it
+        const timeout = setTimeout(hideLoader, 3000); // Safe limit
+        document.addEventListener('data-ready', () => {
+            clearTimeout(timeout);
+            hideLoader();
+        }, { once: true });
     }
     
     // Listen for browser back/forward buttons
@@ -154,16 +163,29 @@ async function spaNavigate(url, pushState = true) {
         const sidebar = document.getElementById('sidebar');
         if (sidebar) sidebar.classList.remove('open');
 
+        // Wait for page to be "Really" ready (data loaded and rendered)
+        // Most admin pages trigger initializeData which fires 'data-ready'
+        await new Promise(resolve => {
+            const timeout = setTimeout(resolve, 1500); // Fallback if no data-ready
+            document.addEventListener('data-ready', () => {
+                clearTimeout(timeout);
+                // Extra tick to let DOM settle after render
+                setTimeout(resolve, 100);
+            }, { once: true });
+        });
+
     } catch (error) {
         console.error('Navigation error:', error);
         window.location.href = url;
     } finally {
-        // 3. Fade Out
-        requestAnimationFrame(() => {
+        // 3. Fade Out (Smooth & Timed with content presence)
+        if (overlay) {
+            overlay.classList.remove('active');
+            // Cleanup after transition
             setTimeout(() => {
-                overlay.classList.remove('active');
-            }, 50);
-        });
+                if (overlay.parentNode) overlay.remove();
+            }, 500);
+        }
     }
 }
 

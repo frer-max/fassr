@@ -202,6 +202,50 @@ body {
     color: #ffffff;
 }
 
+/* Rocket Icon - Static (No Animation) */
+.sidebar-brand .rocket-icon {
+    animation: none !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sidebar-brand .rocket-icon:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(249, 115, 22, 0.5);
+}
+
+/* Sidebar Toggle Button (Rocket) - Mobile Only */
+.sidebar-toggle-btn {
+    pointer-events: none; /* Disabled by default on desktop */
+}
+
+@media (max-width: 1024px) {
+    .sidebar-toggle-btn {
+        pointer-events: auto; /* Enable on mobile */
+        position: relative;
+    }
+    
+    .sidebar-toggle-btn::after {
+        content: '✕';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0;
+        color: white;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar.open .sidebar-toggle-btn:hover::after {
+        font-size: 1.2rem;
+        opacity: 1;
+    }
+    
+    .sidebar.open .sidebar-toggle-btn:hover svg {
+        opacity: 0.3;
+    }
+}
+
 /* Navigation Section */
 .sidebar-nav {
     flex: 1;
@@ -606,6 +650,7 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
+    min-width: 0; /* Allow card to shrink if needed */
 }
 
 /* Decorative background blur shape */
@@ -633,6 +678,7 @@ body {
     position: relative;
     z-index: 1;
     transition: transform 0.3s var(--transition-smooth);
+    flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 .stat-card-soft:hover .stat-icon-soft {
@@ -659,6 +705,8 @@ body {
     justify-content: center;
     position: relative;
     z-index: 1;
+    flex: 1; /* Take remaining space */
+    min-width: 0; /* Critical for text-overflow in flexbox */
 }
 
 /* ========================
@@ -760,19 +808,32 @@ body {
 
 
 .stat-value {
-    font-size: 1.75rem;
+    font-size: 1.6rem; /* Slightly smaller primary size */
+    font-size: clamp(1.1rem, 1.8vw, 1.6rem); /* Responsive scaling */
     font-weight: 800;
     color: var(--text-main);
-    line-height: 1.1;
+    line-height: 1.2;
     font-family: 'Plus Jakarta Sans', sans-serif;
     letter-spacing: -0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Fallback if still too long */
+}
+
+/* Allow wrap for revenue cards specifically if they get too long */
+.revenue-icon + .stat-content .stat-value,
+.month-icon + .stat-content .stat-value {
+    white-space: normal;
+    word-break: break-all;
+    line-height: 1.1;
 }
 
 .stat-label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-secondary);
-    margin-top: 4px;
+    margin-top: 2px;
+    white-space: nowrap;
 }
 
 
@@ -1836,11 +1897,6 @@ input:focus + .slider {
         border: none;
         cursor: pointer;
         color: var(--text-main);
-    }
-    
-    /* Show Close Button inside Sidebar */
-    .sidebar-header .btn-icon {
-        display: flex !important;
     }
     
     .content-wrapper {

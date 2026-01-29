@@ -826,14 +826,15 @@ button, input { font-family: inherit; }
   flex: 1; 
   min-width: 120px; 
   padding: var(--space-4); 
-  background: var(--glass); 
-  border: 1px solid var(--glass-border); 
+  background: white; /* Changed from var(--glass) for better visibility */
+  border: 1px solid #e5e7eb; /* Stronger border */
   border-radius: var(--radius-xl); 
   cursor: pointer; 
   text-align: center; 
   transition: all var(--duration-normal) var(--ease-smooth); 
   position: relative; 
   overflow: hidden; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 .radio-card::before { 
   content: ''; 
@@ -866,6 +867,45 @@ button, input { font-family: inherit; }
 .radio-card-desc { font-size: 0.8rem; color: var(--text-muted); }
 
 /* ═══════════════════════════════════════════
+   CHECKOUT - أنماط صفحة الدفع
+═══════════════════════════════════════════ */
+.checkout-section {
+  background: #ffffff; /* pure white for consistency */
+  border: 1px solid rgba(0, 0, 0, 0.08); /* soft border */
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); /* soft premium shadow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.checkout-section:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.selected-location-card {
+  background: #fcfcfc; /* slightly off-white to distinguish inside white card */
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: none; /* Initially hidden */
+  box-shadow: none;
+}
+
+/* ═══════════════════════════════════════════
    CART & ORDERS - صفحات السلة والطلبات
 ═══════════════════════════════════════════ */
 .cart-page { 
@@ -895,10 +935,10 @@ button, input { font-family: inherit; }
   padding: var(--space-8) var(--space-4);
   max-width: 500px;
   margin: 0 auto;
-  background: var(--glass);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-2xl);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
 }
 .cart-empty-icon { 
   font-size: 4rem; 
@@ -916,16 +956,18 @@ button, input { font-family: inherit; }
   display: flex; 
   gap: var(--space-4); 
   padding: var(--space-3); 
-  background: white; 
+  background: #ffffff;
   border-radius: var(--radius-xl); 
-  border: 1px solid rgba(0,0,0,0.04); 
+  border: 1px solid rgba(0, 0, 0, 0.08); 
   transition: all var(--duration-fast) var(--ease-smooth); 
   align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
 }
 .cart-item:hover { 
   border-color: var(--primary-light); 
   transform: translateY(-2px); 
-  box-shadow: var(--shadow-md); 
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
+  background: #ffffff; 
 }
 .cart-item-image { 
   width: 80px; 
@@ -991,13 +1033,13 @@ button, input { font-family: inherit; }
 }
 
 .cart-summary { 
-  background: white; 
+  background: #ffffff;
   border-radius: var(--radius-xl); 
   padding: var(--space-5); 
-  border: 1px solid rgba(0,0,0,0.04); 
+  border: 1px solid rgba(0, 0, 0, 0.08); 
   position: sticky; 
   top: 100px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 .summary-row { 
   display: flex; 

@@ -54,106 +54,89 @@ const appState = {
 // Initial saveSettings removed to avoid duplicate declaration error
 // See bottom of file for actual implementation
 
-// Flags
-let isDataInitialized = false;
-let initPromise = null;
+// Flags & State
+const loadedFlags = {
+    categories: false,
+    meals: false,
+    settings: false,
+    orders: false
+};
 
-// ===================================
-// Initialization
-// ===================================
+const loadingPromises = {
+    categories: null,
+    meals: null,
+    settings: null,
+    orders: null
+};
 
 async function initializeData(options = {}) {
-    if (initPromise && !options.force) return initPromise;
-    
-    // Default to loading all if no specific options provided (backward compatibility)
-    // But if options are provided, only load what is requested.
-    // If options is empty object, we assume "Load All" to be safe for existing calls,
-    // unless we detect a special flag or strictly check keys.
     const loadAll = Object.keys(options).length === 0;
+    const force = options.force || false;
 
-    const shouldLoadCategories = loadAll || options.categories;
-    const shouldLoadMeals = loadAll || options.meals;
-    const shouldLoadSettings = loadAll || options.settings !== false; // valid unless explicitly false
-    const shouldLoadOrders = loadAll || options.orders;
+    // Helper to fetch only if needed
+    const fetchIfNeeded = (key, fetcher) => {
+        // If forcing, or not loaded yet
+        if (force || !loadedFlags[key]) {
+            // If already loading, return existing promise
+            if (loadingPromises[key]) return loadingPromises[key];
 
-    initPromise = (async () => {
-        try {
-            console.log('🔄 Initializing Data from Backend...', options);
-            
-            // Checks
-            const isAdminPage = window.location.pathname.includes('admin');
-            
-            const promises = [];
-            const keys = [];
-
-            if (shouldLoadCategories) {
-                promises.push(ApiClient.getCategories(isAdminPage).catch(err => {
-                    console.error('Failed to load categories', err);
-                    return null;
-                }));
-                keys.push('categories');
-            }
-
-            if (shouldLoadMeals) {
-                promises.push(ApiClient.getMeals().catch(err => {
-                    console.error('Failed to load meals', err);
-                    return null;
-                }));
-                keys.push('meals');
-            }
-
-            if (shouldLoadSettings) {
-                promises.push(ApiClient.getSettings().catch(err => {
-                     console.error('Failed to load settings', err);
-                     return null;
-                }));
-                keys.push('settings');
-            }
-
-            if (shouldLoadOrders) {
-                promises.push(ApiClient.getOrders().catch(err => {
-                    return [];
-                }));
-                keys.push('orders');
-            }
-
-            const results = await Promise.all(promises);
-            
-            // Map results back to appState
-            keys.forEach((key, index) => {
-                const data = results[index];
-                if (key === 'categories') {
-                    appState.categories = (data && data.length > 0) ? data : (loadAll ? FALLBACK_DATA.categories : []);
-                } else if (key === 'meals') {
-                    appState.meals = (data && data.length > 0) ? data : (loadAll ? FALLBACK_DATA.meals : []);
-                } else if (key === 'settings') {
-                    appState.settings = { ...FALLBACK_DATA.settings, ...(data || {}) };
-                } else if (key === 'orders') {
-                     appState.orders = (data || []).map(o => normalizeOrder(o));
+            // Start loading
+            console.log(`🔄 Fetching ${key}...`);
+            loadingPromises[key] = fetcher().then(data => {
+                if (data) {
+                    if (key === 'categories') appState.categories = data;
+                    else if (key === 'meals') appState.meals = data;
+                    else if (key === 'settings') appState.settings = { ...FALLBACK_DATA.settings, ...data };
+                    else if (key === 'orders')appState.orders = (data || []).map(o => normalizeOrder(o));
+                    
+                    loadedFlags[key] = true;
+                } else {
+                    // Fallback
+                    if (key === 'categories') appState.categories = FALLBACK_DATA.categories;
+                    else if (key === 'meals') appState.meals = FALLBACK_DATA.meals;
+                    else if (key === 'settings') appState.settings = FALLBACK_DATA.settings;
                 }
+                return true;
+            }).catch(err => {
+                console.error(`Failed to load ${key}`, err);
+                return false;
+            }).finally(() => {
+                loadingPromises[key] = null; // Clear promise so we can retry later if needed
             });
-
-            isDataInitialized = true;
-            console.log('✅ Data Initialized', appState);
             
-            // 3. Dispatch Event
-            document.dispatchEvent(new CustomEvent('data-ready'));
-            
-            return true;
-        } catch (error) {
-            console.error('❌ Data Initialization Failed:', error);
-            // Fallback only if we tried to load everything
-            if (loadAll) {
-                appState.categories = FALLBACK_DATA.categories;
-                appState.meals = FALLBACK_DATA.meals;
-                appState.settings = FALLBACK_DATA.settings;
-            }
-            document.dispatchEvent(new CustomEvent('data-ready'));
-            return false;
+            return loadingPromises[key];
         }
-    })();
-    
-    return initPromise;
+        return Promise.resolve(true); // Already loaded
+    };
+
+    const isAdminPage = window.location.pathname.includes('admin');
+    const tasks = [];
+
+    if (loadAll || options.categories) {
+        tasks.push(fetchIfNeeded('categories', () => ApiClient.getCategories(isAdminPage)));
+    }
+
+    if (loadAll || options.meals) {
+        tasks.push(fetchIfNeeded('meals', () => ApiClient.getMeals()));
+    }
+
+    if (loadAll || options.settings !== false) {
+        tasks.push(fetchIfNeeded('settings', () => ApiClient.getSettings()));
+    }
+
+    if ((loadAll && isAdminPage) || options.orders) {
+        tasks.push(fetchIfNeeded('orders', () => ApiClient.getOrders()));
+    }
+
+    try {
+        await Promise.all(tasks);
+    } catch (err) {
+        console.error("Initialization warning: some tasks failed", err);
+    } finally {
+        // Dispatch general event ALWAYS so UI can unblock
+        document.dispatchEvent(new CustomEvent('data-ready'));
+    }
+    return true;
 }
 
 // ===================================

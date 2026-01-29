@@ -1,19 +1,38 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag, unstable_cache } from 'next/cache';
 import prisma from '@/app/lib/prisma';
+
+const getAllCategories = unstable_cache(
+    async () => {
+        return await prisma.category.findMany({
+            select: { id: true, name: true, icon: true, order: true, active: true },
+            orderBy: { order: 'asc' }
+        });
+    },
+    ['categories-all'],
+    { tags: ['categories'] }
+);
+
+const getActiveCategories = unstable_cache(
+    async () => {
+        return await prisma.category.findMany({
+            select: { id: true, name: true, icon: true, order: true, active: true },
+            orderBy: { order: 'asc' },
+            where: { active: true }
+        });
+    },
+    ['categories-active'],
+    { tags: ['categories'] }
+);
 
 export async function GET(request) {
   try {
-    // Check if admin request (include inactive)
     const { searchParams } = new URL(request.url);
     const includeAll = searchParams.get('all') === 'true';
     
-    const categories = await prisma.category.findMany({
-      orderBy: { order: 'asc' },
-      ...(includeAll ? {} : { where: { active: true } })
-    });
+    const categories = includeAll ? await getAllCategories() : await getActiveCategories();
     return NextResponse.json(categories);
   } catch (error) {
-    console.error('GET /api/categories error:', error);
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
   }
 }
@@ -22,16 +41,13 @@ export async function POST(request) {
   try {
     const body = await request.json();
     
-    console.log('POST /api/categories - received:', JSON.stringify(body).substring(0, 500));
-    
-    // Validate required fields
     if (!body.name || body.name.trim() === '') {
       return NextResponse.json({ error: 'اسم القسم مطلوب' }, { status: 400 });
     }
     
-    // Check if ID exists -> Update
+    let category;
     if (body.id) {
-        const category = await prisma.category.update({
+        category = await prisma.category.update({
             where: { id: body.id },
             data: {
                 name: body.name,
@@ -39,25 +55,22 @@ export async function POST(request) {
                 active: body.active !== undefined ? body.active : true
             }
         });
-        console.log('Category updated:', category.id);
-        return NextResponse.json(category);
+    } else {
+        category = await prisma.category.create({
+            data: {
+                name: body.name,
+                icon: body.icon || '📁',
+                order: body.order || 0,
+                active: body.active !== undefined ? body.active : true
+            }
+        });
     }
-
-    // Create new category
-    const category = await prisma.category.create({
-      data: {
-        name: body.name,
-        icon: body.icon || '📁',
-        order: body.order || 0,
-        active: body.active !== undefined ? body.active : true
-      }
-    });
-    console.log('Category created:', category.id);
+    
+    revalidateTag('categories');
     return NextResponse.json(category);
   } catch (error) {
-    console.error('POST /api/categories error:', error);
     return NextResponse.json({ 
-      error: 'فشل في حفظ القسم: ' + (error.message || 'خطأ غير معروف')
+      error: 'فشل في حفظ القسم'
     }, { status: 500 });
   }
 }
@@ -74,6 +87,7 @@ export async function DELETE(request) {
         await prisma.category.delete({
             where: { id: parseInt(id) }
         });
+        revalidateTag('categories');
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
