@@ -707,6 +707,7 @@ body {
     z-index: 1;
     flex: 1; /* Take remaining space */
     min-width: 0; /* Critical for text-overflow in flexbox */
+    container-type: inline-size; /* Enable container queries for font scaling */
 }
 
 /* ========================
@@ -808,25 +809,19 @@ body {
 
 
 .stat-value {
-    font-size: 1.6rem; /* Slightly smaller primary size */
-    font-size: clamp(1.1rem, 1.8vw, 1.6rem); /* Responsive scaling */
+    /* Dynamic scaling: Min 1rem, Ideal 14% of container width, Max 1.8rem */
+    font-size: clamp(1rem, 14cqw, 1.8rem);
     font-weight: 800;
     color: var(--text-main);
     line-height: 1.2;
     font-family: 'Plus Jakarta Sans', sans-serif;
     letter-spacing: -0.5px;
-    white-space: nowrap;
+    white-space: nowrap; /* Force single line */
     overflow: hidden;
-    text-overflow: ellipsis; /* Fallback if still too long */
+    text-overflow: ellipsis; 
 }
 
-/* Allow wrap for revenue cards specifically if they get too long */
-.revenue-icon + .stat-content .stat-value,
-.month-icon + .stat-content .stat-value {
-    white-space: normal;
-    word-break: break-all;
-    line-height: 1.1;
-}
+/* Removed wrapping overrides to ensure single line display */
 
 .stat-label {
     font-size: 0.85rem;

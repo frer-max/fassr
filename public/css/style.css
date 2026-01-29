@@ -1448,9 +1448,11 @@ button, input { font-family: inherit; }
    RESPONSIVE
 ═══════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .header-content { flex-wrap: wrap; gap: var(--space-3); }
+  .header-content { flex-wrap: wrap; gap: var(--space-3); justify-content: center; } /* Center content on mobile */
+  .logo { margin-bottom: 5px; } /* Add spacing below logo when wrapped */
+  .header { height: auto; padding-bottom: 10px; } /* Let header grow */
   .restaurant-status { display: none; }
-  .hero { min-height: 60vh; padding-top: calc(70px + var(--space-8)); }
+  .hero { min-height: 60vh; padding-top: calc(110px + var(--space-8)); } /* Adjust hero padding for taller header */
   .hero h1 { font-size: clamp(1.5rem, 6vw, 2.2rem); }
   .hero::after { display: none; }
   .meals-grid { grid-template-columns: 1fr; gap: var(--space-4); }
@@ -1822,6 +1824,25 @@ button, input { font-family: inherit; }
 @media (max-width: 480px) {
   /* Container & Spacing */
   .container { padding: 0 16px; }
+
+  /* Admin Login Mobile Fix */
+  body.admin-login-body {
+     min-height: 100vh;
+     height: auto;
+     overflow-y: auto;
+  }
+  
+  .login-screen {
+    align-items: flex-start; /* Align to top to avoid keyboard cover */
+    padding-top: 20vh;
+    height: 100vh; /* Ensure full viewport height */
+    overflow-y: auto; /* Allow scrolling if keyboard opens */
+  }
+  
+  .login-card {
+      margin: 20px;
+      width: calc(100% - 40px);
+  }
   
   /* Hero Section */
   .hero { 

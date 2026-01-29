@@ -64,47 +64,67 @@
         align-items: center;
         justify-content: center;
         min-width: unset;
-        font-size: 0 !important; /* Hide text */
+        font-size: 0 !important; /* Hide direct text nodes */
         box-shadow: none;
     }
 
-    /* My Orders Icon */
-    .header-actions .btn-secondary {
-        background: rgba(255, 255, 255, 0.15) !important;
-        color: white !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
-    }
-    .header-actions .btn-secondary::after {
-        content: '📋';
-        font-size: 1.2rem;
+    /* Force SVGs to be visible and correctly sized */
+    .header-actions .btn-secondary svg,
+    .cart-btn svg {
+        width: 20px !important;
+        height: 20px !important;
+        display: block !important;
     }
 
-    /* Cart Icon */
+    /* My Orders Icon Container */
+    .header-actions .btn-secondary {
+        background: rgba(255, 255, 255, 0.15) !important;
+        color: white !important; /* Icon color */
+        border: 1px solid rgba(255,255,255,0.2) !important;
+    }
+    
+    /* Ensure only the icon span is visible in My Orders if needed, but font-size 0 handles text */
+    .header-actions .btn-secondary span {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Cart Icon Container */
     .cart-btn {
-        background: var(--primary) !important; /* Force Brand Color */
+        background: var(--primary) !important; 
         position: relative;
+        color: white !important;
     }
-    .cart-btn span { display: none; } /* Hide inner spans */
-    .cart-btn::after {
-        content: '🛒';
-        font-size: 1.2rem;
-        color: white;
+
+    /* Cart Button Internal Structure Adjustments */
+    /* Span 1: Icon (Keep Visible) */
+    .cart-btn span:first-child { 
+        display: flex !important; 
+        align-items: center;
+        justify-content: center;
     }
+    /* Span 2: Text (Hide) */
+    .cart-btn span:nth-child(2) { 
+        display: none !important; 
+    }
+    /* Span 3: Badge (Handle separately) */
 
     /* Cart Count Badge */
     .cart-count {
         position: absolute;
-        top: -2px; right: -2px;
+        top: -4px; right: -4px;
         width: 18px; height: 18px;
-        font-size: 0.7rem !important;
-        background: #ef4444 !important; /* Red */
+        font-size: 11px !important; /* Restore font size for number */
+        background: #ef4444 !important;
         color: white !important;
         border-radius: 50%;
-        display: flex;
+        display: flex !important; /* Override inline-flex possibly set elsewhere */
         align-items: center;
         justify-content: center;
         border: 2px solid #000;
         padding: 0;
+        z-index: 10;
     }
     .cart-count:empty, .cart-count:not(.has-items) { display: none !important; }
 
