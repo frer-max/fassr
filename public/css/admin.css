@@ -809,16 +809,15 @@ body {
 
 
 .stat-value {
-    /* Dynamic scaling: Min 1rem, Ideal 14% of container width, Max 1.8rem */
-    font-size: clamp(1rem, 14cqw, 1.8rem);
+    /* Dynamic scaling: Min 0.5rem, Ideal 8% of container width, Max 1.8rem */
+    font-size: clamp(0.5rem, 8cqw, 1.8rem);
     font-weight: 800;
     color: var(--text-main);
     line-height: 1.2;
     font-family: 'Plus Jakarta Sans', sans-serif;
     letter-spacing: -0.5px;
-    white-space: nowrap; /* Force single line */
-    overflow: hidden;
-    text-overflow: ellipsis; 
+    white-space: nowrap; /* Force single line, JS handles scaling */
+    overflow: hidden; /* Prevent spill while calculating */
 }
 
 /* Removed wrapping overrides to ensure single line display */

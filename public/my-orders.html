@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#f97316">
     <title id="pageTitle">طلباتي</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>">
 </head>
 <body>
@@ -28,7 +29,10 @@
                 
                 <div class="header-actions">
                     <a href="index.html" class="btn btn-secondary">
-                        ← العودة للقائمة
+                        <span style="display:flex; align-items:center;">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </span>
+                        <span>العودة للقائمة</span>
                     </a>
                     <a href="cart.html" class="cart-btn">
                         <span>
@@ -420,9 +424,14 @@
             
             const itemsHtml = order.items.map(item => `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;">
-                    <div>
-                        <span style="font-weight: bold;">${item.quantity}x</span> ${item.name}
-                        ${item.sizeName ? `<div style="font-size: 0.85rem; color: gray;">${item.sizeName}</div>` : ''}
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden; flex-shrink: 0;">
+                            ${window.getMealImageOrPlaceholder ? window.getMealImageOrPlaceholder(item, 'width: 100%; height: 100%;', 'width: 100%; height: 100%; object-fit: cover;') : ''}
+                        </div>
+                        <div>
+                            <span style="font-weight: bold;">${item.quantity}x</span> ${item.name}
+                            ${item.sizeName ? `<div style="font-size: 0.85rem; color: gray;">${item.sizeName}</div>` : ''}
+                        </div>
                     </div>
                     <div style="font-weight: bold;">${formatPrice(item.price * item.quantity)}</div>
                 </div>

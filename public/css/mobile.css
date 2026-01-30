@@ -13,6 +13,12 @@
         padding: 0 16px; 
     }
 
+    /* Fix excessive spacing on cart/checkout pages */
+    .cart-page {
+        padding-top: 20px !important;
+        padding-bottom: 80px !important;
+    }
+
     /* 2. App-Like Header (Fixed Top) */
     .header {
         padding: 0 16px;
@@ -69,44 +75,65 @@
     }
 
     /* Force SVGs to be visible and correctly sized */
-    .header-actions .btn-secondary svg,
-    .cart-btn svg {
-        width: 20px !important;
-        height: 20px !important;
-        display: block !important;
-    }
-
-    /* My Orders Icon Container */
+    /* Force proper structure for My Orders button */
     .header-actions .btn-secondary {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         background: rgba(255, 255, 255, 0.15) !important;
-        color: white !important; /* Icon color */
+        color: white !important;
         border: 1px solid rgba(255,255,255,0.2) !important;
+        gap: 0 !important;
     }
     
-    /* Ensure only the icon span is visible in My Orders if needed, but font-size 0 handles text */
-    .header-actions .btn-secondary span {
+    /* Target the span containing the SVG in My Orders */
+    .header-actions .btn-secondary > span {
         display: flex !important;
-        align-items: center;
-        justify-content: center;
+        align-items: center !important;
+        justify-content: center !important;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex: none !important;
     }
 
-    /* Cart Icon Container */
+    /* Cart Button Internal Structure */
     .cart-btn {
-        background: var(--primary) !important; 
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: var(--primary) !important;
         position: relative;
         color: white !important;
+        gap: 0 !important;
     }
 
-    /* Cart Button Internal Structure Adjustments */
-    /* Span 1: Icon (Keep Visible) */
-    .cart-btn span:first-child { 
+    /* Span 1: Icon Container */
+    .cart-btn > span:first-child { 
         display: flex !important; 
-        align-items: center;
-        justify-content: center;
+        align-items: center !important;
+        justify-content: center !important;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex: none !important;
     }
-    /* Span 2: Text (Hide) */
-    .cart-btn span:nth-child(2) { 
+    
+    /* Span 2: Text Label (Hide) */
+    .cart-btn > span:nth-of-type(2) { 
         display: none !important; 
+    }
+    
+    /* SVGs - Enforce size and visibility */
+    .header-actions .btn-secondary svg,
+    .cart-btn svg {
+        width: 22px !important;
+        height: 22px !important;
+        display: block !important;
+        margin: 0 !important; /* Remove any accidental margins */
+        vertical-align: middle !important;
     }
     /* Span 3: Badge (Handle separately) */
 

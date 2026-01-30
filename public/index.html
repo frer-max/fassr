@@ -64,10 +64,8 @@
                     <a href="my-orders.html" class="btn btn-secondary">
                         <span style="display:flex; align-items:center;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="8.5" cy="7" r="4"/>
-                                <line x1="20" y1="8" x2="20" y2="14"/>
-                                <line x1="23" y1="11" x2="17" y2="11"/>
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                         </span> طلباتي
                     </a>
@@ -105,10 +103,16 @@
 
     <!-- Categories -->
     <section class="categories">
-        <div class="container">
+        <div class="container" style="position: relative;">
+            <button class="scroll-btn prev" id="scrollLeftBtn" onclick="scrollCategories(-1)" aria-label="السابق">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
             <div class="categories-scroll" id="categoriesContainer">
                 <!-- يتم ملؤها بواسطة JavaScript -->
             </div>
+            <button class="scroll-btn next" id="scrollRightBtn" onclick="scrollCategories(1)" aria-label="التالي">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
         </div>
     </section>
 

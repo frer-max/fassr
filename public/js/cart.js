@@ -51,7 +51,8 @@ function addToCart(mealId, selectedSize = null, quantity = 1) {
             sizeName: sizeName,
             price: price,
             quantity: quantity,
-            image: meal.image
+            image: meal.image,
+            categoryId: meal.categoryId
         });
     }
     
@@ -145,9 +146,7 @@ function renderCart() {
     container.innerHTML = cart.map(item => `
         <div class="cart-item" data-id="${item.id}">
             <div class="cart-item-image">
-                ${item.image 
-                    ? `<img src="${item.image}" alt="${item.name}">` 
-                    : '<div class="meal-placeholder"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 11h.01"/><path d="M11 15h.01"/><path d="M16.5 4a3 3 0 0 0-2.83 2h-3.34a3 3 0 0 0-2.83-2A3 3 0 0 0 4.5 7v.29A13 13 0 0 0 12 20a13 13 0 0 0 7.5-12.71V7a3 3 0 0 0-3-3z"/></svg></div>'}
+                ${window.getMealImageOrPlaceholder ? window.getMealImageOrPlaceholder(item) : (item.image ? `<img src="${item.image}" alt="${item.name}">` : '')}
             </div>
             <div class="cart-item-details">
                 <h4 class="cart-item-name">${item.name}</h4>

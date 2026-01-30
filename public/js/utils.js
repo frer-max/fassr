@@ -376,6 +376,51 @@ function fallbackCopyToClipboard(text) {
     }
 }
 
+// توليد HTML لصورة الوجبة أو العنصر البديل (شعار القسم أو الشعار الافتراضي)
+/**
+ * @param {Object} meal - كائن الوجبة
+ * @param {string} style - ستايل اختياري للحاوية
+ * @param {string} imgStyle - ستايل الصورة
+ * @param {number} iconScale - نسبة حجم الأيقونة (0-1)
+ */
+function getMealImageOrPlaceholder(meal, style = '', imgStyle = '', iconScale = 0.6) {
+    if (meal && meal.image) {
+        return `<img src="${meal.image}" alt="${meal.name}" style="${imgStyle}" loading="lazy">`;
+    }
+
+    // محاولة الحصول على أيقونة القسم
+    let categoryIcon = null;
+    if (meal) {
+         // Attempt to find category via global getCategories if available
+         if (typeof getCategories === 'function') {
+            let catId = meal.categoryId;
+            
+            // If catId is missing (e.g. cart item), try to find it from global meals
+            if (!catId && typeof getMeals === 'function') {
+                const globalMeal = getMeals().find(m => m.id == meal.id);
+                if (globalMeal) catId = globalMeal.categoryId;
+            }
+
+            const cat = getCategories().find(c => c.id == catId);
+            if (cat && cat.icon) categoryIcon = cat.icon;
+         }
+         // Fallback: check if icon is directly on the meal object (e.g. cart items might have it)
+         if (!categoryIcon && meal.categoryIcon) {
+            categoryIcon = meal.categoryIcon;
+         }
+    }
+
+    const placeholderContent = categoryIcon 
+        ? `<div class="category-icon-placeholder" style="font-size: 2.5rem; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">${categoryIcon}</div>`
+        : `<img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f37d.svg" alt="placeholder" style="width: ${iconScale * 100}%; height: ${iconScale * 100}%; object-fit: contain;">`;
+
+    return `<div class="meal-placeholder" style="display:flex; align-items:center; justify-content:center; background:#f8fafc; width:100%; height:100%; ${style}">
+                ${placeholderContent}
+            </div>`;
+}
+// Export globally
+window.getMealImageOrPlaceholder = getMealImageOrPlaceholder;
+
 // Run init on load
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();

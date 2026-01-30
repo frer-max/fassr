@@ -239,6 +239,13 @@ function viewOrderDetails(orderId) {
     const modalBody = document.getElementById('orderModalBody');
     const itemsHtml = order.items.map(item => `
         <div class="modal-item-row">
+            <div class="item-visual" style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; margin-left: 12px; flex-shrink: 0;">
+                ${window.getMealImageOrPlaceholder ? window.getMealImageOrPlaceholder(
+                    { ...item, image: item.image, categoryId: item.categoryId }, // Pass item as meal-like object
+                    'width:100%; height:100%;',
+                    'width:100%; height:100%; object-fit:cover;'
+                ) : ''}
+            </div>
             <div class="item-info">
                 <span class="item-qty">${item.quantity}</span>
                 <div class="item-details">

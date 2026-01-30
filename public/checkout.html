@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#f97316">
     <title>إتمام الطلب - مطعمي</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
@@ -30,7 +31,10 @@
                 
                 <div class="header-actions">
                     <a href="cart.html" class="btn btn-secondary">
-                        ← العودة للسلة
+                        <span style="display:flex; align-items:center;">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </span>
+                        <span>العودة للسلة</span>
                     </a>
                 </div>
             </div>
@@ -305,11 +309,17 @@
                 return;
             }
             
-            container.innerHTML = cart.map(item => `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px dashed rgba(0,0,0,0.05);">
+            container.innerHTML = cart.map((item, index) => `
+                <div class="fade-in" style="animation-delay: ${index * 0.05}s; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px dashed rgba(0,0,0,0.05);">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="position: relative;">
-                            ${item.image ? `<img src="${item.image}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">` : '<div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 11h.01"/><path d="M11 15h.01"/><path d="M16.5 4a3 3 0 0 0-2.83 2h-3.34a3 3 0 0 0-2.83-2A3 3 0 0 0 4.5 7v.29A13 13 0 0 0 12 20a13 13 0 0 0 7.5-12.71V7a3 3 0 0 0-3-3z"/></svg></div>'}
+                            ${window.getMealImageOrPlaceholder 
+                                ? window.getMealImageOrPlaceholder(item, 'width: 50px; height: 50px; border-radius: 8px;', 'width: 50px; height: 50px; border-radius: 8px; object-fit: cover;') 
+                                : (item.image 
+                                    ? `<img src="${item.image}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">` 
+                                    : `<img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f37d.svg" style="width: 50px; height: 50px;">`
+                                )
+                            }
                             <span style="position: absolute; -top: -5px; -right: -5px; background: var(--primary); color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">${item.quantity}</span>
                         </div>
                         <div>

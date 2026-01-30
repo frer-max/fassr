@@ -171,6 +171,9 @@ function renderCategories() {
     `).join('');
     
     container.innerHTML = html;
+    
+    // Check for scroll buttons after rendering
+    setTimeout(checkScrollButtons, 100);
 }
 
 // تصفية الوجبات حسب الفئة
@@ -280,17 +283,9 @@ function createMealCard(meal, index) {
     return `
         <div class="meal-card fade-in" style="animation-delay: ${index * 0.05}s" onclick="openMealModal(${meal.id})">
             <div class="meal-image">
-                ${meal.image 
-                    ? `<img src="${meal.image}" alt="${meal.name}" loading="lazy">` 
-                    : `<div class="meal-placeholder">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z" stroke="#cbd5e1" stroke-width="1.5"/>
-                                <path d="M19 8V5c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v3" stroke="#cbd5e1" stroke-width="1.5"/>
-                                <circle cx="12" cy="14" r="3" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="2 2"/>
-                                <path d="M9 13s.5-2 3-2 3 2 3 2" stroke="#cbd5e1" stroke-width="1.5" opacity="0.6"/>
-                            </svg>
-                       </div>`
-                }
+                ${window.getMealImageOrPlaceholder 
+                    ? window.getMealImageOrPlaceholder(meal) 
+                    : (meal.image ? `<img src="${meal.image}" alt="${meal.name}" loading="lazy">` : '')}
             </div>
             <div class="meal-content">
                 <h3 class="meal-name">${meal.name}</h3>
@@ -362,16 +357,9 @@ function openMealModal(mealId) {
             <button class="modal-close" onclick="closeMealModal()">✕</button>
             
             <div class="meal-modal-image">
-                ${meal.image 
-                    ? `<img src="${meal.image}" alt="${meal.name}">` 
-                    : `<div class="meal-placeholder-large">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M15 11h.01"/>
-                                <path d="M11 15h.01"/>
-                                <path d="M16.5 4a3 3 0 0 0-2.83 2h-3.34a3 3 0 0 0-2.83-2A3 3 0 0 0 4.5 7v.29A13 13 0 0 0 12 20a13 13 0 0 0 7.5-12.71V7a3 3 0 0 0-3-3z"/>
-                            </svg>
-                       </div>`
-                }
+                ${window.getMealImageOrPlaceholder 
+                    ? window.getMealImageOrPlaceholder(meal, '', '', 0.5) // 0.5 scale for modal placeholder
+                    : (meal.image ? `<img src="${meal.image}" alt="${meal.name}">` : '')}
                 ${meal.popular ? '<span class="meal-badge popular"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> مميز</span>' : ''}
             </div>
             
@@ -506,3 +494,115 @@ function handleEscapeKey(e) {
         closeMealModal();
     }
 }
+
+// =====================================================
+// Scroll Logic (Categories)
+// =====================================================
+
+function scrollCategories(direction) {
+    const container = document.getElementById('categoriesContainer');
+    if (!container) return;
+    
+    // Determine scroll amount (approx width of a few cards)
+    const scrollAmount = 300 * direction; // -1 for left (prev), 1 for right (next)
+    
+    // Since we are RTL, scrolling "positive" (1) usually means going LEFT (Next items). 
+    // However, scrollLeft behavior varies by browser in RTL.
+    // Standard logic in modern browsers:
+    // RTL: scrollLeft is negative or 0 on rightmost.
+    // But easier to use scrollBy({ left: -scrollAmount })?
+    
+    // Let's assume standard behavior:
+    // Button "Next" (Left Arrow) needs to scroll to Next items.
+    // In RTL, "Next" items are to the LEFT. So we want to scroll negative X?
+    // Wait, physically they are to the left.
+    // Let's rely on scrollBy. left: -300 means move view to left (scan rightwards content in LTR, but in RTL...)
+    
+    // Simplest: Direction 1 (Next) = Scroll deeper into content.
+    // Direction -1 (Prev) = Scroll back to start.
+    
+    // In RTL, "start" is right. "End" is left.
+    // So "Next" should scroll towards the left (negative value usually).
+    
+    // Safe approach: check current direction via flow
+    const isRTL = document.dir === 'rtl';
+    const factor = isRTL ? -1 : 1;
+    
+    container.scrollBy({
+        left: scrollAmount * factor, 
+        behavior: 'smooth'
+    });
+    
+    // Update buttons afterwards
+    setTimeout(checkScrollButtons, 300);
+}
+
+function checkScrollButtons() {
+    const container = document.getElementById('categoriesContainer');
+    if (!container) return;
+    
+    const prevBtn = document.getElementById('scrollLeftBtn');
+    const nextBtn = document.getElementById('scrollRightBtn');
+    
+    if (!prevBtn || !nextBtn) return;
+    
+    // Check if scrollable
+    // Use slightly larger tolerance
+    const isScrollable = container.scrollWidth > container.clientWidth + 5;
+    
+    if (!isScrollable) {
+        prevBtn.classList.remove('visible');
+        nextBtn.classList.remove('visible');
+        return;
+    }
+    
+    // Show buttons if scrollable
+    // Only show if we are NOT at the very start/end?
+    // Or just always show if scrollable for simplicity in UX?
+    // User said "if one section starts to disappear" (overflow).
+    
+    // Logic: 
+    // If we are at strict start, hide Prev.
+    // If we are at strict end, hide Next.
+    
+    // RTL handling for scrollLeft is messy cross-browser. 
+    // Chrome: scrollLeft decreases (negative) as you go left.
+    // Firefox: scrollLeft decreases (negative).
+    // Some older: scrollLeft increases.
+    
+    // Robust check:
+    // Start is when scrollLeft is close to 0 (or max positive in some impls?? No, usually 0 is start).
+    // EXCEPT in RTL, 0 is often the rightmost point (Start).
+    
+    const scrollLeft = Math.abs(container.scrollLeft);
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    
+    // Start (Right side in RTL): scrollLeft is near 0.
+    // End (Left side in RTL): scrollLeft is near maxScroll.
+    
+    // "Prev" Button (Right Scroll) -> Should appear if we have scrolled AWAY from start (scrollLeft > 0)
+    if (scrollLeft > 10) {
+        prevBtn.classList.add('visible'); // Show Prev (to go back right)
+    } else {
+        prevBtn.classList.remove('visible');
+    }
+    
+    // "Next" Button (Left Scroll) -> Should appear if we are NOT at end (scrollLeft < max)
+    if (maxScroll - scrollLeft > 10) {
+        nextBtn.classList.add('visible'); // Show Next (to go further left)
+    } else {
+        nextBtn.classList.remove('visible');
+    }
+}
+
+// Hook resize
+window.addEventListener('resize', checkScrollButtons);
+// Hook scroll
+const catContainer = document.getElementById('categoriesContainer');
+if (catContainer) {
+    catContainer.addEventListener('scroll', () => {
+        // Throttling could be good but not strictly necessary for simple button toggle
+        checkScrollButtons();
+    });
+}
+
