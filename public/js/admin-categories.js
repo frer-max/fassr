@@ -69,37 +69,33 @@ function renderCategories() {
         return;
     }
 
-    container.innerHTML = `
-        <div class="categories-grid">
-            ${categories.map(cat => `
-                <div class="category-card-new ${!cat.active ? 'inactive' : ''}">
-                    <div class="category-card-header">
-                        <div class="status-light ${cat.active ? 'on' : 'off'}"></div>
-                        <label class="switch">
-                            <input type="checkbox" onchange="toggleCategoryActive(${cat.id})" ${cat.active ? 'checked' : ''}>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    
-                    <div class="category-card-body">
-                        <div class="category-icon-wrapper ${!cat.active ? 'dimmed' : ''}">
-                            <span class="category-icon">${cat.icon}</span>
-                        </div>
-                        <h3 class="category-name">${cat.name}</h3>
-                    </div>
-                    
-                    <div class="category-card-actions">
-                        <button class="cat-btn cat-btn-edit" onclick="editCategory(${cat.id})">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> تعديل
-                        </button>
-                        <button class="cat-btn cat-btn-delete" onclick="deleteCategory(${cat.id})">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> حذف
-                        </button>
-                    </div>
+    container.innerHTML = categories.map(cat => `
+        <div class="category-card-new ${!cat.active ? 'inactive' : ''}">
+            <div class="category-card-header">
+                <div class="status-light ${cat.active ? 'on' : 'off'}"></div>
+                <label class="switch">
+                    <input type="checkbox" onchange="toggleCategoryActive(${cat.id})" ${cat.active ? 'checked' : ''}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="category-card-body">
+                <div class="category-icon-wrapper ${!cat.active ? 'dimmed' : ''}">
+                    <span class="category-icon">${cat.icon}</span>
                 </div>
-            `).join('')}
+                <h3 class="category-name">${cat.name}</h3>
+            </div>
+            
+            <div class="category-card-actions">
+                <button class="cat-btn cat-btn-edit" onclick="editCategory(${cat.id})">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> تعديل
+                </button>
+                <button class="cat-btn cat-btn-delete" onclick="deleteCategory(${cat.id})">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> حذف
+                </button>
+            </div>
         </div>
-    `;
+    `).join('');
 }
 
 function openCategoryModal(id = null) {

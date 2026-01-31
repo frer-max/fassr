@@ -18,6 +18,7 @@ export async function GET() {
         notes: true,
         rating: true,
         review: true,
+        ratingSeen: true,
         createdAt: true,
         items: {
             select: {
@@ -46,6 +47,7 @@ export async function GET() {
         notes: o.notes,
         rating: o.rating,
         review: o.review,
+        ratingSeen: o.ratingSeen,
         createdAt: o.createdAt,
         items: o.items.map(i => ({
             quantity: i.quantity,
@@ -101,7 +103,7 @@ export async function POST(request) {
 export async function PUT(request) {
     try {
         const body = await request.json();
-        const { id, status, rating, review } = body;
+        const { id, status, rating, review, ratingSeen } = body;
 
         if (!id) return NextResponse.json({error: 'ID required'}, {status: 400});
 
@@ -109,6 +111,7 @@ export async function PUT(request) {
         if (status) data.status = status;
         if (rating !== undefined) data.rating = parseInt(rating);
         if (review !== undefined) data.review = review;
+        if (ratingSeen !== undefined) data.ratingSeen = ratingSeen;
         
         const order = await prisma.order.update({
             where: { id: parseInt(id) },

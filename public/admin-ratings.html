@@ -84,13 +84,24 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // Load orders to see if there are ratings
             await initializeData({ orders: true });
+            
+            // First Render
             renderRatings();
+            
+            // Mark new ones as seen in the BACKGROUND (Database)
+            // The badge will persist until the next data refresh
             markRatingsAsSeen();
             
             // Listen for updates
             document.addEventListener('orders-updated', () => {
                 renderRatings();
-                markRatingsAsSeen();
+                // We don't mark as seen on every update to avoid spamming API
+                // Only initial load or explicit actions usually trigger this, 
+                // but if a NEW rating comes in while watching, it will show as New.
+                // We could check if we are focused? For now, let's leave it manual or on-load.
+                if (document.visibilityState === 'visible') {
+                    markRatingsAsSeen();
+                }
             });
         });
 
@@ -140,13 +151,23 @@
                 // Format items summary
                 const itemsSummary = order.items.map(i => `${i.qty}x ${i.name}`).join('، ');
 
+                // Check "New" status based on DATABASE field
+                // ratingSeen comes from the backend now
+                const isNew = (order.ratingSeen === false);
+                
+                const newBadge = isNew ? `<span class="badge-new">جديد</span>` : '';
+                const cardClass = isNew ? 'rating-card-modern unread' : 'rating-card-modern';
+
                 return `
-                    <div class="rating-card-modern">
+                    <div class="${cardClass}">
                         <div class="rating-header">
                             <div class="customer-info">
                                 <div class="avatar-placeholder">${customerName.charAt(0)}</div>
                                 <div>
-                                    <div class="customer-name">${customerName}</div>
+                                    <div class="customer-name" style="display:flex; align-items:center;">
+                                        ${customerName}
+                                        ${newBadge}
+                                    </div>
                                     <div class="rating-date">${date}</div>
                                 </div>
                             </div>
@@ -186,13 +207,23 @@
              return text.slice(0, limit) + '...';
         }
 
-        function markRatingsAsSeen() {
+        async function markRatingsAsSeen() {
             const orders = getOrders();
-            const ratedOrderIds = orders.filter(o => o.rating > 0).map(o => o.id.toString());
-            if (ratedOrderIds.length > 0) {
-                localStorage.setItem('seenRatingIds', JSON.stringify(ratedOrderIds));
-                // Notify core to refresh badges
-                document.dispatchEvent(new CustomEvent('orders-updated'));
+            // Find all rated orders that are NOT seen yet
+            const unseenOrders = orders.filter(o => o.rating > 0 && o.ratingSeen === false);
+            
+            if (unseenOrders.length > 0) {
+                 // Update them in backend
+                 // We do this concurrently
+                 Promise.all(unseenOrders.map(o => ApiClient.markOrderRatingSeen(o.id)))
+                     .then(() => {
+                         console.log('Marked all ratings as seen');
+                         // Optionally: Update local state to prevent multiple calls
+                         unseenOrders.forEach(o => o.ratingSeen = true);
+                         // Notify sidebar to decrement badge
+                         document.dispatchEvent(new CustomEvent('orders-updated'));
+                     })
+                     .catch(err => console.error('Failed to mark ratings seen', err));
             }
         }
 

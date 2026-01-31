@@ -379,11 +379,23 @@ function normalizeOrder(order) {
         }
     }
 
+    // --- ENHANCEMENT: Merge Local Completion Data ---
+    // If backend doesn't support completedAt, we retrieve it from local storage
+    let completedAt = order.completedAt;
+    if (!completedAt && order.status === 'delivered') {
+        try {
+            const localDates = JSON.parse(localStorage.getItem('localCompletedDates') || '{}');
+            // Use local date if available, otherwise fallback to createdAt (legacy behavior)
+            completedAt = localDates[order.id] || order.createdAt;
+        } catch(e) {}
+    }
+
     return {
         ...order,
         location: location,
         orderNumber: order.orderNumber || order.id,
-        items: items
+        items: items,
+        completedAt: completedAt // Use the merged or existing date
     };
 }
 
@@ -395,9 +407,31 @@ async function updateOrderStatusData(orderId, status) {
         const oldStatus = order.status;
         order.status = status;
         
+        // Track completion time for revenue calculation
+        if (status === 'delivered') {
+            const now = new Date().toISOString();
+            // 1. Update State
+            if (!order.completedAt) order.completedAt = now;
+            
+            // 2. Persist Locally (Backup in case backend drops it)
+            try {
+                const localDates = JSON.parse(localStorage.getItem('localCompletedDates') || '{}');
+                // Only set if not already there to preserve original completion time
+                if (!localDates[orderId]) {
+                    localDates[orderId] = now;
+                    localStorage.setItem('localCompletedDates', JSON.stringify(localDates));
+                }
+            } catch(e) { console.error("Failed to save local date", e); }
+        }
+
         try {
              if (ApiClient.updateOrderStatus) await ApiClient.updateOrderStatus(orderId, status);
-             else await ApiClient.request(`/orders?id=${orderId}&status=${status}`, { method: 'PUT' });
+             else {
+                 // Pass completedAt if supported by backend, otherwise it's just local optimistic until refresh
+                 let url = `/orders?id=${orderId}&status=${status}`;
+                 if (order.completedAt) url += `&completedAt=${order.completedAt}`;
+                 await ApiClient.request(url, { method: 'PUT' });
+             }
         } catch(e) { 
             console.error("Update Status Failed", e); 
             order.status = oldStatus; // Revert on failure

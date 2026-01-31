@@ -73,6 +73,10 @@ function setupAdminNavigation() {
  * Smart Navigation: Refined Gradient Ring Transition
  * A beautiful, light ring spins around the brand name during transition.
  */
+/**
+ * Smart Navigation: Refined Gradient Ring Transition
+ * Shows animation then performs a HARD navigation to ensure fresh scripts/state.
+ */
 async function spaNavigate(url, pushState = true) {
     if (window.location.pathname.endsWith(url)) return;
 
@@ -105,88 +109,8 @@ async function spaNavigate(url, pushState = true) {
     // Wait for fade in (300ms) - Feels snappy
     await new Promise(r => setTimeout(r, 300));
 
-    try {
-        const response = await fetch(url);
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-
-        cleanupPage();
-
-        document.title = doc.title;
-        if (pushState) history.pushState({ url }, doc.title, url);
-        
-        await injectMissingStyles(doc);
-
-        const mainContent = document.querySelector('.main-content');
-        const newMainContent = doc.querySelector('.main-content');
-        if (newMainContent && mainContent) {
-            mainContent.innerHTML = newMainContent.innerHTML;
-            window.scrollTo(0, 0);
-        } else {
-            window.location.href = url;
-            return;
-        }
-
-        document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
-        doc.querySelectorAll('.modal-overlay').forEach(m => {
-            document.body.appendChild(m);
-        });
-
-        highlightSidebar();
-
-        const scripts = doc.querySelectorAll('script');
-        for (const script of scripts) {
-             if (script.src) {
-                 const exists = document.querySelector(`script[src="${script.src}"]`);
-                 if (!exists) {
-                     await loadScript(script.src);
-                 } else {
-                     if (script.src.includes('admin-') && !script.src.includes('admin-core.js')) {
-                         await reInjectScript(script.src);
-                     }
-                 }
-             } else if (script.innerText.trim().length > 0) {
-                 const newScript = document.createElement('script');
-                 newScript.innerText = script.innerText;
-                 document.body.appendChild(newScript);
-             }
-        }
-        
-        document.dispatchEvent(new Event('DOMContentLoaded'));
-
-        const pageTitle = document.getElementById('pageTitle');
-        if (pageTitle && doc.getElementById('pageTitle')) {
-            pageTitle.innerText = doc.getElementById('pageTitle').innerText;
-        }
-
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) sidebar.classList.remove('open');
-
-        // Wait for page to be "Really" ready (data loaded and rendered)
-        // Most admin pages trigger initializeData which fires 'data-ready'
-        await new Promise(resolve => {
-            const timeout = setTimeout(resolve, 1500); // Fallback if no data-ready
-            document.addEventListener('data-ready', () => {
-                clearTimeout(timeout);
-                // Extra tick to let DOM settle after render
-                setTimeout(resolve, 100);
-            }, { once: true });
-        });
-
-    } catch (error) {
-        console.error('Navigation error:', error);
-        window.location.href = url;
-    } finally {
-        // 3. Fade Out (Smooth & Timed with content presence)
-        if (overlay) {
-            overlay.classList.remove('active');
-            // Cleanup after transition
-            setTimeout(() => {
-                if (overlay.parentNode) overlay.remove();
-            }, 500);
-        }
-    }
+    // 3. HARD NAVIGATION (Fixes stale script issues)
+    window.location.href = url;
 }
 
 /**
@@ -359,10 +283,8 @@ function startPersistentBadgeUpdates() {
         // Ratings Badge
         const ratedOrders = orders.filter(o => o.rating > 0);
         if (ratedOrders.length > 0) {
-            const seenIds = (() => {
-                try { return JSON.parse(localStorage.getItem('seenRatingIds') || '[]'); } catch(e) { return []; }
-            })();
-            const newRatings = ratedOrders.filter(o => !seenIds.includes(o.id.toString()));
+            // Check for unread ratings using backend status
+            const newRatings = ratedOrders.filter(o => o.ratingSeen === false);
             
             const rBadge = document.getElementById('newRatingsBadge');
             if (rBadge) {

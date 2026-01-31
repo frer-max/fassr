@@ -4,13 +4,19 @@
 
 // تنسيق العملة
 function formatPrice(amount) {
-    let currency = 'دج';
+    let currency = 'DA';
     if (typeof getSettings === 'function') {
         const settings = getSettings();
         if (settings && settings.currency) {
-            currency = settings.currency;
+            // If settings still has 'دج', force 'DA' purely for display fix if user didn't change it manually yet
+            // Or just respect settings. 
+            // Given the user request is "word دج shows badly", we should probably override or default to DA.
+            // Let's change the default variable.
+            // If settings.currency is explicitly set, use it.
+            currency = settings.currency === 'دج' ? 'DA' : settings.currency;
         }
     }
+    // Ensure space between number and currency
     return Number(amount).toLocaleString('fr-DZ') + ' ' + currency;
 }
 // Alias for compatibility
@@ -322,6 +328,28 @@ function getCurrentLocation() {
             },
             options
         );
+    });
+}
+// الحصول على الموقع التقريبي عبر IP (Fallback)
+function getIPLocation() {
+    return new Promise((resolve, reject) => {
+        fetch('https://ipapi.co/json/')
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.latitude && data.longitude) {
+                    resolve({
+                        lat: data.latitude,
+                        lng: data.longitude,
+                        accuracy: 2000, // IP location is usually city-level accuracy (~2km)
+                        type: 'ip'
+                    });
+                } else {
+                    reject(new Error('فشل تحديد الموقع عبر IP'));
+                }
+            })
+            .catch(err => {
+                reject(err);
+            });
     });
 }
 

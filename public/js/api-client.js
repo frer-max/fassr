@@ -71,6 +71,13 @@ const ApiClient = {
         });
     },
 
+    async markOrderRatingSeen(orderId) {
+        return this.request('/orders', {
+            method: 'PUT',
+            body: JSON.stringify({ id: orderId, ratingSeen: true })
+        });
+    },
+
     // Settings
     async getSettings() {
         return this.request('/settings');

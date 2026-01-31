@@ -226,27 +226,38 @@ function getOrderStats() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
+    // Count based on Creation Date (Traffic)
     const todayOrders = orders.filter(o => new Date(o.createdAt) >= today);
-    const completedOrders = orders.filter(o => o.status === 'delivered');
     
+    // Revenue based on Completion Date (Accounting)
+    const completedOrders = orders.filter(o => o.status === 'delivered');
+
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekOrders = orders.filter(o => new Date(o.createdAt) >= weekAgo);
+    weekAgo.setHours(0,0,0,0);
     
     const monthAgo = new Date();
     monthAgo.setMonth(monthAgo.getMonth() - 1);
-    const monthOrders = orders.filter(o => new Date(o.createdAt) >= monthAgo);
+    monthAgo.setHours(0,0,0,0);
     
+    // Helper to check date
+    const getOrderDate = (o) => new Date(o.completedAt || o.createdAt);
+
     return {
         total: orders.length,
         today: todayOrders.length,
-        todayRevenue: todayOrders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total, 0),
-        week: weekOrders.length,
-        weekRevenue: weekOrders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total, 0),
-        month: monthOrders.length,
-        monthRevenue: monthOrders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total, 0),
+        // Fix: Use completedAt for revenue
+        todayRevenue: completedOrders.reduce((sum, o) => getOrderDate(o) >= today ? sum + o.total : sum, 0),
+        
+        week: orders.filter(o => new Date(o.createdAt) >= weekAgo).length,
+        weekRevenue: completedOrders.reduce((sum, o) => getOrderDate(o) >= weekAgo ? sum + o.total : sum, 0),
+        
+        month: orders.filter(o => new Date(o.createdAt) >= monthAgo).length,
+        monthRevenue: completedOrders.reduce((sum, o) => getOrderDate(o) >= monthAgo ? sum + o.total : sum, 0),
+        
         completed: completedOrders.length,
         totalRevenue: completedOrders.reduce((sum, o) => sum + o.total, 0),
+        
         pending: orders.filter(o => !['delivered', 'cancelled'].includes(o.status)).length,
         onTheWay: orders.filter(o => o.status === 'onTheWay').length
     };

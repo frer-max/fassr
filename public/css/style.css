@@ -4,7 +4,7 @@
 ======================================== */
 
 /* Font Loading */
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=Outfit:wght@400;500;700;900&family=Tajawal:wght@400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
 
 /* Font loaded via HTML for performance */
 
@@ -64,8 +64,8 @@
   --gradient-sunset: linear-gradient(135deg, #ffd54f 0%, #ffb800 30%, #ff6b00 70%, #e55d00 100%);
   
   /* Typography */
-  --font-body: 'Tajawal', sans-serif;
-  --font-display: 'Cairo', 'Outfit', sans-serif;
+  --font-body: 'Almarai', sans-serif;
+  --font-display: 'Cairo', sans-serif;
   
   /* Spacing */
   --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
@@ -369,9 +369,9 @@ button, input { font-family: inherit; }
    HERO - برتقالي وأصفر أنيق
 ═══════════════════════════════════════════ */
 .hero {
-  position: relative; min-height: 75vh;
+  position: relative; min-height: 80vh;
   display: flex; align-items: center; justify-content: center;
-  padding: calc(90px + var(--space-12)) var(--space-6) var(--space-12); /* Increased top padding to clear header */
+  padding: calc(90px + var(--space-8)) var(--space-6) var(--space-12);
   overflow: hidden;
   background: linear-gradient(180deg, #fffef8 0%, #fff8e8 50%, #fff3d6 100%);
 }
@@ -387,65 +387,88 @@ button, input { font-family: inherit; }
   100% { opacity: 1; } 
 }
 
-.hero::after {
-  /* content: '🍕 🍔 🌮 🍟 🥗 🍜'; REMOVED: No emojis allowed */
-  content: ''; /* Replaced with empty content for now */
-  /* Could use: background-image: url(...) with SVGs if needed */
+/* Background floating icons removed for cleaner look */
+
+/* Hero Pizza Icon */
+.hero-pizza-icon {
+  width: 110px;
+  height: auto;
+  transform: rotate(-10deg);
+  filter: drop-shadow(0 15px 25px rgba(255, 107, 0, 0.3));
+  transition: transform 0.3s ease;
 }
-@keyframes float-food { 
-  0% { transform: translateX(-50%) translate3d(0, 0, 0); } 
-  100% { transform: translateX(-50%) translate3d(0, -10px, 0); } 
+.hero-pizza-icon:hover {
+  transform: rotate(5deg) scale(1.1);
 }
 
 .hero-content { 
   position: relative; 
   text-align: center; 
-  max-width: 800px; 
+  max-width: 900px; 
   z-index: 1; 
 }
+
 .hero h1 {
   margin-bottom: var(--space-6);
   color: var(--text-dark);
-  animation: hero-entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-  opacity: 0;
-  transform: translateY(20px); /* Start position */
-  will-change: transform, opacity;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+  font-size: 2.5rem; /* Reduced from 3.2rem for a "cuter" non-aggressive look */
+  font-weight: 800;
+  line-height: 1.4;
+  animation: hero-entrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  opacity: 0; transform: translateY(20px);
 }
-.hero h1 span {
+
+.hero-pizza-icon {
+    width: 60px; /* Match standard text-icon size */
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    margin-right: 15px; /* Add spacing if moved to right of text, or keep margin-left if left */
+    vertical-align: middle;
+    animation: bounce-icon 2s infinite;
+}
+@keyframes bounce-icon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.hero-text { display: inline-block; white-space: nowrap; }
+
+/* Specific text coloring */
+.hero h1 .highlight {
   background: var(--gradient-fire);
   -webkit-background-clip: text; 
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+.hero h1 .normal {
+  color: var(--text-dark);
+  -webkit-text-fill-color: var(--text-dark);
+}
+
 .hero p { 
-  font-size: 1.1rem; 
+  font-size: 1.25rem; 
   color: var(--text-secondary);
-  animation: hero-entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards; 
-  opacity: 0; 
-  transform: translateY(20px);
-  will-change: transform, opacity;
-  max-width: 600px;
+  animation: hero-entrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s forwards; 
+  opacity: 0; transform: translateY(20px);
+  max-width: 650px;
   margin: 0 auto var(--space-8);
+  font-weight: 500;
 }
 .hero .btn {
-  animation: hero-entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-  opacity: 0;
-  transform: translateY(20px);
-  will-change: transform, opacity;
+  animation: hero-entrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s forwards;
+  opacity: 0; transform: translateY(20px);
 }
 
 @keyframes hero-entrance { 
-  from { opacity: 0; transform: translate3d(0, 15px, 0); } 
+  from { opacity: 0; transform: translate3d(0, 20px, 0); } 
   to { opacity: 1; transform: translate3d(0, 0, 0); } 
 }
 
-/* Subtle float for title to keep it alive but light */
-.hero h1 { animation: hero-entrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, subtle-float 6s ease-in-out infinite 1s; }
-
-@keyframes subtle-float {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(0, -5px, 0); }
+/* Response to smaller screens */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.2rem; flex-direction: column; gap: 10px; }
+    .hero-text { white-space: normal; }
+    .hero-pizza-icon { width: 70px; margin-left: 0; margin-bottom: 5px; }
 }
 
 /* ═══════════════════════════════════════════
@@ -596,8 +619,7 @@ button, input { font-family: inherit; }
   display: block;
 }
 .category-card:hover .category-icon { 
-  transform: scale(1.15) rotate(-5deg); 
-  filter: drop-shadow(0 6px 12px var(--primary-glow)); 
+  /* No animation */
 }
 .category-name { 
   font-weight: 700; 
@@ -671,9 +693,7 @@ button, input { font-family: inherit; }
   object-fit: contain; /* SHOW FULL IMAGE */
   transition: all var(--duration-slow) var(--ease-smooth); 
 }
-.meal-card:hover .meal-image img { 
-  transform: scale(1.05); 
-}
+
 .meal-placeholder { 
   display: flex; 
   align-items: center; 
@@ -2036,3 +2056,5 @@ button, input { font-family: inherit; }
         display: none !important;
     }
 }
+
+

@@ -171,7 +171,26 @@ function renderCart() {
 function updateCartSummary() {
     const subtotal = getCartTotal();
     const settings = getSettings();
-    const deliveryCost = settings.delivery?.enabled ? calculateDeliveryCost(subtotal) : 0;
+    let deliveryText = '0 دج';
+    let deliveryCost = 0;
+    
+    if (settings && settings.delivery && settings.delivery.enabled) {
+        if (settings.delivery.type === 'fixed') {
+            deliveryCost = settings.delivery.fixedCost || 0;
+            deliveryText = formatPrice(deliveryCost);
+        } else if (settings.delivery.type === 'free') {
+            deliveryCost = 0;
+            deliveryText = 'مجاني';
+        } else {
+            // غير مذكور أو أي نوع آخر
+            deliveryText = 'غير محدد';
+            deliveryCost = 0;
+        }
+    } else {
+        deliveryText = 'غير محدد';
+        deliveryCost = 0;
+    }
+    
     const total = subtotal + deliveryCost;
     
     const subtotalEl = document.getElementById('cartSubtotal');
@@ -179,25 +198,12 @@ function updateCartSummary() {
     const totalEl = document.getElementById('cartTotal');
     
     if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
-    if (deliveryEl) {
-        if (!settings.delivery?.enabled) {
-            deliveryEl.textContent = 'غير متاح';
-        } else if (settings.delivery.type === 'free') {
-            deliveryEl.textContent = 'مجاني';
-        } else if (settings.delivery.type === 'fixed') {
-            deliveryEl.textContent = formatPrice(settings.delivery.fixedCost);
-        } else if (settings.delivery.type === 'not_specified') {
-            deliveryEl.textContent = 'غير محدد';
-        } else if (settings.delivery.type === 'distance') {
-             // If we have distance (from checkout page), we could calculate it, but here in cart we might not know it
-             deliveryEl.textContent = 'يُحسب حسب المسافة';
-        } else {
-             deliveryEl.textContent = deliveryCost > 0 ? formatPrice(deliveryCost) : 'غير محدد';
-        }
-    }
+    if (deliveryEl) deliveryEl.textContent = deliveryText;
+    
     if (totalEl) {
-         const isUnknown = settings.delivery?.type === 'distance' || settings.delivery?.type === 'not_specified';
-         totalEl.textContent = formatPrice(total) + (isUnknown ? ' + التوصيل' : '');
+         // إذا كان التوصيل غير محدد، قد يكون من الأفضل إظهار المجموع كـ "المجموع + التوصيل"
+         // ولكن لتبسيط الأمر، نعرض المجموع المحسوب
+         totalEl.textContent = formatPrice(total);
     }
 }
 

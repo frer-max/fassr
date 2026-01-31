@@ -8,10 +8,12 @@
     <title>إتمام الطلب - مطعمي</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
 </head>
+
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -169,57 +171,38 @@
                                 </span> عنوان التوصيل
                             </h3>
                             
-                            <!-- Location Search -->
-                            <div class="form-group" style="position: relative; z-index: 1000;">
-                                <label class="form-label">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                    ابحث عن موقع
-                                </label>
-                                <div style="position: relative;">
-                                    <input type="text" class="form-input" id="locationSearch" 
-                                           placeholder="مثال: محطة الوقود المحمدية، مسجد، مطعم..."
-                                           autocomplete="off">
-                                    <div id="searchResults" class="search-results-dropdown"></div>
+                            <!-- Location Buttons & Map -->
+                            <!-- Map Container -->
+                            <div class="map-wrapper" style="position: relative; margin-bottom: 1rem;">
+                                <div id="mapLoader" class="map-loading-overlay">
+                                    <div class="spinner"></div>
+                                    <span style="margin-top: 10px; font-weight: 600;">جاري تحميل الخريطة...</span>
                                 </div>
+                                <div id="mapContainer" class="map-container"></div>
                             </div>
-                            
-                                <!-- Map Container -->
-                                <div class="map-wrapper" style="position: relative;">
-                                    <div id="mapLoader" class="map-loading-overlay">
-                                        <div class="spinner"></div>
-                                        <span style="margin-top: 10px; font-weight: 600;">جاري تحميل الخريطة...</span>
-                                    </div>
-                                    <div id="mapContainer" class="map-container"></div>
-                                </div>
-                            
-                            <!-- Location Buttons -->
-                            <div style="display: flex; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+                        
+                            <!-- Location Actions -->
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--text-muted);">حدد موقعك الحالي:</h4>
+                            <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
                                 <button type="button" class="btn btn-primary" onclick="getMyLocation()">
                                     <span style="display:inline-flex; align-items:center;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
-                                    </span> موقعي الحالي (GPS)
+                                    </span> تحديد موقعي (GPS)
                                 </button>
                                 <button type="button" class="btn btn-secondary" onclick="clearLocation()">
                                     <span style="display:inline-flex; align-items:center;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                    </span> مسح الموقع
+                                    </span> مسح
                                 </button>
                             </div>
-                            
-                            <!-- Selected Location Display -->
-                            <div id="selectedLocation" class="selected-location-card">
-                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                    <strong style="color: var(--accent);">✓ الموقع المحدد:</strong>
-                                    <span style="font-size: 0.8rem; background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 4px;">⚠️ تأكد أن الموقع دقيق</span>
-                                </div>
-                                <p id="selectedLocationText" style="margin: 0.5rem 0 0; color: var(--text-secondary);"></p>
-                            </div>
-                            
-                            <!-- Manual Address -->
+
+                            <!-- Manual Address Description (Optional for Delivery) -->
                             <div class="form-group">
-                                <label class="form-label">العنوان التفصيلي (اختياري)</label>
-                                <textarea class="form-textarea" id="address" 
-                                          placeholder="أضف تفاصيل إضافية: رقم العمارة، الطابق، علامة مميزة..."></textarea>
+                                <label class="form-label" style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem; display: block;">وصف الموقع (اختياري)</label>
+                                <textarea class="form-textarea" id="address"
+                                          placeholder="مثال: بالقرب من مسجد التقوى، المنزل رقم 15، الطابق الثاني..." rows="3"
+                                          style="font-family: inherit; font-size: 1rem; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; width: 100%; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"></textarea>
+                                <small style="display:block; margin-top:0.5rem; color:var(--text-muted); font-size: 0.85rem;">يمكنك كتابة تفاصيل إضافية لمساعدة السائق (اختياري).</small>
                             </div>
                             
                             <input type="hidden" id="locationLat">
@@ -335,48 +318,62 @@
         // Update Summary
         function updateCheckoutSummary() {
             const subtotal = getCartTotal();
-            const orderType = document.querySelector('input[name="orderType"]:checked').value;
+            const orderTypeInput = document.querySelector('input[name="orderType"]:checked');
+            const orderType = orderTypeInput ? orderTypeInput.value : 'delivery';
             const settings = getSettings();
             
+            let deliveryText = 'غير محدد';
             let deliveryCost = 0;
             const deliveryRow = document.getElementById('deliveryRow');
             
             if (orderType === 'dineIn') {
                 deliveryCost = 0;
                 if(deliveryRow) deliveryRow.style.display = 'none';
-                
-                // Hide Map Section
-                document.getElementById('addressSection').style.display = 'none';
+                const addrSec = document.getElementById('addressSection');
+                if(addrSec) addrSec.style.display = 'none';
             } else {
                 if(deliveryRow) deliveryRow.style.display = 'flex';
-                document.getElementById('addressSection').style.display = 'block';
+                const addrSec = document.getElementById('addressSection');
+                if(addrSec) addrSec.style.display = 'block';
                 
                 // Calculate Delivery
                 const deliverySettings = settings.delivery;
+                
                 if (deliverySettings && deliverySettings.enabled) {
                     if (deliverySettings.type === 'fixed') {
+                        // Fixed price
                         deliveryCost = deliverySettings.fixedCost || 0;
+                        if (deliveryCost === 0) {
+                            // If explicit 0, treat as free if intended, but here safe to show price
+                            deliveryText = formatPrice(0);
+                        } else {
+                            deliveryText = formatPrice(deliveryCost);
+                        }
                     } else if (deliverySettings.type === 'free') {
                         deliveryCost = 0;
-                    } else if (deliverySettings.type === 'distance') {
-                        // Calculate distance if user location is set
-                         // We need restaurant location from settings
-                         if (userLocation && settings.restLat && settings.restLng) {
-                             const dist = getDistance(userLocation.lat, userLocation.lng, settings.restLat, settings.restLng);
-                             deliveryCost = calculateDeliveryCost(subtotal, dist);
-                         } else {
-                             // Default or unknown
-                             deliveryCost = 0; // Or show 'Needs Location'
-                         }
+                        deliveryText = 'مجاني';
                     } else {
-                         deliveryCost = 0; // Fallback
+                        // not_specified
+                        deliveryCost = 0; 
+                        deliveryText = 'غير محدد';
                     }
+                } else {
+                    // Disabled or missing
+                    deliveryText = 'غير محدد';
+                    deliveryCost = 0;
                 }
             }
             
-            document.getElementById('checkoutSubtotal').textContent = formatPrice(subtotal);
-            document.getElementById('checkoutDelivery').textContent = formatPrice(deliveryCost);
-            document.getElementById('checkoutTotal').textContent = formatPrice(subtotal + deliveryCost);
+            const subElem = document.getElementById('checkoutSubtotal');
+            if(subElem) subElem.textContent = formatPrice(subtotal);
+            
+            const delElem = document.getElementById('checkoutDelivery');
+            if(delElem) delElem.textContent = deliveryText;
+            
+            // If delivery is 'غير محدد' and cost is 0, total should perhaps reflect uncertainty?
+            // current logic: subtotal + 0.
+            const totalElem = document.getElementById('checkoutTotal');
+            if(totalElem) totalElem.textContent = formatPrice(subtotal + deliveryCost);
         }
         
         function toggleOrderType(type) {
@@ -396,258 +393,112 @@
         // Map variables
         let map = null;
         let marker = null;
-        let searchTimeout = null;
         let userLocation = null;
+        let accuracyCircle = null;
         
         // Default location (Algeria - Algiers)
         const defaultLat = 36.7538;
         const defaultLng = 3.0588;
         
         document.addEventListener('DOMContentLoaded', async () => {
+             // ... existing initialization logic ...
             const cart = getCart();
             if (cart.length === 0) {
                 window.location.href = 'cart.html';
                 return;
             }
 
-            // 1. Immediate Header Update (Cache)
             try {
-                // Try from local storage directly for speed
+                // Settings initialization logic
                 const cachedSettings = localStorage.getItem('app_settings');
                 if (cachedSettings) {
                     const parsed = JSON.parse(cachedSettings);
-                    if (parsed.restaurantName) {
+                    if (parsed.restaurantName && parsed.restaurantName !== 'غير مذكور') {
                         document.getElementById('logoName').textContent = parsed.restaurantName;
                     }
                 }
             } catch(e) {}
 
-            // 2. Load Data
-            if (typeof initializeData === 'function') {
-                await initializeData();
-            }
+            if (typeof initializeData === 'function') await initializeData();
 
-            // 3. Update UI with fresh data
             const settings = getSettings();
             if (settings.restaurantName) {
-                const logoName = document.getElementById('logoName');
-                if (logoName) logoName.textContent = settings.restaurantName;
+                 const logoName = document.getElementById('logoName');
+                 if (logoName) logoName.textContent = settings.restaurantName;
             }
 
-            // 4. Render Cart
             renderCheckoutItems();
             updateCheckoutSummary();
             
-            // 5. Initialize Map safely
-            setTimeout(() => {
+            // Initialize Map
+            // Initialize Map with Safety Check
+            // Optimized Map Initialization
+            // Initialize Map safely
+            const initMapSafely = () => {
                 const loader = document.getElementById('mapLoader');
-                try {
-                    initMap();
-                } catch (e) {
-                    console.error("Map Init Failed", e);
-                    // Show error in map container
-                    const container = document.getElementById('mapContainer');
-                    if(container) container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;">تعذر تحميل الخريطة. يرجى تفعيل الموقع يدوياً.</div>';
-                } finally {
-                    if (loader) {
-                        loader.style.opacity = '0';
-                        setTimeout(() => loader.style.display = 'none', 300);
-                    }
+                if (map) { 
+                    if(loader) loader.style.display = 'none';
+                    return; 
                 }
-            }, 1000);
 
-            setupLocationSearch();
-            
-            // Listen for any latent updates
-            document.addEventListener('data-ready', () => {
-                const newSettings = getSettings();
-                if (newSettings.restaurantName) {
-                    const logoName = document.getElementById('logoName');
-                    if (logoName) logoName.textContent = newSettings.restaurantName;
+                try {
+                    if (typeof L === 'undefined') {
+                        setTimeout(initMapSafely, 500); // Wait a bit longer
+                        return;
+                    }
+                    
+                    // Delay slightly to ensure container is rendered
+                    setTimeout(() => {
+                        initMap();
+                        // Fix for grey tiles: force map to check its size
+                        if (map) {
+                             setTimeout(() => { map.invalidateSize(); }, 200);
+                        }
+                    }, 100);
+                    
+                } catch (e) {
+                    console.error("Map Init Error", e);
+                } finally {
+                    // Safe hide
+                    setTimeout(() => {
+                        if(loader) loader.style.display = 'none';
+                    }, 1500);
                 }
-                updateCheckoutSummary();
-            });
+            };
+
+            // Initialize on window load to be sure styles are applied
+            window.addEventListener('load', initMapSafely);
+            
+            // Backup
+            setTimeout(initMapSafely, 1000);
+            
+            document.addEventListener('data-ready', updateCheckoutSummary);
         });
         
         function initMap() {
-            // Start map at default location
             map = L.map('mapContainer').setView([defaultLat, defaultLng], 13);
-            
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap'
             }).addTo(map);
 
+            // Click to set location manually
             map.on('click', function(e) {
                 setMapLocation(e.latlng.lat, e.latlng.lng);
-                reverseGeocode(e.latlng.lat, e.latlng.lng);
             });
             
-            // Show toast instruction
-            showToast('اضغط على الخريطة لتحديد موقعك بدقة', 'info');
+            showToast('يمكنك تحديد موقعك يدوياً على الخريطة (اختياري)', 'info');
         }
 
-        function setupLocationSearch() {
-            const searchInput = document.getElementById('locationSearch');
-            const resultsContainer = document.getElementById('searchResults');
-            
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                const query = e.target.value.trim();
-                
-                if (query.length < 2) {
-                    resultsContainer.style.display = 'none';
-                    return;
-                }
-                
-                searchTimeout = setTimeout(() => searchPlaces(query), 400);
-            });
-            
-            searchInput.addEventListener('blur', () => {
-                setTimeout(() => resultsContainer.style.display = 'none', 300);
-            });
-            
-            searchInput.addEventListener('focus', () => {
-                if (resultsContainer.innerHTML) {
-                    resultsContainer.style.display = 'block';
-                }
-            });
-        }
-        
-        async function searchPlaces(query) {
-            const resultsContainer = document.getElementById('searchResults');
-            
-            resultsContainer.innerHTML = '<div class="search-loading">🔍 جاري البحث...</div>';
-            resultsContainer.style.display = 'block';
-            
-            try {
-                const lat = userLocation?.lat || defaultLat;
-                const lng = userLocation?.lng || defaultLng;
-                const delta = 0.2;
-                const viewbox = `${lng - delta},${lat + delta},${lng + delta},${lat - delta}`;
-                
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=dz&limit=10&addressdetails=1&viewbox=${viewbox}&bounded=0`,
-                    { headers: { 'Accept-Language': 'ar' } }
-                );
-                const results = await response.json();
-                
-                if (results.length === 0) {
-                    resultsContainer.innerHTML = `
-                        <div class="search-empty">
-                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
-                            لا توجد نتائج قريبة
-                            <br><small>جرب كلمات أخرى أو حدد موقعك على الخريطة</small>
-                        </div>
-                    `;
-                } else {
-                    if (userLocation) {
-                        results.sort((a, b) => {
-                            const distA = getDistance(userLocation.lat, userLocation.lng, parseFloat(a.lat), parseFloat(a.lon));
-                            const distB = getDistance(userLocation.lat, userLocation.lng, parseFloat(b.lat), parseFloat(b.lon));
-                            return distA - distB;
-                        });
-                    }
-                    
-                    resultsContainer.innerHTML = results.map(place => {
-                        const distance = userLocation 
-                            ? getDistance(userLocation.lat, userLocation.lng, parseFloat(place.lat), parseFloat(place.lon))
-                            : null;
-                        const distanceText = distance !== null 
-                            ? (distance < 1 ? `${Math.round(distance * 1000)} م` : `${distance.toFixed(1)} كم`)
-                            : '';
-                            
-                        return `
-                            <div class="search-result-item" onclick="selectPlace(${place.lat}, ${place.lon}, '${escapeHtml(place.display_name)}')">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div style="font-weight: 600;">📍 ${getPlaceType(place)}</div>
-                                    ${distanceText ? `<div class="distance-badge">↔ ${distanceText}</div>` : ''}
-                                </div>
-                                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">${place.display_name}</div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-                
-                resultsContainer.style.display = 'block';
-            } catch (error) {
-                console.error('Search error:', error);
-                resultsContainer.innerHTML = '<div class="search-error">خطأ في البحث، حاول مرة أخرى</div>';
-                resultsContainer.style.display = 'block';
-            }
-        }
-        
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-        
-        function getPlaceType(place) {
-            if (place.type) {
-                const types = {
-                    'fuel': 'محطة وقود',
-                    'restaurant': 'مطعم',
-                    'cafe': 'مقهى',
-                    'mosque': 'مسجد',
-                    'hospital': 'مستشفى',
-                    'pharmacy': 'صيدلية',
-                    'school': 'مدرسة',
-                    'supermarket': 'سوبرماركت',
-                    'bank': 'بنك',
-                    'hotel': 'فندق'
-                };
-                if (types[place.type]) return types[place.type];
-            }
-            return place.name || 'موقع';
-        }
-        
-        function escapeHtml(text) {
-            return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
-        }
-        
-        function selectPlace(lat, lng, displayName) {
-            document.getElementById('locationSearch').value = '';
-            document.getElementById('searchResults').style.display = 'none';
-            
-            setMapLocation(lat, lng);
-            setLocationDisplay(displayName);
-            
-            const shortName = displayName.split(',').slice(0, 3).join('،');
-            if (!document.getElementById('address').value) {
-                document.getElementById('address').value = shortName;
-            }
-        }
+        // متغير لتتبع دقة الموقع الحالية (بالمتر)
+        let currentLocationAccuracy = null;
 
-        async function reverseGeocode(lat, lng) {
-            try {
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
-                    { headers: { 'Accept-Language': 'ar' } }
-                );
-                const result = await response.json();
-                
-                if (result.display_name) {
-                    setLocationDisplay(result.display_name);
-                }
-            } catch (error) {
-                console.error('Reverse geocode error:', error);
+        function setMapLocation(lat, lng, updateInputs = true) {
+            if (updateInputs) {
+                document.getElementById('locationLat').value = lat;
+                document.getElementById('locationLng').value = lng;
+                // إذا قام المستخدم بالتحديد اليدوي (أو تم استدعاء هذه الدالة للتثبيت)، نعتبر الدقة ممتازة (0 متر)
+                currentLocationAccuracy = 0;
             }
-        }
-        
-        function setLocationDisplay(text) {
-            document.getElementById('locationName').value = text;
-            document.getElementById('selectedLocationText').textContent = text;
-            document.getElementById('selectedLocation').style.display = 'block';
-        }
-
-        function setMapLocation(lat, lng) {
-            document.getElementById('locationLat').value = lat;
-            document.getElementById('locationLng').value = lng;
             userLocation = { lat, lng };
             
             if (marker) {
@@ -666,25 +517,18 @@
                 
                 marker.on('dragend', function(e) {
                     const pos = marker.getLatLng();
-                    setMapLocation(pos.lat, pos.lng); // Recursive but safe as it updates values
-                    reverseGeocode(pos.lat, pos.lng);
+                    // عند السحب اليدوي، نحدث القيم ونعتبر الدقة ممتازة
+                    setMapLocation(pos.lat, pos.lng, true);
                 });
             }
             
             map.setView([lat, lng], 16);
-            updateCheckoutSummary(); // Will update delivery cost based on distance
-        }
-        
-        // Helper to remove routing artifacts if any exist
-        function clearRoute() {
-            // No-op since routing is removed
+            updateCheckoutSummary(); 
         }
 
         function clearLocation() {
             document.getElementById('locationLat').value = '';
             document.getElementById('locationLng').value = '';
-            document.getElementById('locationName').value = '';
-            document.getElementById('selectedLocation').style.display = 'none';
             
             if (marker) {
                 map.removeLayer(marker);
@@ -696,52 +540,125 @@
             }
             
             map.setView([defaultLat, defaultLng], 13);
-            showToast('تم مسح الموقع', 'info');
+            showToast('تم مسح الموقع المحدد على الخريطة', 'info');
         }
-        
-        let accuracyCircle = null;
 
         async function getMyLocation() {
             const btn = document.querySelector('button[onclick="getMyLocation()"]');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ جاري التحديد (GPS)...';
+            btn.innerHTML = '⏳ جاري البحث عن دقة عالية...';
             btn.disabled = true;
             
+            // متغيرات لتتبع أفضل موقع
+            let bestLocation = null;
+            let watchId = null;
+            
             try {
-                const location = await getCurrentLocation();
-                setMapLocation(location.lat, location.lng);
-                reverseGeocode(location.lat, location.lng);
-                
-                // Accuracy Feedback
+                // دالة مساعدة للحصول على موقع محسّن (Best Fix Strategy)
+                const getBestLocation = new Promise((resolve, reject) => {
+                    if (!navigator.geolocation) {
+                        reject(new Error('المتصفح لا يدعم تحديد الموقع'));
+                        return;
+                    }
+
+                    // البدء بمراقبة الموقع (نعطي وقتاً أطول: 15 ثانية)
+                    watchId = navigator.geolocation.watchPosition(
+                        (position) => {
+                            const newLoc = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude,
+                                accuracy: position.coords.accuracy,
+                                type: 'gps'
+                            };
+
+                            // إذا وجدنا دقة ممتازة (أقل من 30 متر)، نكتفي بها فوراً
+                            if (newLoc.accuracy <= 30) {
+                                resolve(newLoc);
+                                return;
+                            }
+
+                            // حفظ أفضل نتيجة نصل إليها
+                            if (!bestLocation || newLoc.accuracy < bestLocation.accuracy) {
+                                bestLocation = newLoc;
+                                // تحديث الزر
+                                btn.innerHTML = `⏳ جاري التحسين (${Math.round(newLoc.accuracy)}م)...`;
+                            }
+                        },
+                        (error) => {
+                            console.warn(error);
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 15000,
+                            maximumAge: 0
+                        }
+                    );
+
+                    // ننتظر 15 ثانية كحد أقصى للحصول على دقة أقل من 600م
+                    setTimeout(() => {
+                        if (bestLocation) {
+                            resolve(bestLocation);
+                        } else {
+                            reject(new Error('انتهت المهلة'));
+                        }
+                    }, 15000);
+                });
+
+                // تنفيذ
+                let location;
+                try {
+                    location = await getBestLocation;
+                } catch (gpsError) {
+                    console.warn("GPS timeout/error, trying IP...", gpsError);
+                    location = await getIPLocation();
+                } finally {
+                    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                }
+
+                // 3. معالجة النتائج
                 const acc = Math.round(location.accuracy);
+                currentLocationAccuracy = acc; // تحديث المتغير العام
                 
-                // Show circle on map
+                // تحديث دائرة الدقة
                 if (accuracyCircle) map.removeLayer(accuracyCircle);
+                let color = acc <= 50 ? '#10b981' : (acc <= 800 ? '#f59e0b' : '#ef4444');
+                
                 accuracyCircle = L.circle([location.lat, location.lng], {
-                    radius: location.accuracy,
-                    color: acc <= 30 ? '#10b981' : '#f59e0b',
-                    fillColor: acc <= 30 ? '#10b981' : '#f59e0b',
+                    radius: acc,
+                    color: color,
+                    fillColor: color,
                     fillOpacity: 0.15,
                     weight: 1
                 }).addTo(map);
-                
-                if (acc <= 30) {
-                    showToast(`تم تحديد موقعك بدقة ممتازة (${acc} متر)`, 'success');
-                } else if (acc <= 100) {
-                    showToast(`دقة الموقع متوسطة (${acc} متر).`, 'warning');
+
+                // 4. اتخاذ القرار بناءً على الدقة
+                if (acc <= 800) {
+                    // دقة مقبولة
+                    setMapLocation(location.lat, location.lng, true); // تحديث الـ inputs
+                    
+                    if (acc <= 50) {
+                        showToast(`تم تحديد موقعك بدقة ممتازة (${acc} متر)`, 'success');
+                    } else {
+                        showToast(`تم تحديد موقعك بدقة ${acc} متر.`, 'info');
+                    }
+                    
+                    if (acc > 30 && acc < 5000) map.fitBounds(accuracyCircle.getBounds());
+                    else map.setView([location.lat, location.lng], 16);
+                    
                 } else {
-                    showToast(`دقة الموقع منخفضة (${acc} متر). يرجى الخروج لمكان مفتوح`, 'warning');
+                    // دقة سيئة (> 800 متر)
+                    // نضع الماركر لكننا لن "نعتمد" الموقع للإرسال (لأن currentLocationAccuracy > 800)
+                    // المستخدم سيضطر لتحريك الماركر لجعله 0 (دقيق)
+                    
+                    setMapLocation(location.lat, location.lng, true); // نضع القيم لكي يرى المستخدم مكانه
+                    map.setView([location.lat, location.lng], 15);
+                    
+                    showToast(`⚠️ الدقة منخفضة جداً (${acc}م). يرجى استعمال الهاتف لتحديد الموقع بدلاً من الحاسوب، أو قم بتحريك الدبوس يدوياً بدقة عالية.`, 'error', 8000);
                 }
-                
-                if (acc > 50) map.fitBounds(accuracyCircle.getBounds());
 
             } catch (error) {
-                // Specific handling for permission denied
-                if (error.message.includes('رفض') || error.message.includes('permission') || error.message.includes('denied')) {
-                    showToast('⚠️ يجب عليك السماح بتحديد الموقع (GPS) للمتابعة.', 'error');
-                } else {
-                    showToast(error.message, 'error');
-                }
+                 showToast('تعذر تحديد الموقع تلقائياً. يرجى التحديد يدوياً.', 'error');
+                 console.error(error);
             }
             
             btn.innerHTML = originalText;
@@ -754,23 +671,32 @@
             const customerName = document.getElementById('customerName').value.trim();
             const customerPhone = document.getElementById('customerPhone').value.trim();
             const orderType = document.querySelector('input[name="orderType"]:checked').value;
-            const address = document.getElementById('address').value.trim();
+            const address = document.getElementById('address').value.trim(); // Optional now
             const notes = document.getElementById('notes').value.trim();
             
             if (!validatePhone(customerPhone)) {
-                showToast('رقم الهاتف غير صحيح. يجب أن يبدأ بـ 05 أو 06 أو 07', 'error');
+                showToast('رقم الهاتف غير صحيح', 'error');
                 return;
             }
             
             if (orderType === 'delivery') {
-                const locationLat = document.getElementById('locationLat').value;
-                if (!locationLat) {
-                    showToast('⚠️ الرجاء تحديد موقعك على الخريطة لإتمام الطلب', 'error');
-                    return;
+                // 1. التحقق من وجود الموقع (إجباري)
+                if (!document.getElementById('locationLat').value) {
+                     showToast('⚠️ يجب تحديد موقعك على الخريطة لتوصيل الطلب', 'error');
+                     // محاولة لفت الانتباه للخريطة
+                     document.getElementById('mapContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                     return;
+                }
+
+                // 2. التحقق من الدقة (< 800 متر)
+                // إذا كانت currentLocationAccuracy غير محددة أو أكبر من 800
+                // ملاحظة: اليدوي يجعلها 0، لذا سيمر.
+                if (currentLocationAccuracy === null || currentLocationAccuracy > 800) {
+                     showToast(`⚠️ دقة الموقع سيئة (${currentLocationAccuracy || 'غير محدد'}م). يرجى استعمال الهاتف لتحديد الموقع وليس الحاسوب، أو قم بتحديد منزلك يدوياً على الخريطة.`, 'error', 8000);
+                     return;
                 }
             }
             
-            // Fast inline loading, no full screen overlay
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
             btn.innerHTML = '⏳ جاري الإرسال...';
@@ -780,7 +706,7 @@
                 customerName,
                 customerPhone,
                 orderType,
-                address: orderType === 'delivery' ? address : '',
+                address: address, // Optional
                 location: document.getElementById('locationLat').value ? {
                     lat: parseFloat(document.getElementById('locationLat').value),
                     lng: parseFloat(document.getElementById('locationLng').value)
@@ -795,14 +721,13 @@
                 if (order) {
                     sessionStorage.setItem('lastOrderNumber', order.orderNumber);
                     sessionStorage.setItem('lastOrderId', order.id);
-                    // Immediate redirect
                     window.location.replace('order-success.html');
                 } else {
-                    throw new Error('Order creation failed');
+                     throw new Error("Order creation failed");
                 }
             } catch (err) {
                 console.error(err);
-                showToast('حدث خطأ أثناء إرسال الطلب', 'error');
+                showToast('حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى.', 'error');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -924,6 +849,60 @@
             justify-content: center;
             z-index: 10;
             transition: opacity 0.3s ease;
+        }
+    </style>
+    
+    <style>
+        /* Enhanced Typography & UI */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        
+        .checkout-section, input, textarea, button, select, .form-label, .section-title {
+            font-family: 'Tajawal', system-ui, -apple-system, sans-serif !important;
+        }
+
+        .section-title {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-input, .form-textarea {
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            width: 100%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255,255,255,0.7);
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+            background: #fff;
+            outline: none;
+        }
+
+        .btn {
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            padding: 12px 24px;
+        }
+        
+        /* Map Markers Popup Font */
+        .leaflet-popup-content {
+            font-family: 'Tajawal', sans-serif !important;
+            font-weight: 600;
         }
     </style>
 </body>

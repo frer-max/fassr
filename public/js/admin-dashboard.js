@@ -144,7 +144,7 @@ function loadMonthlyChart() {
     const dailyRevenue = new Array(daysInMonth + 1).fill(0);
     
     orders.forEach(order => {
-        const d = new Date(order.createdAt);
+        const d = new Date(order.completedAt || order.createdAt);
         if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
             dailyRevenue[d.getDate()] += order.total;
         }

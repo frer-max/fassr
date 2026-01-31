@@ -101,17 +101,26 @@ function loadRestaurantSettings() {
 
     // تحديث معلومات الاتصال (الهاتف والعنوان)
     const phoneEl = document.getElementById('contactPhone');
-    if (phoneEl && settings.contactPhone) {
-        // Use contactPhone from settings if available (preferred)
-        phoneEl.innerHTML = `📞 <a href="tel:${settings.contactPhone}" style="color: inherit;">${settings.contactPhone}</a>`;
-    } else if (phoneEl && settings.phone) {
-        // Fallback to legacy 'phone' field
-        phoneEl.innerHTML = `📞 <a href="tel:${settings.phone}" style="color: inherit;">${settings.phone}</a>`;
+    if (phoneEl) {
+        // التحقق من الرقم: إذا كان موجوداً وليس "غير مذكور"
+        const phone = settings.contactPhone || settings.phone;
+        if (phone && phone !== 'غير مذكور' && phone.trim() !== '') {
+            phoneEl.innerHTML = `📞 <a href="tel:${phone}" style="color: inherit;">${phone}</a>`;
+            phoneEl.style.display = ''; // إظهار
+        } else {
+            phoneEl.style.display = 'none'; // إخفاء
+        }
     }
 
     const addressEl = document.getElementById('contactAddress');
-    if (addressEl && settings.address) {
-        addressEl.textContent = '📍 ' + settings.address;
+    if (addressEl) {
+        // التحقق من العنوان
+        if (settings.address && settings.address !== 'غير مذكور' && settings.address.trim() !== '') {
+            addressEl.textContent = '📍 ' + settings.address;
+            addressEl.style.display = ''; // إظهار
+        } else {
+            addressEl.style.display = 'none'; // إخفاء
+        }
     }
     
     // تحديث حالة المطعم (مفتوح/مغلق)

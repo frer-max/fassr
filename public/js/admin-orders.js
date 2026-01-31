@@ -208,12 +208,37 @@ function safeUpdateStatus(orderId, newStatus, currentStatus) {
 // Ensure updateStatus uses the one from orders.js or defined here?
 // orders.js has updateOrderStatus(id, status).
 async function updateStatus(orderId, status) {
-    // updateOrderStatus is in orders.js
-    if (await updateOrderStatus(orderId, status)) {
-        showToast(`تم تغيير حالة الطلب إلى ${getStatusText(status)}`, 'success');
-        renderOrders();
-    } else {
-        showToast('فشل تغيير الحالة', 'error');
+    // 1. Optimistic Update (Instant)
+    const order = getOrders().find(o => o.id == orderId); // Find locally
+    if (order) {
+        order.status = status; // Update local state directly
+    }
+    
+    // Instant Render
+    renderOrders();
+    showToast(`تم تغيير الحالة...`, 'info', 1000); // Quick feedback
+
+    // 2. Background Sync
+    try {
+        // updateOrderStatus usually handles the API call
+        // We don't await the result to block UI, but we await to catch errors
+        const success = await updateOrderStatus(orderId, status);
+        
+        if (success) {
+            showToast(`تم الحفظ: ${getStatusText(status)}`, 'success', 2000);
+        } else {
+            throw new Error("Update returned false");
+        }
+    } catch (e) {
+        console.error("Optimistic update failed:", e);
+        // Revert UI on failure
+        if (order) {
+             // We'd need the old status, but it's tricky to get it back without fresh fetch or storing it.
+             // Best to just refresh from server
+             await refreshOrders();
+             renderOrders();
+        }
+        showToast('فشل تغيير الحالة - تم التراجع', 'error');
     }
 }
 
