@@ -68,6 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             .replace(/\s\s+/g, ' ') // Collapse spaces
                             .replace(/>\s+</g, '><'); // remove space between tags
                         
+                        // Strict Size Check (10KB Max)
+                        if (newSvgContent.length > 15000) {
+                            showToast(`عفواً، حجم الأيقونة كبير جداً (${Math.round(newSvgContent.length/1024)}KB). الحد الأقصى هو 15KB. يرجى استخدام أيقونة أبسط.`, 'error');
+                            // Reset
+                            document.getElementById('categoryIcon').value = '';
+                            this.value = ''; 
+                            return;
+                        }
+
                         document.getElementById('categoryIcon').value = newSvgContent;
                         
                         const preview = document.getElementById('categoryIconPreview');
