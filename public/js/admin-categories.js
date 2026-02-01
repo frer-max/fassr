@@ -41,11 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const doc = parser.parseFromString(svgContent, 'image/svg+xml');
                     const svgEl = doc.querySelector('svg');
 
-                    // Safety Check: Reject SVGs with embedded images (Base64)
-                    if (svgContent.includes('base64') || svgContent.includes('data:image')) {
-                        showToast('عذراً، هذا الملف يحتوي على صور مدمجة (Base64) وهو كبير جداً. يرجى استخدام أيقونة SVG بسيطة (Vector Only).', 'error');
-                        return;
-                    }
+                    // Safety Check Removed as per user request to allow ANY icon
                     
                     if (svgEl) {
                         svgEl.removeAttribute('width');
@@ -54,28 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         svgEl.style.height = '100%';
                         svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
                         
-                        svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-                        
                         const serializer = new XMLSerializer();
                         let newSvgContent = serializer.serializeToString(svgEl);
                         
-                        // Minify SVG: Remove newlines, comments, and extra spaces to fit in DB
+                        // Basic Minify (Safe)
                         newSvgContent = newSvgContent
-                            .replace(/<!--[\s\S]*?-->/g, '') // Remove comments
-                            .replace(/\n/g, ' ') // Remove newlines
+                            .replace(/<!--[\s\S]*?-->/g, '') 
+                            .replace(/\n/g, ' ') 
                             .replace(/\r/g, ' ')
                             .replace(/\t/g, ' ')
-                            .replace(/\s\s+/g, ' ') // Collapse spaces
-                            .replace(/>\s+</g, '><'); // remove space between tags
-                        
-                        // Strict Size Check (10KB Max)
-                        if (newSvgContent.length > 15000) {
-                            showToast(`عفواً، حجم الأيقونة كبير جداً (${Math.round(newSvgContent.length/1024)}KB). الحد الأقصى هو 15KB. يرجى استخدام أيقونة أبسط.`, 'error');
-                            // Reset
-                            document.getElementById('categoryIcon').value = '';
-                            this.value = ''; 
-                            return;
-                        }
+                            .replace(/\s\s+/g, ' ') 
+                            .replace(/>\s+</g, '><');
 
                         document.getElementById('categoryIcon').value = newSvgContent;
                         
