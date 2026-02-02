@@ -255,30 +255,37 @@ function renderMeals(categoryId = 'all') {
                     ${(() => {
                         // Smart Image Logic
                         // 1. Try Meal Image
-                        if (meal.image) return `<img src="${meal.image}" alt="${meal.name}" style="object-fit: contain;">`;
+                        if (meal.image) {
+                            return `<img src="${meal.image}" alt="${meal.name}" style="object-fit: contain;" onerror="this.onerror=null;this.src='/icons/default-meal.svg';">`;
+                        }
                         
                         // 2. Try Category Icon Fallback
                         if (cat && cat.icon) {
                             const icon = cat.icon.trim();
-                            // Check if it's an image path (extension, path, url)
-                            if (icon.match(/\.(svg|png|jpg|jpeg|webp)$/i) || icon.includes('/') || icon.startsWith('http') || icon.startsWith('data:')) {
+                            
+                            // A. Check for Inline SVG (Starts with <svg) - Render directly as HTML
+                            if (icon.toLowerCase().startsWith('<svg') || icon.includes('<svg')) {
+                                return `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; padding:20px;">${icon}</div>`;
+                            }
+                            
+                            // B. Check if it's an image path/url (Data URI, HTTP, Extension, or Path with slashes)
+                            if (icon.match(/\.(svg|png|jpg|jpeg|webp)$/i) || icon.startsWith('data:') || icon.startsWith('http') || icon.includes('/')) {
                                 let src = icon;
-                                // Handle relative paths (e.g. "icons/foo.svg") by prepending / if needed
-                                // (Browsers usually handle "icons/" relative to current page, but in admin panel "/admin/meals", "icons/..." might fail if not absolute /icons/...)
-                                // Best to ensure it starts with / if it looks like a local static file
+                                // Fix relative paths for admin panel usage if they don't start with / or http
                                 if (!src.startsWith('/') && !src.startsWith('http') && !src.startsWith('data:')) {
                                     src = '/' + src;
                                 }
-                                return `<img src="${src}" alt="${cat.name}" style="object-fit: contain; padding: 20px;">`;
+                                return `<img src="${src}" alt="${cat.name}" style="object-fit: contain; padding: 20px;" onerror="this.onerror=null;this.src='/icons/default-meal.svg';">`;
                             } 
-                            // 3. Text/Emoji Fallback
+                            
+                            // C. Text/Emoji Fallback
                             else {
                                 return `<div style="font-size: 3rem; display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">${icon}</div>`;
                             }
                         }
                         
-                        // 4. Default Placeholder
-                        return '';
+                        // 3. Default Placeholder if no category logic worked
+                         return `<img src="/icons/default-meal.svg" alt="${meal.name}" style="object-fit: contain;" onerror="this.style.display='none'">`;
                     })()}
                 </div>
                 <div class="meal-card-content">
