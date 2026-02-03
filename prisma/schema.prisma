@@ -135,6 +135,10 @@ model Settings {
   deliveryCostPerKm   Float   @default(50) @map("delivery_cost_per_km")
   deliveryMaxDistance Float   @default(15) @map("delivery_max_distance")
   adminPassword       String  @default("admin123") @map("admin_password")
+  
+  // Notification Settings
+  telegramBotToken    String? @map("telegram_bot_token")
+  telegramChatId      String? @map("telegram_chat_id")
 
   @@map("settings")
 }

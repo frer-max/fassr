@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/prisma';
+import { sendOrderNotification } from '@/app/lib/notification';
 
 export const dynamic = 'force-dynamic';
 
@@ -141,6 +142,11 @@ export async function POST(request) {
             },
             include: { items: true }
         });
+
+        // 🔔 Send Notification (Server-Side)
+        // We await this so the function logic completes before response, ensuring reliable delivery
+        // The utility has a generic timeout to prevent hanging.
+        await sendOrderNotification(order);
 
         return NextResponse.json(normalizeOrder(order));
     } catch (error) {

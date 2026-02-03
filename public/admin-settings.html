@@ -176,6 +176,43 @@
                         <!-- Location Section Removed -->
                     </div>
 
+                    <!-- Notification Settings Card -->
+                    <div class="settings-card">
+                        <div class="card-header-flex">
+                            <div class="card-icon-box" style="background: #e0f2fe; color: #0284c7;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                            </div>
+                            <div class="card-titles">
+                                <h3>إشعارات الطلبات (تيليجرام)</h3>
+                                <p>استقبل تنبيهات فورية على هاتفك عند وصول طلب جديد، حتى والموقع مغلق.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-1">
+                             <div class="input-group-modern">
+                                <label class="input-label">رمز البوت (Bot Token)</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="settingTelegramToken" class="form-input-modern" placeholder="Ex: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz" dir="ltr" style="text-align: left; font-family: monospace;">
+                                </div>
+                                <p style="font-size: 0.85rem; color: #6b7280; margin-top: 6px; line-height: 1.6;">
+                                    1. ابحث عن <b>@BotFather</b> في تيليجرام وأرسل له <code>/newbot</code><br>
+                                    2. انسخ الـ <b>Token</b> الذي سيظهر لك وألصقه هنا.
+                                </p>
+                            </div>
+
+                            <div class="input-group-modern" style="margin-top: 16px;">
+                                <label class="input-label">معرف المحادثة (Chat ID)</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="settingTelegramChatId" class="form-input-modern" placeholder="Ex: 12345678" dir="ltr" style="text-align: left; font-family: monospace;">
+                                </div>
+                                <p style="font-size: 0.85rem; color: #6b7280; margin-top: 6px; line-height: 1.6;">
+                                    1. ابدأ محادثة مع البوت الذي أنشأته (اضغط Start).<br>
+                                    2. ابحث عن <b>@userinfobot</b> لمعرفة الـ ID الخاص بك، أو استخدم <a href="https://t.me/userinfobot" target="_blank" style="text-decoration: underline;">هذا الرابط</a>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Security Card -->
                     <div class="settings-card">
                         <div class="card-header-flex">

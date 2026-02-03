@@ -5,15 +5,7 @@ async function main() {
     console.log('🌱 Starting seed...');
 
     // 1. Categories
-    const categories = [
-        { id: 1, name: 'بيتزا', icon: '🍕', order: 1, active: true },
-        { id: 2, name: 'برغر', icon: '🍔', order: 2, active: true },
-        { id: 3, name: 'شاورما', icon: '🌯', order: 3, active: true },
-        { id: 4, name: 'طاكوس', icon: '🌮', order: 4, active: true },
-        { id: 5, name: 'سلطات', icon: '🥗', order: 5, active: true },
-        { id: 6, name: 'مشروبات', icon: '🥤', order: 6, active: true },
-        { id: 7, name: 'حلويات', icon: '🍰', order: 7, active: true }
-    ];
+    const categories = [];
  
      // 2. Settings
     const settings = {

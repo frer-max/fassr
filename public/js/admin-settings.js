@@ -24,6 +24,10 @@ function loadSettings() {
     setValue('settingAddress', settings.address);
     setChecked('settingIsOpen', settings.isOpen);
     
+    // Notifications
+    setValue('settingTelegramToken', settings.telegramBotToken);
+    setValue('settingTelegramChatId', settings.telegramChatId);
+    
     // Delivery
     if (settings.delivery) {
         const type = settings.delivery.type || 'fixed';
@@ -108,6 +112,10 @@ async function handleSaveSettings() {
         settings.delivery.fixedCost = parseNum('settingFixedCost');
         settings.delivery.costPerKm = parseNum('settingCostPerKm');
         settings.delivery.maxDistance = parseNum('settingMaxDistance');
+        
+        // Notifications
+        settings.telegramBotToken = safeVal('settingTelegramToken');
+        settings.telegramChatId = safeVal('settingTelegramChatId');
         
         // Save
         if (typeof updateSettingsData === 'function') {

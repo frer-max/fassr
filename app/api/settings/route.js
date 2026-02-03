@@ -45,6 +45,8 @@ export async function PUT(request) {
         deliveryCostPerKm: body.delivery ? parseFloat(body.delivery.costPerKm || 0) : undefined,
         deliveryMaxDistance: body.delivery ? parseFloat(body.delivery.maxDistance || 0) : undefined,
         deliveryFreeAbove: body.delivery ? parseFloat(body.delivery.freeAbove || 0) : undefined,
+        telegramBotToken: body.telegramBotToken,
+        telegramChatId: body.telegramChatId,
     };
 
     // Remove undefined values to allow partial updates if needed, though usually settings is full update
@@ -93,7 +95,9 @@ function mapSettingsToFrontend(dbSettings) {
             costPerKm: dbSettings.deliveryCostPerKm,
             maxDistance: dbSettings.deliveryMaxDistance,
             freeAbove: dbSettings.deliveryFreeAbove
-        }
+        },
+        telegramBotToken: dbSettings.telegramBotToken || '',
+        telegramChatId: dbSettings.telegramChatId || ''
     };
 }
 
