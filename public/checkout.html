@@ -19,7 +19,7 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="/" class="logo">
+                <a href="index.html" class="logo">
                     <span class="logo-icon rocket-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
                            <path class="rocket-body" d="M12 2.5s-6 6.5-6 11c0 3 2.5 5.5 6 5.5s6-2.5 6-5.5c0-4.5-6-11-6-11z" fill="#E0E0E0"/>
@@ -32,7 +32,7 @@
                 </a>
                 
                 <div class="header-actions">
-                    <a href="/cart" class="btn btn-secondary">
+                    <a href="cart.html" class="btn btn-secondary">
                         <span style="display:flex; align-items:center;">
                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                         </span>
@@ -404,7 +404,7 @@
              // ... existing initialization logic ...
             const cart = getCart();
             if (cart.length === 0) {
-                window.location.href = '/cart';
+                window.location.href = 'cart.html';
                 return;
             }
 
@@ -732,7 +732,7 @@
                     sessionStorage.setItem('lastOrderId', order.id);
                     // Save full object to avoid fetch race conditions
                     sessionStorage.setItem('lastOrderDetails', JSON.stringify(order));
-                    window.location.replace('/order-success');
+                    window.location.replace('order-success.html');
                 } else {
                      throw new Error("Order creation failed");
                 }

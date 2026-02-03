@@ -17,12 +17,12 @@
             // 2. Set Active State Immediately (Visual feedback without waiting for JS)
             const path = window.location.pathname;
             const navItems = {
-                '/admin-dashboard': 'nav-dashboard',
-                '/admin-orders': 'nav-orders',
-                '/admin-meals': 'nav-meals',
-                '/admin-categories': 'nav-categories',
-                '/admin-ratings': 'nav-ratings',
-                '/admin-settings': 'nav-settings'
+                'admin-dashboard.html': 'nav-dashboard',
+                'admin-orders.html': 'nav-orders',
+                'admin-meals.html': 'nav-meals',
+                'admin-categories.html': 'nav-categories',
+                'admin-ratings.html': 'nav-ratings',
+                'admin-settings.html': 'nav-settings'
             };
 
             // Remove old 'active' classes to be safe
@@ -32,9 +32,9 @@
             // Find current page key
             let currentPage = Object.keys(navItems).find(key => path.includes(key));
             
-            // Handle root /admin redirect case
-            if (!currentPage && path.endsWith('/admin')) {
-                currentPage = '/admin-dashboard';
+            // Handle root admin.html redirect case
+            if (!currentPage && path.endsWith('admin.html')) {
+                currentPage = 'admin-dashboard.html';
             }
 
             if (currentPage) {

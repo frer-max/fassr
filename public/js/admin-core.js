@@ -131,7 +131,7 @@ async function loadSidebar() {
              // 1. Try Cache First (Instant) - already done by loader, but good for consistent state access
             const cachedHtml = sessionStorage.getItem('adminSidebarCache');
             
-            const response = await fetch('/admin-sidebar');
+            const response = await fetch('admin-sidebar.html');
             const html = await response.text();
             
             // 2. Only update if changed
@@ -159,7 +159,7 @@ async function loadSidebar() {
     }
     
     try {
-        const response = await fetch('/admin-sidebar');
+        const response = await fetch('admin-sidebar.html');
         const html = await response.text();
         
         // 2. Only update if changed or no cache
@@ -242,19 +242,19 @@ function startPersistentBadgeUpdates() {
 
 function checkLogin() {
     const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
-    const isLoginPage = window.location.href.includes('/admin-login');
+    const isLoginPage = window.location.href.includes('admin-login.html');
     
     if (!isLoggedIn && !isLoginPage) {
-        window.location.replace('/admin-login');
+        window.location.replace('admin-login.html');
     } else if (isLoggedIn && isLoginPage) {
-        window.location.replace('/admin-dashboard');
+        window.location.replace('admin-dashboard.html');
     }
 }
 
 function handleLogout() {
     if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
         sessionStorage.removeItem('adminLoggedIn');
-        window.location.href = '/admin-login';
+        window.location.href = 'admin-login.html';
     }
 }
 
@@ -266,15 +266,15 @@ function toggleSidebar() {
 function highlightSidebar() {
     const path = window.location.pathname;
     const navItems = {
-        '/admin-dashboard': 'nav-dashboard',
-        '/admin-orders': 'nav-orders',
-        '/admin-meals': 'nav-meals',
-        '/admin-categories': 'nav-categories',
-        '/admin-ratings': 'nav-ratings',
-        '/admin-settings': 'nav-settings'
+        'admin-dashboard.html': 'nav-dashboard',
+        'admin-orders.html': 'nav-orders',
+        'admin-meals.html': 'nav-meals',
+        'admin-categories.html': 'nav-categories',
+        'admin-ratings.html': 'nav-ratings',
+        'admin-settings.html': 'nav-settings'
     };
     
-    if (path.endsWith('/admin')) {
+    if (path.endsWith('admin.html')) {
         const el = document.getElementById('nav-dashboard');
         if (el) {
              document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -297,6 +297,6 @@ function highlightSidebar() {
 window.addEventListener('unhandledrejection', function(event) {
     if (event.reason && event.reason.status === 401) {
         sessionStorage.removeItem('adminLoggedIn');
-        window.location.href = '/admin-login';
+        window.location.href = 'admin-login.html';
     }
 });
