@@ -16,19 +16,49 @@ export async function sendOrderNotification(order) {
             `▫️ ${i.quantity}x ${i.mealName} ${i.size ? `(${i.size})` : ''}`
         ).join('\n');
 
-        // Escape generic Markdown characters if needed, or just use plain text if complex.
-        // MarkdownV2 is strict. 'Markdown' (legacy) is easier for basic bolding.
+        // Order Type
+        const typeMap = {
+            'delivery': '🛵 توصيل منزلي',
+            'pickup': '🥡 استلام من المطعم',
+            'dine_in': '🍽️ تناول في المطعم'
+        };
+        const orderType = typeMap[order.orderType] || order.orderType || 'طلب';
+
+        // Location Link (Google Maps)
+        let locationLine = '';
+        if (order.location) {
+            try {
+                const loc = typeof order.location === 'string' ? JSON.parse(order.location) : order.location;
+                if (loc && (loc.latitude || loc.lat) && (loc.longitude || loc.lng)) {
+                    const lat = loc.latitude || loc.lat;
+                    const lng = loc.longitude || loc.lng;
+                    // Note: Markdown format [text](url)
+                    locationLine = `\n🗺️ *موقع العميل:* [فتح في خرائط جوجل](https://www.google.com/maps?q=${lat},${lng})`;
+                }
+            } catch(e) {}
+        }
+
+        // Delivery Cost Detail
+        let deliveryInfo = '';
+        if (order.orderType === 'delivery') {
+            const cost = order.deliveryCost > 0 ? `${order.deliveryCost} دج` : 'مجاني / غير محدد';
+            deliveryInfo = `🚚 *رسوم التوصيل:* ${cost}\n`;
+        }
+
         const message = `
 🚨 *طلب جديد وارد! (#${order.id})*
+ــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ
+📌 *نوع الطلب:* ${orderType}
 
 👤 *العميل:* ${order.customerName}
-📱 *الهاتف:* ${order.customerPhone}
-📍 *العنوان:* ${order.customerAddress || 'بدون عنوان'}
+📱 *الهاتف:* \`${order.customerPhone}\`
+📍 *العنوان:* ${order.customerAddress || '---'}${locationLine}
 
-📝 *التفاصيل:*
+📝 *محتويات الطلب:*
 ${itemsList}
-
-💰 *الإجمالي:* ${order.total} دج
+ــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ
+💵 *المجموع الفرعي:* ${order.subtotal} دج
+${deliveryInfo}💰 *الإجمالي الكلي:* ${order.total} دج
         `.trim();
 
         // 3. Send to Telegram
