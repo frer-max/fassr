@@ -61,7 +61,20 @@ function renderCategories() {
     const categories = getCategories();
     
     if (categories.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:20px;">لا يوجد أقسام حالياً</p>';
+        container.innerHTML = `
+            <div class="empty-state-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; background: var(--bg-surface); border-radius: 16px; border: 2px dashed rgba(0,0,0,0.05); margin-top: 0; width: 100%;">
+                <div style="font-size: 4rem; margin-bottom: 24px; opacity: 0.8; filter: grayscale(0.2);">📂</div>
+                <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">لا يوجد أقسام حالياً</h3>
+                <p style="color: var(--text-secondary); font-size: 1rem; max-width: 400px; margin: 0 auto 32px; line-height: 1.6;">
+                    لم تقم بإضافة أي أقسام لقائمة الطعام بعد.
+                    <br>يمكنك البدء بإضافة قسم جديد مثل "مشويات"، "مشروبات" أو "حلويات".
+                </p>
+                <button onclick="openCategoryModal()" class="btn btn-primary" style="padding: 12px 28px; font-size: 1rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    إضافة قسم جديد
+                </button>
+            </div>
+        `;
         return;
     }
 
