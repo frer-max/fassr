@@ -49,6 +49,26 @@ export async function POST(request) {
         const id = parseInt(body.id);
         if (isNaN(id)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
 
+        // Fetch existing category to check for old image cleanup
+        const existingCategory = await prisma.category.findUnique({
+            where: { id: id },
+            select: { icon: true }
+        });
+
+        // Cleanup old image if it's being replaced and is a local upload
+        if (existingCategory && existingCategory.icon && existingCategory.icon !== body.icon && existingCategory.icon.startsWith('/uploads/')) {
+             try {
+                const fs = require('fs/promises');
+                const path = require('path');
+                const oldPath = path.join(process.cwd(), 'public', existingCategory.icon);
+                await fs.unlink(oldPath);
+                console.log(`Cleaned up old category icon: ${oldPath}`);
+            } catch (e) {
+                // Ignore if file doesn't exist, log other errors
+                if (e.code !== 'ENOENT') console.warn(`Error deleting old category icon:`, e);
+            }
+        }
+
         category = await prisma.category.update({
             where: { id: id },
             data: {

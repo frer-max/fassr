@@ -145,6 +145,25 @@ export async function POST(request) {
             await prisma.mealSize.deleteMany({ where: { mealId: id }});
         }
         
+        // Fetch existing meal to check for old image cleanup
+        const existingMeal = await prisma.meal.findUnique({
+             where: { id: id },
+             select: { image: true }
+        });
+
+        // Cleanup old image if different and is local
+        if (existingMeal && existingMeal.image && existingMeal.image !== body.image && existingMeal.image.startsWith('/uploads/')) {
+             try {
+                const fs = require('fs/promises');
+                const path = require('path');
+                const oldPath = path.join(process.cwd(), 'public', existingMeal.image);
+                await fs.unlink(oldPath);
+                console.log(`Cleaned up old meal image: ${oldPath}`);
+            } catch (e) {
+                if (e.code !== 'ENOENT') console.warn(`Error deleting old meal image:`, e);
+            }
+        }
+
         meal = await prisma.meal.update({
             where: { id: id },
             data: {
