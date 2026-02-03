@@ -218,27 +218,37 @@
         let selectedRating = 0;
         let currentPhone = '';
         
+        let pollInterval;
+        let lastRenderedSignature = ''; // To prevent unnecessary re-renders
+
         document.addEventListener('DOMContentLoaded', async () => {
             // Load app data including settings AND ORDERS
             if (typeof initializeApp === 'function') {
-                // Force fetch orders to ensure freshness
-                // We pass { orders: true, force: true } if supported, or just call refreshOrders
                 await initializeApp(); 
             } else if (typeof loadRestaurantSettings === 'function') {
                 loadRestaurantSettings();
             }
 
             // EXPLICIT REFRESH: Fix for "New orders not appearing"
-            // We force a fetch from the server to get the latest list
             if (typeof refreshOrders === 'function') {
                 await refreshOrders();
             }
 
-            // Also listen for updates to re-render if open
+            // SMART LISTENER: Only re-render if data actually changed
             document.addEventListener('orders-updated', () => {
                if (currentPhone) {
                    const orders = getCustomerOrders(currentPhone);
-                   renderOrders(orders);
+                   
+                   // Create a signature of the current state (IDs + Statuses)
+                   // "1:new|2:preparing"
+                   const newSignature = orders.map(o => `${o.id}:${o.status}:${o.total}`).join('|');
+                   
+                   // Compare with last rendered state
+                   if (newSignature !== lastRenderedSignature) {
+                       console.log('Status change detected! Updating UI...');
+                       renderOrders(orders);
+                       lastRenderedSignature = newSignature;
+                   }
                }
             });
             
@@ -250,13 +260,12 @@
                 document.getElementById('searchPhone').value = savedPhone;
                 // Auto-search if valid
                 if (savedPhone.length >= 10) {
-                     // small delay to let data load
-                     setTimeout(() => document.querySelector('form').dispatchEvent(new Event('submit')), 500);
+                     setTimeout(() => document.querySelector('form').dispatchEvent(new Event('submit')), 300);
                 }
             }
         });
         
-        function searchOrders(e) {
+        async function searchOrders(e) {
             e.preventDefault();
             
             const phone = document.getElementById('searchPhone').value.trim();
@@ -269,27 +278,69 @@
             currentPhone = phone;
             localStorage.setItem('customerPhone', phone);
             
-            const orders = getCustomerOrders(phone);
-            
-            if (orders.length === 0) {
-                showToast('لا توجد طلبات لهذا الرقم', 'info');
-                return;
+            // Show loading
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'جاري البحث...';
+            btn.disabled = true;
+
+            try {
+                // Force fresh fetch on search
+                if (typeof refreshOrders === 'function') {
+                    await refreshOrders();
+                }
+
+                const orders = getCustomerOrders(phone);
+                
+                if (orders.length === 0) {
+                    showToast('لا توجد طلبات لهذا الرقم', 'info');
+                } else {
+                    document.getElementById('phoneSearch').style.display = 'none';
+                    document.getElementById('ordersSection').style.display = 'block';
+                    document.getElementById('ordersTitle').textContent = `طلباتك (${orders.length})`;
+                    
+                    // Initial Render
+                    renderOrders(orders);
+                    lastRenderedSignature = orders.map(o => `${o.id}:${o.status}:${o.total}`).join('|');
+                    
+                    // START SMART CHECKING (Background)
+                    startPolling();
+                }
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
-            
-            document.getElementById('phoneSearch').style.display = 'none';
-            document.getElementById('ordersSection').style.display = 'block';
-            document.getElementById('ordersTitle').textContent = `طلباتك (${orders.length})`;
-            
-            renderOrders(orders);
         }
         
+        function startPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            // Polling is necessary to asking the server "Is there an update?"
+            // We make it silent (no loading spinner) and reasonably fast (3s)
+            pollInterval = setInterval(async () => {
+                if (currentPhone && document.hidden === false) {
+                     if (typeof refreshOrders === 'function') {
+                        // This fetches data ==> triggers 'orders-updated' ==> Smart Listener checks diff ==> Updates UI only if needed
+                        await refreshOrders(); 
+                     }
+                }
+            }, 3000); 
+        }
+
         function showPhoneSearch() {
             document.getElementById('phoneSearch').style.display = 'block';
             document.getElementById('ordersSection').style.display = 'none';
+            if (pollInterval) clearInterval(pollInterval);
         }
         
         function renderOrders(orders) {
             const container = document.getElementById('ordersList');
+            
+            if (orders.length === 0) {
+                 container.innerHTML = '<div style="text-align:center; padding:20px;">لا توجد طلبات</div>';
+                 return;
+            }
+            // Update global signature just in case called directly
+            lastRenderedSignature = orders.map(o => `${o.id}:${o.status}:${o.total}`).join('|');
             
             container.innerHTML = orders.map((order, index) => {
                 const itemsCount = order.items.reduce((sum, i) => sum + i.quantity, 0);
