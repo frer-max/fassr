@@ -41,8 +41,22 @@ export async function sendOrderNotification(order) {
         // Delivery Cost Detail
         let deliveryInfo = '';
         if (order.orderType === 'delivery') {
-            const cost = order.deliveryCost > 0 ? `${order.deliveryCost} دج` : 'مجاني / غير محدد';
-            deliveryInfo = `🚚 *رسوم التوصيل:* ${cost}\n`;
+            // Check settings to be explicit about the delivery mode
+            let deliveryText = '';
+            
+            // We use the cost from the order itself as it's the source of truth for THIS transaction
+            if (order.deliveryCost > 0) {
+                 deliveryText = `${order.deliveryCost} دج`;
+            } else {
+                 // If cost is 0, check if it was explicitly free or just uncalculated
+                 if (settings.deliveryType === 'free' || order.total >= (settings.deliveryFreeAbove || Infinity)) {
+                     deliveryText = 'مجاني ✅';
+                 } else {
+                     deliveryText = 'غير محدد (بالاتفاق) 🤝';
+                 }
+            }
+            
+            deliveryInfo = `🚚 *رسوم التوصيل:* ${deliveryText}\n`;
         }
 
         const message = `
