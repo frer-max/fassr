@@ -42,34 +42,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnReset = document.getElementById('btnResetFilters');
 
     if (searchInput) {
-        let debounceTimer;
-        searchInput.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(async () => {
-                const query = searchInput.value.trim();
-                if (query.length > 2 || query.length === 0) {
-                     // Trigger server search
-                     // We need to implement searchOrders in data.js or api-client.js
-                     // For now, let's reuse api-client directly or through data.js helper?
-                     // data.js `refreshOrders` fetches all/paginated. 
-                     // Let's add specific search to data.js or just use local + smart fetch.
-                     
-                     // If query is empty -> reload default page
-                     if (query.length === 0) {
-                         currentSearchQuery = '';
-                         if (typeof refreshOrders === 'function') await refreshOrders();
-                     } else {
-                         // Search Mode
-                         currentSearchQuery = query.toLowerCase();
-                         if (typeof searchOrders === 'function') {
-                             showToast('جاري البحث...', 'info');
-                             await searchOrders(query);
-                         }
-                     }
-                     renderOrders();
+        const executeSearch = async () => {
+            const query = searchInput.value.trim();
+            // If query is empty -> reload default page
+            if (query.length === 0) {
+                currentSearchQuery = '';
+                if (typeof refreshOrders === 'function') await refreshOrders();
+            } else {
+                // Search Mode
+                currentSearchQuery = query.toLowerCase();
+                if (typeof searchOrders === 'function') {
+                    showToast('جاري البحث...', 'info');
+                    await searchOrders(query);
                 }
-            }, 500);
+            }
+            renderOrders();
+        };
+
+        // Trigger on Enter key
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                executeSearch();
+            }
         });
+
+        // Trigger on Search Button click
+        const btnSearch = document.getElementById('btnExecuteSearch');
+        if (btnSearch) {
+            btnSearch.addEventListener('click', executeSearch);
+        }
     }
 
     if (dateInput) {
@@ -179,7 +180,6 @@ function renderOrders() {
             'ready': 2,
             'onTheWay': 3,
             'delivered': 4,
-            'delivered': 4,
             'cancelled': 5
         };
         
@@ -256,11 +256,9 @@ function renderOrders() {
                         <h4>
                             ${order.customerName}
                             <span class="order-type-badge ${order.orderType === 'delivery' ? 'type-delivery' : 'type-dinein'}">
-                            <span class="order-type-badge ${order.orderType === 'delivery' ? 'type-delivery' : 'type-dinein'}">
                                 ${order.orderType === 'delivery' ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> توصيل' : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3"></path></svg> طاولة'}
                             </span>
                         </h4>
-                        <p>
                         <p>
                             <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.12 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> ${order.customerPhone}</span>
                             <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${new Date(order.createdAt).toLocaleTimeString('ar-DZ', {hour:'2-digit', minute:'2-digit'})}</span>

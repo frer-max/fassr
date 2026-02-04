@@ -63,10 +63,13 @@
                     <!-- Search and Date Filter Bar -->
                     <div class="orders-search-bar">
                         <div class="search-box">
-                            <span class="search-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                            </span>
-                            <input type="text" id="orderSearchInput" placeholder="بحث باسم العميل أو رقم الهاتف...">
+                            <div class="search-input-wrapper">
+                                <span class="search-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                </span>
+                                <input type="text" id="orderSearchInput" placeholder="بحث باسم العميل، الهاتف، أو رقم الطلب (#)...">
+                            </div>
+                            <button id="btnExecuteSearch" class="btn-search-trigger">بحث</button>
                         </div>
                         <div class="date-box">
                             <span class="date-icon">

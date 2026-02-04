@@ -433,9 +433,7 @@ body {
     pointer-events: none;
 }
 
-.pulse-animation {
-    /* animation: badge-pulse 2s infinite; */
-}
+
 
 @keyframes badge-pulse {
     0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
@@ -684,6 +682,25 @@ body {
     box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
+.btn-search-trigger {
+    background: var(--primary);
+    color: white;
+    border: none;
+    height: 46px; /* Match input height */
+    padding: 0 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-search-trigger:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--primary-glow);
+}
+
 /* ========================
    TOGGLE SWITCH (REFINED)
    ======================== */
@@ -797,9 +814,6 @@ body {
     flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
-.stat-card-soft:hover .stat-icon-soft {
-    /* transform: scale(1.1) rotate(5deg); */
-}
 
 /* Specific Colors for Icons (Using softer pastels for background) */
 .total-icon     { background: #EFF6FF; color: #3B82F6; }
@@ -963,9 +977,7 @@ body {
    ORDERS UI - PREMIUM
    ======================== */
 
-#section-orders {
-    /* animation: fadeIn 0.4s var(--transition-smooth); */
-}
+
 
 /* @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -1014,10 +1026,11 @@ body {
     box-shadow: 0 4px 12px var(--primary-glow);
 }
 
-/* Search & Filter Bar */
+/* Search & Filter Bar - Unified & Premium */
 .orders-search-bar {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 16px;
     margin-bottom: 32px;
     background: var(--bg-surface);
@@ -1028,14 +1041,27 @@ body {
 }
 
 [data-theme="dark"] .orders-search-bar {
-    background: rgba(255,255,255,0.02);
-    border-color: rgba(255,255,255,0.05);
+    background: #111;
+    border-color: #222;
 }
 
-.search-box, .date-box {
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 2;
+    min-width: 300px;
+}
+
+.search-input-wrapper {
     position: relative;
     flex: 1;
-    min-width: 220px;
+}
+
+.date-box {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
 }
 
 .search-icon, .date-icon {
@@ -1045,47 +1071,67 @@ body {
     transform: translateY(-50%);
     color: var(--text-muted);
     pointer-events: none;
+    z-index: 2;
+    display: flex;
+    align-items: center;
 }
 
 .orders-search-bar input {
     width: 100%;
+    height: 46px;
     padding: 12px 48px 12px 16px;
     border-radius: var(--radius-sm);
-    border: 1px solid #E2E8F0;
+    border: 1.5px solid #E2E8F0;
     background: var(--bg-body);
     font-size: 0.95rem;
+    font-weight: 600;
     color: var(--text-main);
-    transition: all 0.2s;
+    transition: all 0.3s;
+}
+
+.orders-search-bar input::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    cursor: pointer;
 }
 
 [data-theme="dark"] .orders-search-bar input {
-    background: rgba(0,0,0,0.2);
-    border-color: rgba(255,255,255,0.1);
+    background: #1a1a1a;
+    border-color: #333;
 }
 
 .orders-search-bar input:focus {
     background: var(--bg-surface);
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-soft);
+    box-shadow: 0 0 0 4px var(--primary-glow);
+    outline: none;
 }
 
 .btn-reset {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
-    background: var(--bg-body);
-    color: var(--text-secondary);
-    border: 1px solid transparent;
+    height: 46px;
+    padding: 0 24px;
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
     border-radius: var(--radius-sm);
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .btn-reset {
+    background: #334155;
+    color: #f8fafc;
 }
 
 .btn-reset:hover {
-    background: #E2E8F0;
-    color: var(--text-main);
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: translateY(-1px);
 }
 
 /* Orders Grid */
@@ -1134,12 +1180,6 @@ body {
     border-color: rgba(255,255,255,0.05);
 }
 
-.order-number {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--text-main);
-    letter-spacing: -0.5px;
-}
 
 .order-status-badge {
     padding: 6px 14px;
@@ -1385,124 +1425,14 @@ body {
 /* ========================
    ORDERS SEARCH & FILTER BAR
    ======================== */
-.orders-search-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 24px;
-    background: white;
-    padding: 16px;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    border: 1px solid rgba(0,0,0,0.04);
-}
 
-[data-theme="dark"] .orders-search-bar {
-    background: #111;
-    border-color: #222;
-}
-
-.search-box, .date-box {
-    position: relative;
-    flex: 1;
-    min-width: 200px;
-}
-
-.search-icon, .date-icon {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-}
-
-.orders-search-bar input {
-    width: 100%;
-    padding: 12px 48px 12px 16px;
-    border-radius: 14px;
-    border: 1.5px solid #e2e8f0;
-    font-family: inherit;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-main);
-    background: #f8fafc;
-    transition: all 0.3s;
-}
-
-[data-theme="dark"] .orders-search-bar input {
-    background: #1a1a1a;
-    border-color: #333;
-}
-
-.orders-search-bar input:focus {
-    border-color: var(--primary);
-    background: white;
-    box-shadow: 0 0 0 4px var(--primary-glow);
-    outline: none;
-}
-
-[data-theme="dark"] .orders-search-bar input:focus {
-    background: #1e1e1e;
-}
-
-.btn-reset {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: #f1f5f9;
-    color: #475569;
-    border: none;
-    border-radius: 14px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-[data-theme="dark"] .btn-reset {
-    background: #334155;
-    color: #f8fafc;
-}
-
-.btn-reset:hover {
-    background: #e2e8f0;
-    color: #0f172a;
-    transform: translateY(-2px);
-}
-
-.btn-reset svg {
-    transition: transform 0.5s;
-}
-
-.btn-reset:active svg {
-    transform: rotate(180deg);
-}
-
-@media (max-width: 600px) {
-    .orders-search-bar {
-        flex-direction: column;
-    }
-    .search-box, .date-box {
-        width: 100%;
-    }
-    .btn-reset {
-        width: 100%;
-        justify-content: center;
-    }
-}
 
 /* ========================
    MEALS - MODERN PREMIUM DESIGN
    ======================== */
 
 /* Section Animation */
-#section-meals {
-    /* animation: fadeInUp 0.5s ease; */
-}
+
 
 /* Bulk Actions Toolbar */
 .bulk-actions-toolbar {
@@ -1716,6 +1646,7 @@ body {
     line-height: 1.6;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 45px;

@@ -64,16 +64,18 @@ export async function GET(request) {
         } else if (phone) {
             whereClause.customerPhone = { contains: phone.trim() };
         } else if (search) {
-            const query = search.trim();
-            // Check if query is numeric (for ID or precise phone)
-            const isNumeric = /^\d+$/.test(query);
+            let query = search.trim();
+            
+            // Handle prefixes like # or + for ID searching (e.g., "#5" or "+5")
+            let idQuery = query.replace(/^[#+]/, '');
+            const isNumeric = /^\d+$/.test(idQuery);
             
             whereClause = {
                 OR: [
                     { customerName: { contains: query, mode: 'insensitive' } },
                     { customerPhone: { contains: query } },
-                    // If numeric, also allow searching by ID
-                    ...(isNumeric ? [{ id: parseInt(query) }] : [])
+                    // If numeric (after removing prefix), allow searching by ID
+                    ...(isNumeric ? [{ id: parseInt(idQuery) }] : [])
                 ]
             };
         }
