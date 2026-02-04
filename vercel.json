@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/cleanup?key=daily_cleanup_key",
-      "schedule": "16 15 3 * *"
+      "schedule": "22 15 4 * *"
     }
   ]
 }
