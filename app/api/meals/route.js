@@ -35,15 +35,6 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const categoryId = searchParams.get('categoryId');
     
-    // Safety check if database is reachable
-    try {
-        await prisma.$queryRaw`SELECT 1`;
-    } catch(dbError) {
-        console.error("Database connection check failed:", dbError);
-        // Fallback to empty array if DB is down, to prevent 500 crash effectively
-        return NextResponse.json([]); 
-    }
-
     // If pagination params are present, bypass the 'all-meals' cache and query directly
     const page = searchParams.get('page');
     const limit = searchParams.get('limit');

@@ -88,75 +88,80 @@ async function initializeData(options = {}) {
     const loadAll = Object.keys(options).length === 0;
     const force = options.force || false;
 
-    // Helper to fetch only if needed
+    // Helper to update local state and storage
+    const syncState = (key, data) => {
+        if (!data) return;
+        if (key === 'categories') {
+            appState.categories = data;
+            localStorage.setItem('cachedCategories_v2', JSON.stringify(data));
+            document.dispatchEvent(new CustomEvent('categories-updated'));
+        } else if (key === 'meals') {
+            appState.meals = Array.isArray(data) ? data : (data.meals || []);
+            localStorage.setItem('cachedMeals_v2', JSON.stringify(appState.meals));
+            document.dispatchEvent(new CustomEvent('meals-updated'));
+        } else if (key === 'settings') {
+            appState.settings = { ...FALLBACK_DATA.settings, ...data };
+            localStorage.setItem('cachedSettings', JSON.stringify(appState.settings));
+        } else if (key === 'orders') {
+            if (data && data.orders) {
+                appState.orders = data.orders.map(o => normalizeOrder(o));
+                appState.ordersPagination = data.pagination;
+            } else {
+                appState.orders = (Array.isArray(data) ? data : []).map(o => normalizeOrder(o));
+            }
+            localStorage.setItem('cachedOrders', JSON.stringify(appState.orders));
+        }
+        loadedFlags[key] = true;
+    };
+
+    const isAdminPage = window.location.pathname.includes('admin');
+
+    // Optimization: Combined Init for Client-side
+    // We only use this when loading all or when multiple critical keys are missing
+    if (!isAdminPage && (loadAll || (options.categories && options.meals && options.settings !== false))) {
+        console.log('🚀 Using Combined Init Endpoint...');
+        try {
+            const initData = await ApiClient.request('/init');
+            syncState('categories', initData.categories);
+            syncState('meals', initData.meals);
+            syncState('settings', initData.settings);
+            
+            // If we also needed orders (unlikely on home page), they could be added here
+            // but for now this covers the main 3.
+            
+            document.dispatchEvent(new CustomEvent('data-ready'));
+            return true;
+        } catch (err) {
+            console.warn('Combined Init failed, falling back to individual calls:', err);
+        }
+    }
+
+    // Helper to fetch only if needed (Fallback)
     const fetchIfNeeded = (key, fetcher) => {
-        // If forcing, or not loaded yet
         if (force || !loadedFlags[key]) {
-            // If already loading, return existing promise
             if (loadingPromises[key]) return loadingPromises[key];
 
-            // Start loading
             console.log(`🔄 Fetching ${key}...`);
             loadingPromises[key] = fetcher().then(data => {
-                if (data) {
-                    if (key === 'categories') {
-                        appState.categories = data;
-                        localStorage.setItem('cachedCategories_v2', JSON.stringify(data));
-                        document.dispatchEvent(new CustomEvent('categories-updated'));
-                    }
-                    else if (key === 'meals') {
-                        if (data && data.meals) {
-                            appState.meals = data.meals;
-                            // We could store pagination here if needed
-                        } else {
-                            appState.meals = Array.isArray(data) ? data : [];
-                        }
-                        localStorage.setItem('cachedMeals_v2', JSON.stringify(appState.meals));
-                        document.dispatchEvent(new CustomEvent('meals-updated'));
-                    }
-                    else if (key === 'settings') {
-                        appState.settings = { ...FALLBACK_DATA.settings, ...data };
-                        // Cache settings for next load
-                        localStorage.setItem('cachedSettings', JSON.stringify(appState.settings));
-                    }
-                    else if (key === 'orders') {
-                        // Handle Paginated Response
-                        if (data && data.orders) {
-                            appState.orders = data.orders.map(o => normalizeOrder(o));
-                            appState.ordersPagination = data.pagination;
-                        } else {
-                            // Fallback for old array format or empty
-                            appState.orders = (Array.isArray(data) ? data : []).map(o => normalizeOrder(o));
-                        }
-                    }
-                    
-                    loadedFlags[key] = true;
-                } else {
-                    // Fallback
-                    if (key === 'categories') appState.categories = FALLBACK_DATA.categories;
-                    else if (key === 'meals') appState.meals = FALLBACK_DATA.meals;
-                    else if (key === 'settings') appState.settings = FALLBACK_DATA.settings;
-                }
+                syncState(key, data);
                 return true;
             }).catch(err => {
                 console.error(`Failed to load ${key}`, err);
                 return false;
             }).finally(() => {
-                loadingPromises[key] = null; // Clear promise so we can retry later if needed
+                loadingPromises[key] = null;
             });
             
             return loadingPromises[key];
         }
-        return Promise.resolve(true); // Already loaded
+        return Promise.resolve(true);
     };
 
-    const isAdminPage = window.location.pathname.includes('admin');
     const tasks = [];
 
     if (loadAll || options.categories) {
-        if (appState.categories && appState.categories.length > 0) {
+        if (appState.categories && appState.categories.length > 0 && !force) {
              console.log('⚡ Using cached categories...');
-             // Still fetch to update
              fetchIfNeeded('categories', () => ApiClient.getCategories(isAdminPage));
         } else {
              tasks.push(fetchIfNeeded('categories', () => ApiClient.getCategories(isAdminPage)));
@@ -164,7 +169,7 @@ async function initializeData(options = {}) {
     }
 
     if (loadAll || options.meals) {
-        if (appState.meals && appState.meals.length > 0) {
+        if (appState.meals && appState.meals.length > 0 && !force) {
              console.log('⚡ Using cached meals...');
              fetchIfNeeded('meals', () => ApiClient.getMeals());
         } else {
@@ -177,10 +182,9 @@ async function initializeData(options = {}) {
     }
 
     if ((loadAll && isAdminPage) || options.orders) {
-        // Optimization: If we have cached orders, don't block. Refresh in background.
         if (appState.orders && appState.orders.length > 0) {
             console.log('⚡ Using cached orders, refreshing in background...');
-            refreshOrders(); // Fire and forget
+            refreshOrders();
         } else {
              tasks.push(fetchIfNeeded('orders', () => ApiClient.getOrders()));
         }
@@ -191,11 +195,11 @@ async function initializeData(options = {}) {
     } catch (err) {
         console.error("Initialization warning: some tasks failed", err);
     } finally {
-        // Dispatch general event ALWAYS so UI can unblock
         document.dispatchEvent(new CustomEvent('data-ready'));
     }
     return true;
 }
+
 
 // ===================================
 // Getters (Sync Access to State)

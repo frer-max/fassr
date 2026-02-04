@@ -640,12 +640,9 @@ button, input { font-family: inherit; }
   transition: all 0.4s var(--ease-smooth);
 }
 .meal-card:hover {
-  transform: translateY(-8px);
+  transform: none;
   box-shadow: 0 20px 45px rgba(0,0,0,0.1);
-}
-.meal-card:hover { 
-  /* transform: none; */ 
-  border-color: var(--primary); 
+  border: 2px solid #e53935; /* Red border as requested */
 }
 
 .meal-image { 
