@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/prisma';
 import { sendOrderNotification } from '@/app/lib/notification';
+import eventBus from '@/app/lib/eventBus';
 
 export const dynamic = 'force-dynamic';
 
+function notifyClients() {
+    eventBus.emit('order-update');
+}
+
 // Helper to normalize order for frontend
+
 function normalizeOrder(order) {
     let location = order.location;
     if (typeof location === 'string' && (location.startsWith('{') || location.startsWith('['))) {
@@ -147,6 +153,8 @@ export async function POST(request) {
         // We await this so the function logic completes before response, ensuring reliable delivery
         // The utility has a generic timeout to prevent hanging.
         await sendOrderNotification(order);
+        
+        notifyClients(); // SSE Trigger
 
         return NextResponse.json(normalizeOrder(order));
     } catch (error) {
@@ -176,6 +184,8 @@ export async function PUT(request) {
             include: { items: true }
         });
 
+        notifyClients(); // SSE Trigger
+
         return NextResponse.json(normalizeOrder(order));
     } catch (error) {
         console.error("PUT /api/orders ERROR:", error);
@@ -193,6 +203,7 @@ export async function DELETE(request) {
         console.log(`DELETE /api/orders ID ${id}`);
 
         await prisma.order.delete({ where: { id: parseInt(id) } });
+        notifyClients(); // SSE Trigger
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("DELETE /api/orders ERROR:", error);

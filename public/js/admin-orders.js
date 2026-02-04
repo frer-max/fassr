@@ -19,9 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Listen for background updates (SWR pattern)
         document.addEventListener('orders-updated', renderOrders);
         
-    // ⚡ Poll Removed: Using Event-Driven Updates (SWR) from data.js
-    // window.ordersPollInterval is no longer needed.
     });
+
+    // ⚡ REALTIME HANDLED BY DATA.JS (SSE)
+    // No manual polling needed here.
     
     // Setup Filter Tabs
     const tabs = document.querySelectorAll('.orders-tab');

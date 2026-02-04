@@ -582,3 +582,47 @@ if (!window.SKIP_AUTO_INIT) {
 // ===================================
 // Image helpers moved to utils.js
 
+// ===================================
+// Real-time Updates (SSE)
+// ===================================
+// This replaces the old polling mechanism with instant server-push notifications
+
+let sseSource = null;
+
+function subscribeToRealtimeUpdates() {
+    if (sseSource) return; // Already connected
+
+    if (typeof EventSource !== 'undefined') {
+        console.log('🔌 Connecting to Realtime Updates...');
+        sseSource = new EventSource('/api/updates');
+
+        sseSource.onopen = () => {
+             console.log('✅ Realtime Updates Connected');
+        };
+
+        sseSource.onmessage = (event) => {
+            // Server says "update" -> we fetch fresh data
+            // We ignore the content of the message, just the signal matters
+            console.log('🔔 Received Realtime Update Signal');
+            refreshOrders();
+        };
+
+        sseSource.onerror = (err) => {
+            console.warn('⚠️ Realtime Updates Disconnected, retrying...', err);
+            sseSource.close();
+            sseSource = null;
+            // Retry in 5 seconds
+            setTimeout(subscribeToRealtimeUpdates, 5000);
+        };
+    } else {
+        console.warn('EventSource not supported. Falling back to polling.');
+        // Fallback for ancient browsers
+        setInterval(refreshOrders, 5000);
+    }
+}
+
+// Auto-start real-time listener if we are not skipping auto-init
+if (!window.SKIP_AUTO_INIT) {
+    // Wait a bit for initial load
+    setTimeout(subscribeToRealtimeUpdates, 1000);
+}

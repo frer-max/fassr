@@ -313,17 +313,8 @@
         }
         
         function startPolling() {
-            if (pollInterval) clearInterval(pollInterval);
-            // Polling is necessary to asking the server "Is there an update?"
-            // We make it silent (no loading spinner) and reasonably fast (3s)
-            pollInterval = setInterval(async () => {
-                if (currentPhone && document.hidden === false) {
-                     if (typeof refreshOrders === 'function') {
-                        // This fetches data ==> triggers 'orders-updated' ==> Smart Listener checks diff ==> Updates UI only if needed
-                        await refreshOrders(); 
-                     }
-                }
-            }, 3000); 
+            // Polling is now handled globally by data.js using SSE (Realtime)
+            console.log('Using Global Realtime Updates');
         }
 
         function showPhoneSearch() {
@@ -413,11 +404,15 @@
             pendingCancelOrderId = null;
         }
         
-        function confirmCancelOrder() {
+        async function confirmCancelOrder() {
             if (pendingCancelOrderId) {
-                const result = cancelOrder(pendingCancelOrderId);
+                // Ensure we await the async cancelOrder function
+                const result = await cancelOrder(pendingCancelOrderId);
                 if (result) {
                     showToast('تم إلغاء الطلب بنجاح', 'success');
+                    // Refresh data from server to ensure status is synced
+                    if (typeof refreshOrders === 'function') await refreshOrders();
+                    
                     const orders = getCustomerOrders(currentPhone);
                     renderOrders(orders);
                 }
