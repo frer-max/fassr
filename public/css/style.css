@@ -1344,19 +1344,48 @@ button, input { font-family: inherit; }
   background: var(--gradient-fire);
 }
 .footer-content { 
-  display: grid; 
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+  display: flex; 
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start; /* Ensure top alignment */
   gap: var(--space-8); 
+  text-align: right; /* Default RTL alignment */
+}
+/* Force individual sections to have consistent width if needed, or just flex-1 */
+.footer-section {
+    flex: 1;
+    min-width: 250px;
 }
 .footer-section h4 { 
   color: var(--primary);
   margin-bottom: var(--space-4); 
-  font-size: 1rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex; /* Flexbox for alignment */
+  align-items: center; /* Vertical Center */
+  gap: 10px;
+  min-height: 40px; /* Force uniform height for all titles */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05); /* Optional: visual guide */
+  padding-bottom: 10px;
 }
-.footer-section p { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; }
-.footer-links { list-style: none; }
-.footer-links li { margin-bottom: var(--space-2); color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; }
-.footer-links a { color: rgba(255, 255, 255, 0.8); }
+/* Remove border from last child if desired or keep for style */
+.footer-section h4 span { display: inline-flex; }
+
+.footer-section p { 
+    color: rgba(255, 255, 255, 0.8); 
+    font-size: 0.95rem; 
+    line-height: 1.6; 
+    margin-top: 5px; /* Consistent top margin */
+}
+.footer-links { list-style: none; margin-top: 5px; }
+.footer-links li { 
+    margin-bottom: var(--space-3); 
+    color: rgba(255, 255, 255, 0.7); 
+    font-size: 0.95rem; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; /* Icon gap */
+}
 .footer-links a:hover { color: var(--primary); }
 .footer-bottom { 
   text-align: center; 
