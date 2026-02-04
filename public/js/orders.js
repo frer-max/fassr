@@ -136,11 +136,11 @@ async function cancelOrder(orderId) {
     // User requested "Owner can restore".
     
     try {
-        // Soft Delete: Update status to 'cancelled'
-        await updateOrderStatus(orderId, 'cancelled');
+        // Soft Delete: Update status to 'cancelled_client' to distinguish from admin
+        await updateOrderStatus(orderId, 'cancelled_client');
         
         // Optimistic update locally
-        order.status = 'cancelled';
+        order.status = 'cancelled_client';
         
         return true;
     } catch (e) {
@@ -203,6 +203,7 @@ async function rateOrder(orderId, rating, review = '') {
 }
 
 // الحصول على حالة الطلب بالعربية
+// الحصول على حالة الطلب بالعربية
 function getStatusText(status) {
     const statusMap = {
         'new': 'جديد',
@@ -210,7 +211,9 @@ function getStatusText(status) {
         'ready': 'جاهز',
         'onTheWay': 'في الطريق',
         'delivered': 'تم التسليم',
-        'cancelled': 'ملغي'
+        'cancelled': 'ملغي',
+        'cancelled_client': 'ملغي من الزبون',
+        'cancelled_admin': 'ملغي من الإدارة'
     };
     return statusMap[status] || status;
 }
@@ -223,7 +226,9 @@ function getStatusColor(status) {
         'ready': '#9b59b6',
         'onTheWay': '#1abc9c',
         'delivered': '#27ae60',
-        'cancelled': '#e74c3c'
+        'cancelled': '#e74c3c',
+        'cancelled_client': '#e74c3c', // Red
+        'cancelled_admin': '#c0392b'   // Darker Red
     };
     return colorMap[status] || '#95a5a6';
 }

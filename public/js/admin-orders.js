@@ -153,7 +153,12 @@ function renderOrders() {
     } else {
         // Only apply Status Filter if NOT searching
         if (currentOrderFilter !== 'all') {
-            orders = orders.filter(o => o.status === currentOrderFilter);
+            if (currentOrderFilter === 'cancelled') {
+                 // Match any status starting with 'cancelled' (legacy, client, admin)
+                 orders = orders.filter(o => o.status && o.status.startsWith('cancelled'));
+            } else {
+                 orders = orders.filter(o => o.status === currentOrderFilter);
+            }
         }
     }
 
@@ -173,7 +178,10 @@ function renderOrders() {
             'ready': 2,
             'onTheWay': 3,
             'delivered': 4,
-            'cancelled': 5
+            'delivered': 4,
+            'cancelled': 5,
+            'cancelled_client': 5,
+            'cancelled_admin': 5
         };
         
         orders.sort((a, b) => {
@@ -225,7 +233,7 @@ function renderOrders() {
             actionButtons = `
                 <button class="btn-status-action prev" onclick="safeUpdateStatus('${order.id}', 'ready', 'delivered')" title="رجوع للحالة السابقة"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg> تراجع</button>
             `;
-        } else if (order.status === 'cancelled') {
+        } else if (order.status && order.status.startsWith('cancelled')) {
             actionButtons = `
                 <button class="btn-status-action next" onclick="updateStatus('${order.id}', 'new')" style="background:var(--success); color:white;">إستعادة الطلب</button>
             `;
@@ -353,11 +361,9 @@ async function updateStatus(orderId, status) {
 async function cancelOrderBtn(orderId) {
     // cancelOrder is in orders.js
     if (confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) {
-        const success = await cancelOrder(orderId);
-        if (success) {
-            showToast('تم إلغاء الطلب', 'success');
-            renderOrders();
-        }
+        // Explicitly use 'cancelled_admin' to distinguish from client cancellation
+        // We call updateStatus directly instead of cancelOrder (which defaults to client)
+        await updateStatus(orderId, 'cancelled_admin');
     }
 }
 
