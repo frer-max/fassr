@@ -4,7 +4,8 @@
 ======================================== */
 
 /* Font Loading */
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+/* Font Loading - Cairo for nicer Arabic typography */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
 
 /* Font loaded via HTML for performance */
 
@@ -24,8 +25,10 @@
   --accent-light: #ffd54f;
   --accent-dark: #f9a825;
   --accent-glow: rgba(255, 184, 0, 0.3);
-  
-  /* 🌟 خلفيات ناعمة */
+
+  /* Typography */
+  --font-body: 'Cairo', sans-serif;
+  --font-display: 'Cairo', sans-serif;
   --cream: #fffef8;
   --ivory: #fffbf0;
   --sand: #fff3d6;

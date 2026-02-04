@@ -123,31 +123,7 @@ function getCustomerOrders(phone) {
 }
 
 // إلغاء الطلب (تغيير الحالة إلى ملغى)
-async function cancelOrder(orderId) {
-    const order = getOrderById(orderId);
-    if (!order) return false;
 
-    if (order.status === 'delivered') {
-        showToast('لا يمكن إلغاء طلب تم تسليمه', 'error');
-        return false;
-    }
-    
-    // Allow cancellation even if preparing (owner decision), but usually restricted.
-    // User requested "Owner can restore".
-    
-    try {
-        // Soft Delete: Update status to 'cancelled_client' to distinguish from admin
-        await updateOrderStatus(orderId, 'cancelled_client');
-        
-        // Optimistic update locally
-        order.status = 'cancelled_client';
-        
-        return true;
-    } catch (e) {
-        showToast('فشل في إلغاء الطلب', 'error');
-        return false;
-    }
-}
 
 // تقييم الطلب
 // تقييم الطلب
@@ -211,9 +187,7 @@ function getStatusText(status) {
         'ready': 'جاهز',
         'onTheWay': 'في الطريق',
         'delivered': 'تم التسليم',
-        'cancelled': 'ملغي',
-        'cancelled_client': 'ملغي من الزبون',
-        'cancelled_admin': 'ملغي من الإدارة'
+        'cancelled': 'ملغي'
     };
     return statusMap[status] || status;
 }
@@ -226,9 +200,7 @@ function getStatusColor(status) {
         'ready': '#9b59b6',
         'onTheWay': '#1abc9c',
         'delivered': '#27ae60',
-        'cancelled': '#e74c3c',
-        'cancelled_client': '#e74c3c', // Red
-        'cancelled_admin': '#c0392b'   // Darker Red
+        'cancelled': '#e74c3c'
     };
     return colorMap[status] || '#95a5a6';
 }

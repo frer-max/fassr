@@ -180,9 +180,7 @@ function renderOrders() {
             'onTheWay': 3,
             'delivered': 4,
             'delivered': 4,
-            'cancelled': 5,
-            'cancelled_client': 5,
-            'cancelled_admin': 5
+            'cancelled': 5
         };
         
         orders.sort((a, b) => {
@@ -362,9 +360,7 @@ async function updateStatus(orderId, status) {
 async function cancelOrderBtn(orderId) {
     // cancelOrder is in orders.js
     if (confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) {
-        // Explicitly use 'cancelled_admin' to distinguish from client cancellation
-        // We call updateStatus directly instead of cancelOrder (which defaults to client)
-        await updateStatus(orderId, 'cancelled_admin');
+        await updateStatus(orderId, 'cancelled');
     }
 }
 
