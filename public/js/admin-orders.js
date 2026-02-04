@@ -310,11 +310,7 @@ function renderOrders() {
 }
 
 function safeUpdateStatus(orderId, newStatus, currentStatus) {
-    if (currentStatus === 'delivered') {
-        if (!confirm('⚠️ تنبيه: هل أنت متأكد من التراجع عن حالة "تم التسليم"؟\n\nسيتم إعادة الطلب إلى قائمة "جاهز للاستلام".')) {
-            return;
-        }
-    }
+    // ⚡ removed confirm for speed
     updateStatus(orderId, newStatus);
 }
 
@@ -322,23 +318,21 @@ function safeUpdateStatus(orderId, newStatus, currentStatus) {
 // orders.js has updateOrderStatus(id, status).
 async function updateStatus(orderId, status) {
     // 1. Optimistic Update (Instant)
-    const order = getOrders().find(o => o.id == orderId); // Find locally
+    const order = getOrders().find(o => o.id == orderId); 
     if (order) {
-        order.status = status; // Update local state directly
+        order.status = status; 
     }
     
     // Instant Render
     renderOrders();
-    showToast(`تم تغيير الحالة...`, 'info', 1000); // Quick feedback
+    // ⚡ Removed 'Changing...' toast for speed
 
     // 2. Background Sync
     try {
-        // updateOrderStatus usually handles the API call
-        // We don't await the result to block UI, but we await to catch errors
         const success = await updateOrderStatus(orderId, status);
         
         if (success) {
-            showToast(`تم الحفظ: ${getStatusText(status)}`, 'success', 2000);
+            // ⚡ Removed 'Saved' toast for professional silence - visual feedback is enough
         } else {
             throw new Error("Update returned false");
         }
@@ -346,8 +340,6 @@ async function updateStatus(orderId, status) {
         console.error("Optimistic update failed:", e);
         // Revert UI on failure
         if (order) {
-             // We'd need the old status, but it's tricky to get it back without fresh fetch or storing it.
-             // Best to just refresh from server
              await refreshOrders();
              renderOrders();
         }
@@ -356,10 +348,8 @@ async function updateStatus(orderId, status) {
 }
 
 async function cancelOrderBtn(orderId) {
-    // cancelOrder is in orders.js
-    if (confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) {
-        await updateStatus(orderId, 'cancelled');
-    }
+    // ⚡ Instant cancellation without confirm
+    await updateStatus(orderId, 'cancelled');
 }
 
 // =======================

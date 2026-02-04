@@ -14,9 +14,13 @@
     }
 
     /* Fix excessive spacing on cart/checkout pages */
-    .cart-page {
-        padding-top: 20px !important;
+    .cart-page, .cp-page {
+        padding-top: 85px !important; /* Clears fixed header (60px) + minimal space */
         padding-bottom: 80px !important;
+    }
+    
+    .cp-main {
+        padding-top: 0; /* Handled by body padding */
     }
 
     /* 2. App-Like Header (Fixed Top) */
@@ -61,6 +65,8 @@
 
     /* Action Buttons - Icons Only */
     .header-actions .btn-secondary, 
+    .header-actions .cp-btn-secondary,
+    .header-actions .btn-orders,
     .cart-btn {
         width: 40px !important;
         height: 40px !important;
@@ -76,7 +82,8 @@
 
     /* Force SVGs to be visible and correctly sized */
     /* Force proper structure for My Orders button */
-    .header-actions .btn-secondary {
+    .header-actions .btn-secondary,
+    .header-actions .cp-btn-secondary {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -85,9 +92,35 @@
         border: 1px solid rgba(255,255,255,0.2) !important;
         gap: 0 !important;
     }
+
+    .header-actions .btn-orders {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #18181b !important;
+        color: white !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        gap: 0 !important;
+        border-radius: 50% !important;
+    }
     
     /* Target the span containing the SVG in My Orders */
-    .header-actions .btn-secondary > span {
+    .header-actions .btn-secondary > span,
+    .header-actions .cp-btn-secondary > span,
+    .header-actions .btn-orders > span {
+        display: none !important;
+    }
+    
+    /* Show SVG only */
+    .header-actions .btn-secondary > svg,
+    .header-actions .cp-btn-secondary > svg,
+    .header-actions .btn-orders > svg {
+         display: block !important;
+    }
+
+    /* Standardize inner spans if structure differs */
+    .header-actions .btn-secondary > span:has(svg),
+    .header-actions .btn-orders > span:has(svg) {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -97,6 +130,7 @@
         padding: 0 !important;
         flex: none !important;
     }
+
 
     /* Cart Button Internal Structure */
     .cart-btn {
@@ -128,6 +162,8 @@
     
     /* SVGs - Enforce size and visibility */
     .header-actions .btn-secondary svg,
+    .header-actions .cp-btn-secondary svg,
+    .header-actions .btn-orders svg,
     .cart-btn svg {
         width: 22px !important;
         height: 22px !important;

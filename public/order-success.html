@@ -7,147 +7,69 @@
     <meta name="theme-color" content="#f97316">
     <title>تم الطلب بنجاح - مطعمي</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/customer-experience.css">
+    <link rel="stylesheet" href="css/client-premium.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
-        /* Keep page-specific layout only, move visuals to CSS file */
-        .success-page-container {
-            min-height: 100vh;
-            padding: 100px 0 60px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .relative-z { position: relative; z-index: 2; }
-        .success-header-section { margin-bottom: 3rem; }
-        
-        /* Grid Layout */
-        .success-grid {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 2.5rem;
-            max-width: 1000px;
-            margin: 0 auto;
-            align-items: start;
-        }
-
-        /* Order Number Banner - Overriding slightly for success page flair */
-        .order-number-banner {
-            background: var(--lux-gradient);
-            border-radius: 20px;
-            padding: 1.5rem 2rem;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 25px var(--lux-primary-glow);
-            position: relative;
-            overflow: hidden;
+        /* Success Page Specific Styles */
+        .success-bg {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, #fffdf8 0%, #fff7ed 40%, #ffedd5 100%);
+            z-index: -1;
         }
         
-        .order-number-banner::after {
+        .success-bg::before {
             content: '';
             position: absolute;
-            top: -50%; right: -10%; width: 150px; height: 150px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-        }
-
-        .order-number-banner .label { font-size: 0.9rem; opacity: 0.9; }
-        .order-number-banner .number { font-family: 'Outfit', sans-serif; font-size: 2.2rem; margin: 0; font-weight: 800; letter-spacing: 2px; }
-        
-        .btn-copy { 
-            background: rgba(255,255,255,0.2); 
-            border: none; 
-            width: 40px; height: 40px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            color: white;
-            transition: 0.2s;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .btn-copy:hover { background: white; color: var(--lux-primary); }
-
-        /* Status Card Branding */
-        .status-card-modern {
-            background: white;
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.04);
-            margin-bottom: 2rem;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.08) 0%, transparent 70%);
         }
         
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #f0f0f0;
+        .success-bg::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: radial-gradient(ellipse at 50% 100%, rgba(34,197,94,0.05) 0%, transparent 70%);
         }
         
-        .live-badge {
-            background: #ffebee;
-            color: #ef4444;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            animation: pulse-red 2s infinite;
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: confetti-fall 4s linear forwards;
+            z-index: 0;
         }
-        @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-
-        /* Vertical Stepper Styling */
-        .order-status-vertical { display: flex; flex-direction: column; gap: 0; position: relative; }
-        .status-step { display: flex; gap: 1.5rem; padding-bottom: 2rem; position: relative; opacity: 0.5; transition: 0.3s; }
-        .status-step.active { opacity: 1; }
-        .status-step:last-child { padding-bottom: 0; }
-        .step-icon { width: 48px; height: 48px; background: #f9fafb; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; z-index: 2; border: 2px solid #e5e7eb; flex-shrink: 0; }
-        .status-step.active .step-icon { background: white; border-color: var(--lux-primary); box-shadow: 0 0 0 4px var(--lux-primary-glow); }
-        .status-step.completed .step-icon { background: var(--success); border-color: var(--success); color: white; }
-        .step-line { position: absolute; top: 48px; right: 24px; bottom: 0; width: 2px; background: #e5e7eb; z-index: 1; }
-        .status-step.completed .step-line { background: var(--success); }
-        .step-content h4 { margin: 0 0 0.25rem; font-size: 1rem; color: #1f2937; }
-        .step-content p { margin: 0; font-size: 0.85rem; color: #6b7280; }
-        .step-check { margin-right: auto; color: var(--success); font-weight: 800; font-size: 1.2rem; }
-
-        /* Receipt (Left Column) */
-        .receipt-card {
-            background: white;
-            border-radius: 20px;
-            padding: 0;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
-            position: sticky;
-            top: 100px;
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .map-container {
+            height: 250px;
+            border-radius: var(--cp-radius-lg);
             overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 2px solid var(--cp-gray-200);
+            margin-top: 20px;
         }
         
-        .receipt-header { background: #1a1a1a; color: white; padding: 1.5rem; text-align: center; position: relative; }
-        .receipt-logo { font-size: 2rem; margin-bottom: 0.5rem; }
-        .receipt-header h3 { color: white; margin: 0; font-size: 1.2rem; }
-        .receipt-dots { position: absolute; bottom: -8px; left: 0; right: 0; height: 16px; background: radial-gradient(circle, transparent 50%, white 50%) top; background-size: 16px 16px; transform: rotate(180deg); }
-        .receipt-body { padding: 2rem 1.5rem; }
-        .order-item-row { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px dashed rgba(0,0,0,0.06); color: var(--text-primary); font-weight: 500; }
-        .order-item-row:last-child { border-bottom: none; }
-        .order-summary-row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; color: var(--text-secondary); }
-        .order-summary-total { font-weight: 800; font-size: 1.4rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid rgba(0,0,0,0.05); color: var(--text-dark); }
-        .receipt-footer { background: #f9fafb; padding: 1rem; text-align: center; border-top: 2px dashed #e5e7eb; }
-        .receipt-barcode { font-family: monospace; font-size: 1.5rem; opacity: 0.5; letter-spacing: 4px; margin-bottom: 0.5rem; font-weight: 900; }
-
-        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
-        .btn-xl { padding: 1rem; font-size: 1rem; border-radius: 16px; }
-
-        @media (max-width: 850px) {
-            .success-grid { grid-template-columns: 1fr; }
-            .receipt-card { position: static; margin-top: 2rem; }
+        #trackingMap {
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
-<body>
+<body class="cp-page">
+    <!-- Background -->
+    <div class="success-bg"></div>
 
     <!-- Header -->
     <header class="header">
@@ -169,115 +91,123 @@
     </header>
 
     <!-- Success Page -->
-    <main class="success-page-container">
-        <div class="success-bg-pattern"></div>
-        <div class="container relative-z">
-            <div class="success-header-section text-center fade-in">
-                <div class="success-icon-wrapper">
-                    <div class="success-icon">🎉</div>
-                    <div class="success-icon-ring"></div>
-                </div>
-                <h1 class="success-title">تم استلام طلبك بنجاح!</h1>
-                <p class="success-subtitle">شكراً لثقتك بنا! طلبك الآن في أيدٍ أمينة وسيصلك قريباً.</p>
+    <main class="cp-main" style="padding-top: 100px;">
+        <div class="cp-container">
+            <!-- Success Header -->
+            <div class="cp-success-header cp-fade-in">
+                <div class="cp-success-icon">🎉</div>
+                <h1 class="cp-success-title">تم استلام طلبك بنجاح!</h1>
+                <p class="cp-success-subtitle">شكراً لثقتك بنا! طلبك الآن في أيدٍ أمينة وسيصلك قريباً.</p>
             </div>
 
-            <div class="success-grid fade-in fade-in-delay-1">
+            <div class="cp-grid cp-fade-in cp-delay-1">
                 <!-- Right Column: Status & Actions -->
-                <div class="status-column">
+                <div>
                     <!-- Order Number Banner -->
-                    <div class="order-number-banner">
-                        <span class="label">رقم الطلب</span>
-                        <h2 id="orderNumber" class="number">---</h2>
-                        <button class="btn-copy" onclick="copyOrderNumber()" title="نسخ الرقم">📋</button>
+                    <div class="cp-order-banner">
+                        <div>
+                            <span class="cp-order-banner-label">رقم الطلب</span>
+                            <h2 id="orderNumber" class="cp-order-banner-number">---</h2>
+                        </div>
+                        <button class="cp-btn cp-btn-secondary" onclick="copyOrderNumber()" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: white;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            نسخ
+                        </button>
                     </div>
 
                     <!-- Status Tracker -->
-                    <div class="status-card-modern">
-                        <div class="card-header">
-                            <h3>📊 متابعة الطلب</h3>
-                            <span class="live-badge">مباشر 🔴</span>
+                    <div class="cp-status-tracker cp-fade-in cp-delay-2">
+                        <div class="cp-status-header">
+                            <h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--cp-orange-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                متابعة الطلب
+                            </h3>
+                            <span class="cp-live-badge">
+                                <span style="width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: inline-block;"></span>
+                                مباشر
+                            </span>
                         </div>
-                        <div class="order-status-vertical" id="orderStatusSteps">
-                            <!-- Steps will be richer here -->
-                            <div class="status-step active completed">
-                                <div class="step-line"></div>
-                                <div class="step-icon">📝</div>
-                                <div class="step-content">
+                        
+                        <div class="cp-status-steps" id="orderStatusSteps">
+                            <div class="cp-status-step active completed">
+                                <div class="cp-step-line"></div>
+                                <div class="cp-step-icon">📝</div>
+                                <div class="cp-step-content">
                                     <h4>تم استلام الطلب</h4>
                                     <p>طلبك وصل للمطعم</p>
                                 </div>
-                                <div class="step-check">✓</div>
+                                <div class="cp-step-check">✓</div>
                             </div>
-                            <div class="status-step active">
-                                <div class="step-line"></div>
-                                <div class="step-icon">👨‍🍳</div>
-                                <div class="step-content">
+                            <div class="cp-status-step active">
+                                <div class="cp-step-line"></div>
+                                <div class="cp-step-icon">👨‍🍳</div>
+                                <div class="cp-step-content">
                                     <h4>قيد التحضير</h4>
                                     <p>يقوم الشيف بتجهيز وجبتك</p>
                                 </div>
-                                <div class="step-check">✓</div>
+                                <div class="cp-step-check">✓</div>
                             </div>
-                            <div class="status-step">
-                                <div class="step-line"></div>
-                                <div class="step-icon">📦</div>
-                                <div class="step-content">
+                            <div class="cp-status-step">
+                                <div class="cp-step-line"></div>
+                                <div class="cp-step-icon">📦</div>
+                                <div class="cp-step-content">
                                     <h4>جاهز</h4>
                                     <p>وجبتك جاهزة للتسليم</p>
                                 </div>
                             </div>
-                            <div class="status-step" id="deliveryStep">
-                                <div class="step-line"></div>
-                                <div class="step-icon">🛵</div>
-                                <div class="step-content">
+                            <div class="cp-status-step" id="deliveryStep">
+                                <div class="cp-step-line"></div>
+                                <div class="cp-step-icon">🛵</div>
+                                <div class="cp-step-content">
                                     <h4>في الطريق</h4>
                                     <p>المندوب في طريقه إليك</p>
                                 </div>
                             </div>
-                            <div class="status-step">
-                                <div class="step-icon">🎉</div>
-                                <div class="step-content">
+                            <div class="cp-status-step">
+                                <div class="cp-step-icon">🎉</div>
+                                <div class="cp-step-content">
                                     <h4>تم التسليم</h4>
                                     <p>بالهناء والشفاء!</p>
                                 </div>
                             </div>
                         </div>
-                        <!-- Use z-index 0 to avoid covering dropdowns if any, but high enough to be seen -->
-                        <div id="trackingMap" style="height: 250px; width: 100%; border-radius: 12px; margin-top: 1rem; display: none; z-index: 1;"></div>
+                        
+                        <!-- Map for delivery -->
+                        <div class="map-container" id="trackingMapContainer" style="display: none;">
+                            <div id="trackingMap"></div>
+                        </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="actions-grid">
-                        <a href="my-orders.html" class="btn btn-primary btn-xl">
-                            📋 متابعة طلباتي
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;" class="cp-fade-in cp-delay-3">
+                        <a href="my-orders.html" class="cp-btn cp-btn-primary cp-btn-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                            متابعة طلباتي
                         </a>
-                        <a href="index.html" class="btn btn-secondary btn-xl">
-                            🍕 طلب آخر
+                        <a href="index.html" class="cp-btn cp-btn-secondary cp-btn-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            طلب آخر
                         </a>
                     </div>
                 </div>
 
                 <!-- Left Column: Receipt Visual -->
-                <div class="receipt-column fade-in fade-in-delay-2">
-                    <div class="receipt-card">
-                        <div class="receipt-header">
-                            <div class="receipt-logo">🍔</div>
+                <div class="cp-fade-in cp-delay-2">
+                    <div class="cp-receipt">
+                        <div class="cp-receipt-header">
+                            <div class="cp-receipt-logo">🍔</div>
                             <h3>فاتورة الطلب</h3>
-                            <div class="receipt-dots"></div>
                         </div>
-                        <div id="orderDetails" class="receipt-body">
+                        <div id="orderDetails" class="cp-receipt-body">
                             <!-- JS creates structure -->
                         </div>
-                        <div class="receipt-footer">
-                            <div class="receipt-barcode">
-                                ||| |||| || ||||| ||||
-                            </div>
-                            <p>احتفظ برقم الطلب للمراجعة</p>
+                        <div class="cp-receipt-footer">
+                            <div class="cp-barcode">||| |||| || ||||| ||||</div>
+                            <p style="margin: 0; color: var(--cp-gray-500); font-size: 0.85rem;">احتفظ برقم الطلب للمراجعة</p>
                         </div>
                     </div>
                 </div>
             </div>
-            
-
         </div>
     </main>
 
@@ -291,16 +221,35 @@
     <script>
         let map = null;
 
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#f97316', '#fbbf24', '#22c55e', '#3b82f6', '#ec4899'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = (3 + Math.random() * 2) + 's';
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 50);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
-             // 0. Update Restaurant Info (Logo & Name)
-             // Try to get from cache first
+             // Create confetti effect
+             createConfetti();
+             
+             // Update Restaurant Info
              const cachedSettings = getSettings(); 
              if (cachedSettings && cachedSettings.restaurantName) {
                  document.getElementById('logoName').textContent = cachedSettings.restaurantName;
                  document.title = `تم الطلب بنجاح - ${cachedSettings.restaurantName}`;
              }
 
-             // Ensure fresh settings are loaded
              initializeData({ settings: true }).then(() => {
                  const settings = getSettings();
                  if (settings && settings.restaurantName) {
@@ -311,17 +260,15 @@
 
              const orderNumber = sessionStorage.getItem('lastOrderNumber');
              const orderId = sessionStorage.getItem('lastOrderId');
-             const storedDetails = sessionStorage.getItem('lastOrderDetails'); // Instant Fallback
+             const storedDetails = sessionStorage.getItem('lastOrderDetails');
              
              if (!orderNumber && !orderId && !storedDetails) {
                  window.location.href = 'index.html';
                  return;
              }
              
-             // Optimally Fetch Order
              let order = null;
              
-             // 1. Try Instant Local Storage (Fastest & avoids race conditions)
              if (storedDetails) {
                  try {
                      order = JSON.parse(storedDetails);
@@ -331,24 +278,20 @@
                  }
              }
 
-             // 2. If not found, Try Network
              if (!order) {
                  try {
-                    // Try fetching specific order first
                     const targetId = orderId || orderNumber; 
                     
                     const response = await ApiClient.request(`/orders?id=${targetId}`);
                     
                     if (Array.isArray(response)) {
                         order = response.find(o => o.id == targetId || o.orderNumber == orderNumber);
-                        // If returned array has 1 item and searched by ID, likely that's it
                         if (!order && response.length === 1) order = response[0];
                     } else if (response && (response.id || response.orderNumber)) {
                          order = response;
                     }
                     
                     if (order) {
-                         // Normalize if fetched raw
                          if (!order.items) order.items = [];
                          if (typeof order.location === 'string' && order.location.startsWith('{')) {
                              try { order.location = JSON.parse(order.location); } catch(e){}
@@ -365,23 +308,15 @@
                  renderOrderDetails(order);
                  updateStatusTracker(order.status);
                  
-                 // Handle Delivery & Map
                  if (order.orderType === 'delivery') {
                      document.getElementById('deliveryStep').style.display = 'flex';
                      
-                     // Initialize Map if location exists
                      if (order.location && order.location.lat && order.location.lng) {
-                          initTrackingMap(order.location.lat, order.location.lng);
-                     } else {
-                          // No location? Maybe show "No location provided" or hide map
-                          // User complained "Map didn't open", so let's show a placeholder or nothing.
-                          const mapEl = document.getElementById('trackingMap');
-                          if(mapEl) mapEl.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">لم يتم تحديد موقع محدد على الخريطة</div>';
+                          document.getElementById('trackingMapContainer').style.display = 'block';
+                          setTimeout(() => initTrackingMap(order.location.lat, order.location.lng), 500);
                      }
                  } else {
                      document.getElementById('deliveryStep').style.display = 'none';
-                     const mapEl = document.getElementById('trackingMap');
-                     if(mapEl) mapEl.style.display = 'none';
                  }
              } else {
                  showToast('لم يتم العثور على الطلب', 'error');
@@ -390,30 +325,34 @@
         });
 
         function initTrackingMap(lat, lng) {
-            const mapContainer = document.getElementById('trackingMap');
-            if (!mapContainer) return;
+            if (map) return;
             
-            mapContainer.style.display = 'block';
-            
-            // Artificial delay removed - User wants speed
             map = L.map('trackingMap').setView([lat, lng], 15);
             
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap'
             }).addTo(map);
             
-            // User Marker
-            L.marker([lat, lng]).addTo(map)
+            // Custom orange marker
+            const userIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            
+            L.marker([lat, lng], { icon: userIcon }).addTo(map)
                 .bindPopup('📍 موقع التوصيل')
                 .openPopup();
                 
-            // Fake Driver Marker (Demo)
-            // Add a driver slightly away
-            const driverLat = parseFloat(lat) + 0.005;
-            const driverLng = parseFloat(lng) + 0.005;
+            // Driver marker
+            const driverLat = parseFloat(lat) + 0.004;
+            const driverLng = parseFloat(lng) + 0.004;
             
             const driverIcon = L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/7541/7541900.png', // Scooter icon
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/7541/7541900.png',
                 iconSize: [40, 40],
                 iconAnchor: [20, 20]
             });
@@ -421,47 +360,46 @@
             L.marker([driverLat, driverLng], {icon: driverIcon}).addTo(map)
                 .bindPopup('🛵 المندوب');
                 
-            // Fit bounds to show both
-            // map.fitBounds([[lat, lng], [driverLat, driverLng]], {padding: [50, 50]});
+            setTimeout(() => map.invalidateSize(), 300);
         }
         
         function renderOrderDetails(order) {
             const container = document.getElementById('orderDetails');
             
             container.innerHTML = `
-                <div class="order-item-row" style="border-bottom: 2px solid #f0f0f0; padding-bottom: 1rem; margin-bottom: 1rem;">
-                    <div>
-                        <strong>👤 ${order.customerName}</strong><br>
-                        <span style="color: #666; font-size: 0.9rem;">📱 ${order.customerPhone}</span>
-                    </div>
-                    <div style="text-align: left;">
-                        <span class="badge" style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">
+                <div style="padding-bottom: 16px; margin-bottom: 16px; border-bottom: 2px solid var(--cp-gray-100);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="font-size: 1rem;">👤 ${order.customerName}</strong><br>
+                            <span style="color: var(--cp-gray-500); font-size: 0.9rem;">📱 ${order.customerPhone}</span>
+                        </div>
+                        <span style="background: var(--cp-gray-100); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
                             ${order.orderType === 'delivery' ? '🛵 توصيل' : '🍽️ حضور'}
                         </span>
                     </div>
                 </div>
                 
-                <div class="items-list">
+                <div>
                     ${order.items.map(item => `
-                        <div class="order-item-row">
+                        <div class="cp-receipt-item">
                             <span>${item.quantity}x ${item.name} ${item.sizeName ? `(${item.sizeName})` : ''}</span>
-                            <span>${formatPrice(item.price * item.quantity)}</span>
+                            <span style="font-weight: 700;">${formatPrice(item.price * item.quantity)}</span>
                         </div>
                     `).join('')}
                 </div>
                 
-                <div style="margin-top: 1.5rem; border-top: 2px dashed #f0f0f0; padding-top: 1rem;">
-                    <div class="order-summary-row">
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 2px dashed var(--cp-gray-200);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--cp-gray-600);">
                         <span>المجموع:</span>
                         <span>${formatPrice(order.subtotal)}</span>
                     </div>
                     ${order.orderType === 'delivery' ? `
-                    <div class="order-summary-row">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--cp-gray-600);">
                         <span>التوصيل:</span>
                         <span>${order.deliveryCost > 0 ? formatPrice(order.deliveryCost) : 'مجاني'}</span>
                     </div>
                     ` : ''}
-                    <div class="order-summary-total">
+                    <div class="cp-receipt-total">
                         <span>الإجمالي:</span>
                         <span>${formatPrice(order.total)}</span>
                     </div>
@@ -470,7 +408,7 @@
         }
 
         function updateStatusTracker(currentStatus) {
-            const steps = document.querySelectorAll('.status-step');
+            const steps = document.querySelectorAll('.cp-status-step');
             steps.forEach(step => {
                 step.classList.remove('active', 'completed');
             });
@@ -478,15 +416,15 @@
             let activeIndex = 0;
             if (currentStatus === 'preparing') activeIndex = 1;
             if (currentStatus === 'ready') activeIndex = 2;
-            if (currentStatus === 'onTheWay' || currentStatus === 'delivery') activeIndex = 3; // 'onTheWay' is standardized key
+            if (currentStatus === 'onTheWay' || currentStatus === 'delivery') activeIndex = 3;
             if (currentStatus === 'delivered') activeIndex = 4;
             
             steps.forEach((step, index) => {
                 if (index < activeIndex) {
                     step.classList.add('active', 'completed');
-                    if(!step.querySelector('.step-check')) {
+                    if(!step.querySelector('.cp-step-check')) {
                         const check = document.createElement('div');
-                        check.className = 'step-check';
+                        check.className = 'cp-step-check';
                         check.textContent = '✓';
                         step.appendChild(check);
                     }
@@ -498,7 +436,12 @@
         
         function copyOrderNumber() {
             const orderNumber = document.getElementById('orderNumber').textContent;
-            copyToClipboard(orderNumber);
+            if (typeof copyToClipboard === 'function') {
+                copyToClipboard(orderNumber);
+            } else {
+                navigator.clipboard.writeText(orderNumber);
+                showToast('تم نسخ رقم الطلب', 'success');
+            }
         }
     </script>
 </body>

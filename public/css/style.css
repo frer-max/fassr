@@ -469,6 +469,26 @@ button, input { font-family: inherit; }
   transform: translateY(-2px) scale(1.03);
   box-shadow: 0 10px 25px rgba(255, 107, 0, 0.3);
 }
+.btn-orders {
+  background: #18181b; /* Zinc-900 - Premium Soft Black */
+  color: #ffffff;
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Stronger shadow for depth */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: var(--space-3) var(--space-5);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: all 0.3s ease;
+}
+.btn-orders:hover {
+  background: #000000;
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 20px rgba(255, 107, 0, 0.15);
+  transform: translateY(-1px);
+}
 .btn-block { width: 100%; }
 .btn-icon { width: 44px; height: 44px; padding: 0; border-radius: var(--radius-lg); }
 
@@ -1478,6 +1498,16 @@ button, input { font-family: inherit; }
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
+/* Tablet Optimization (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container { max-width: 95%; padding: 0 15px; }
+    .header-content { gap: var(--space-3); }
+    .logo { font-size: 1.1rem; }
+    .logo-icon { width: 28px; height: 28px; }
+    .btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+    .hero h1 { font-size: 2rem; }
+}
+
 @media (max-width: 768px) {
   .header-content { flex-wrap: wrap; gap: var(--space-3); justify-content: center; } /* Center content on mobile */
   .logo { margin-bottom: 5px; } /* Add spacing below logo when wrapped */
