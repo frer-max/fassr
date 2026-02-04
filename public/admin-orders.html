@@ -19,6 +19,16 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/transition-circle.css">
+    
+    <!-- Immediate Auth Check (Zero Flash) -->
+    <script>
+        (function() {
+            if (!sessionStorage.getItem('adminLoggedIn')) {
+                sessionStorage.setItem('loginRedirect', window.location.pathname + window.location.search);
+                window.location.replace('admin-login.html');
+            }
+        })();
+    </script>
 </head>
 <body>
 

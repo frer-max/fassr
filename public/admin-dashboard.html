@@ -22,6 +22,16 @@
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Immediate Auth Check (Zero Flash) -->
+    <script>
+        (function() {
+            if (!sessionStorage.getItem('adminLoggedIn')) {
+                sessionStorage.setItem('loginRedirect', window.location.pathname + window.location.search);
+                window.location.replace('admin-login.html');
+            }
+        })();
+    </script>
 </head>
 <body>
 

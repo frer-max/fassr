@@ -5,10 +5,34 @@ window.adminApp = window.adminApp || {
     badgeInterval: null // Persistent interval for sidebar
 };
 
+// 1. IMMEDIATE AUTH CHECK
+function checkLogin() {
+    const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
+    const isLoginPage = window.location.href.includes('admin-login.html');
+    
+    if (!isLoggedIn && !isLoginPage) {
+        // Only save redirect if it's not the sidebar fragment
+        if (!window.location.pathname.includes('admin-sidebar.html')) {
+             sessionStorage.setItem('loginRedirect', window.location.pathname + window.location.search);
+        }
+        window.location.replace('admin-login.html');
+        return false;
+    } else if (isLoggedIn && isLoginPage) {
+        window.location.replace('admin-dashboard.html');
+        return false;
+    }
+    return true;
+}
+
+// Run immediately as script loads
+if (!checkLogin()) {
+    // Stop further execution if redirecting
+    throw new Error('Redirecting to login...');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     // If we are in SPA mode (re-triggered manually), skip core init
     if (window.adminApp.isSPA) {
-        checkLogin();
         highlightSidebar();
         // Reveal immediately if SPA re-init
         requestAnimationFrame(() => document.body.classList.add('loaded'));
@@ -17,7 +41,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // First Load (Full Refresh)
     window.adminApp.isSPA = true;
-    checkLogin();
     setupAdminNavigation();
     
     await loadSidebar();
@@ -240,16 +263,7 @@ function startPersistentBadgeUpdates() {
     window.adminApp.badgeInterval = 1; // Mark as running to avoid duplicates, actual updates are event-driven
 }
 
-function checkLogin() {
-    const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
-    const isLoginPage = window.location.href.includes('admin-login.html');
-    
-    if (!isLoggedIn && !isLoginPage) {
-        window.location.replace('admin-login.html');
-    } else if (isLoggedIn && isLoginPage) {
-        window.location.replace('admin-dashboard.html');
-    }
-}
+
 
 function handleLogout() {
     if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
