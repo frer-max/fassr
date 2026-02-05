@@ -214,7 +214,9 @@
             // Prevent going below 1 via minus button (user must use delete button)
             if (newQuantity < 1) return;
             
-            updateQuantity(mealId, sizeId, newQuantity);
+            // The arguments are confusingly named in the HTML onclick, but mealId holds the item.id
+            // updateCartQuantity in cart.js takes (itemId, newQuantity)
+            updateCartQuantity(mealId, newQuantity);
             renderCart();
         }
         
