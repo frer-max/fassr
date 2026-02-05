@@ -475,9 +475,17 @@ function getMealImageOrPlaceholder(meal, style = '', imgStyle = '') {
                              </div>`;
         }
 
+        // Cache Busting Logic: Append v=timestamp if updatedAt exists
+        let imageUrl = meal.image;
+        if (meal.updatedAt) {
+            // Cloudinary URLs usually don't have query params, but we handle both cases just to be safe
+            const separator = imageUrl.includes('?') ? '&' : '?';
+            imageUrl += `${separator}v=${new Date(meal.updatedAt).getTime()}`;
+        }
+
         return `
             <div class="meal-image-container" style="${finalContainerStyle}; position: relative; overflow: hidden; background: #F9FAFB;">
-                 <img src="${meal.image}" alt="${meal.name || ''}" class="meal-image-img" 
+                 <img src="${imageUrl}" alt="${meal.name || ''}" class="meal-image-img" 
                       style="width: 100%; height: 100%; object-fit: cover; ${imgStyle}" loading="lazy" 
                       onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                  <div class="meal-placeholder-fallback" style="display:none; position:absolute; top:0; left:0; width: 100%; height: 100%;">

@@ -137,34 +137,20 @@
     <script src="js/app.js"></script>
     <script src="js/cart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-             // Load app data including settings
-            if (typeof initializeApp === 'function') {
-                initializeApp();
-            } else if (typeof loadRestaurantSettings === 'function') {
-                loadRestaurantSettings();
-            }
-        });
-    </script>
-    <script src="js/orders.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Render immediately with cached data to avoid flash
+            // Render immediately
             renderCart();
             
-            // Wait for settings to load (then re-render)
+            // Wait for settings
             if (typeof initializeData === 'function') {
                 await initializeData();
                 renderCart();
             }
             
-            // Listen for any updates
-            document.addEventListener('data-ready', () => {
-                renderCart();
-            });
+            document.addEventListener('data-ready', renderCart);
         });
         
-        // Override renderCart to use new premium styles
         function renderCart() {
             const cart = getCart();
             const cartEmpty = document.getElementById('cartEmpty');
@@ -173,60 +159,84 @@
             
             if (cart.length === 0) {
                 cartEmpty.style.display = 'block';
-                cartContent.style.display = 'none';
+                if(cartContent) cartContent.style.display = 'none';
                 return;
             }
             
             cartEmpty.style.display = 'none';
-            cartContent.style.display = 'block';
+            if(cartContent) cartContent.style.display = 'block';
             
-            // Render cart items with premium styling
-            cartItems.innerHTML = cart.map((item, index) => `
-                <div class="cp-cart-item cp-fade-in" style="animation-delay: ${index * 0.1}s;">
+            cartItems.innerHTML = cart.map((item, index) => {
+                // Ensure unique ID for quantity input
+                const uniqueId = `${item.id}-${item.sizeId || 'default'}`;
+                
+                return `
+                <div class="cp-cart-item cp-fade-in" style="animation-delay: ${Math.min(index * 0.05, 0.5)}s;">
                     <div class="cp-cart-item-image">
                         ${window.getMealImageOrPlaceholder 
                             ? window.getMealImageOrPlaceholder(item, 'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--cp-gray-100);', 'width: 100%; height: 100%; object-fit: cover;') 
-                            : (item.image 
-                                ? `<img src="${item.image}" alt="${item.name}">` 
-                                : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--cp-gray-100); font-size: 2rem;">🍽️</div>`
-                            )
+                            : `<img src="${item.image || 'images/placeholder.png'}" alt="${item.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>'">`
                         }
                     </div>
                     <div class="cp-cart-item-info">
                         <div class="cp-cart-item-name">${item.name}</div>
                         ${item.sizeName ? `<div class="cp-cart-item-size">${item.sizeName}</div>` : ''}
                         <div class="cp-cart-item-price">${formatPrice(item.price * item.quantity)}</div>
+                        <!-- Mobile Remove (Visible on small screens if needed, or stick to side) -->
                     </div>
+                    
                     <div class="cp-cart-item-actions">
+                        <!-- Quantity Control -->
                         <div class="cp-qty-control">
-                            <button class="cp-qty-btn" onclick="updateItemQuantity('${item.id}', '${item.sizeId || ''}', ${item.quantity - 1})">−</button>
+                            <button class="cp-qty-btn minus" 
+                                onclick="updateItemQuantity('${item.id}', '${item.sizeId || ''}', ${item.quantity - 1})"
+                                ${item.quantity <= 1 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''}
+                            >−</button>
+                            
                             <span class="cp-qty-value">${item.quantity}</span>
-                            <button class="cp-qty-btn" onclick="updateItemQuantity('${item.id}', '${item.sizeId || ''}', ${item.quantity + 1})">+</button>
+                            
+                            <button class="cp-qty-btn plus" 
+                                onclick="updateItemQuantity('${item.id}', '${item.sizeId || ''}', ${item.quantity + 1})">+</button>
                         </div>
-                        <button class="cp-remove-btn" onclick="removeFromCart('${item.id}', '${item.sizeId || ''}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        
+                        <!-- Delete Button -->
+                        <button class="cp-remove-btn" onclick="removeItemWithConfirm('${item.id}', '${item.sizeId || ''}')" title="حذف الوجبة">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"></path></svg>
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             
-            // Update summary
             updateCartSummary();
         }
         
+        function updateItemQuantity(mealId, sizeId, newQuantity) {
+            // Prevent going below 1 via minus button (user must use delete button)
+            if (newQuantity < 1) return;
+            
+            updateQuantity(mealId, sizeId, newQuantity);
+            renderCart();
+        }
+        
+        async function removeItemWithConfirm(mealId, sizeId) {
+            if (await confirmAction('هل تريد حذف هذه الوجبة من السلة؟')) {
+                removeFromCart(mealId, sizeId);
+                renderCart();
+            }
+        }
+        
+        // Helper wrappers
         function updateCartSummary() {
             const subtotal = getCartTotal();
             const settings = getSettings();
-            
             let deliveryText = 'غير محدد';
             let deliveryCost = 0;
             
-            const deliverySettings = settings.delivery;
-            if (deliverySettings && deliverySettings.enabled) {
-                if (deliverySettings.type === 'fixed') {
-                    deliveryCost = deliverySettings.fixedCost || 0;
+            if (settings?.delivery?.enabled) {
+                if (settings.delivery.type === 'fixed') {
+                    deliveryCost = settings.delivery.fixedCost || 0;
                     deliveryText = deliveryCost === 0 ? 'مجاني' : formatPrice(deliveryCost);
-                } else if (deliverySettings.type === 'free') {
+                } else if (settings.delivery.type === 'free') {
                     deliveryText = 'مجاني';
                 }
             }
@@ -236,20 +246,9 @@
             document.getElementById('cartTotal').textContent = formatPrice(subtotal + deliveryCost);
         }
         
-        function updateItemQuantity(mealId, sizeId, newQuantity) {
-            if (newQuantity <= 0) {
-                removeFromCart(mealId, sizeId);
-            } else {
-                updateQuantity(mealId, sizeId, newQuantity);
-            }
-            renderCart();
-        }
-        
         async function handleClearCart() {
-            const confirmed = await confirmAction('هل أنت متأكد من تفريغ السلة؟');
-            if (confirmed) {
+            if (await confirmAction('هل أنت متأكد من تفريغ السلة بالكامل؟')) {
                 clearCart();
-                showToast('تم تفريغ السلة', 'success');
                 renderCart();
             }
         }

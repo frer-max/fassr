@@ -3,8 +3,10 @@ import { revalidateTag, unstable_cache } from 'next/cache';
 import prisma from '@/app/lib/prisma';
 import { uploadImage, deleteImage } from '@/app/lib/cloudinary';
 
-const getMeals = unstable_cache(
-    async () => {
+// Force dynamic behavior to bypass cache completely for meals data
+export const dynamic = 'force-dynamic';
+
+async function getMeals() {
         return await prisma.meal.findMany({
             select: {
                 id: true,
@@ -17,6 +19,7 @@ const getMeals = unstable_cache(
                 popular: true,
                 order: true,
                 hasSizes: true,
+                updatedAt: true,
                 sizes: {
                     select: { id: true, name: true, price: true }
                 },
@@ -26,10 +29,7 @@ const getMeals = unstable_cache(
             },
             orderBy: { order: 'asc' }
         });
-    },
-    ['meals-all-cache'],
-    { tags: ['meals'] }
-);
+}
 
 export async function GET(request) {
   try {
@@ -72,6 +72,7 @@ export async function GET(request) {
                     popular: true,
                     order: true,
                     hasSizes: true,
+                    updatedAt: true,
                     sizes: { select: { id: true, name: true, price: true } },
                     category: { select: { id: true, name: true } }
                 },
