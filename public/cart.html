@@ -182,21 +182,20 @@
                         <div class="cp-cart-item-name">${item.name}</div>
                         ${item.sizeName ? `<div class="cp-cart-item-size">${item.sizeName}</div>` : ''}
                         <div class="cp-cart-item-price">${formatPrice(item.price * item.quantity)}</div>
-                        <!-- Mobile Remove (Visible on small screens if needed, or stick to side) -->
                     </div>
                     
                     <div class="cp-cart-item-actions">
                         <!-- Quantity Control -->
                         <div class="cp-qty-control">
                             <button class="cp-qty-btn minus" 
-                                onclick="updateItemQuantity('${item.id}', '${item.sizeId || ''}', ${item.quantity - 1})"
+                                onclick="updateCartQuantity('${item.id}', ${item.quantity - 1})"
                                 ${item.quantity <= 1 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''}
                             >−</button>
                             
                             <span class="cp-qty-value">${item.quantity}</span>
                             
                             <button class="cp-qty-btn plus" 
-                                onclick="updateItemQuantity('${item.id}', '${item.sizeId || ''}', ${item.quantity + 1})">+</button>
+                                onclick="updateCartQuantity('${item.id}', ${item.quantity + 1})">+</button>
                         </div>
                         
                         <!-- Delete Button -->

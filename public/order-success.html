@@ -155,14 +155,7 @@
                                     <p>وجبتك جاهزة للتسليم</p>
                                 </div>
                             </div>
-                            <div class="cp-status-step" id="deliveryStep">
-                                <div class="cp-step-line"></div>
-                                <div class="cp-step-icon">🛵</div>
-                                <div class="cp-step-content">
-                                    <h4>في الطريق</h4>
-                                    <p>المندوب في طريقه إليك</p>
-                                </div>
-                            </div>
+                            <!-- 'On The Way' step removed as per user request -->
                             <div class="cp-status-step">
                                 <div class="cp-step-icon">🎉</div>
                                 <div class="cp-step-content">
@@ -172,7 +165,7 @@
                             </div>
                         </div>
                         
-                        <!-- Map for delivery -->
+                        <!-- Map for delivery (Optional: keep or hide? User only asked to remove status step) -->
                         <div class="map-container" id="trackingMapContainer" style="display: none;">
                             <div id="trackingMap"></div>
                         </div>
@@ -308,15 +301,14 @@
                  renderOrderDetails(order);
                  updateStatusTracker(order.status);
                  
+                 // Map visibility logic remains as extra
                  if (order.orderType === 'delivery') {
-                     document.getElementById('deliveryStep').style.display = 'flex';
+                     // document.getElementById('deliveryStep').style.display = 'flex'; // Removed
                      
                      if (order.location && order.location.lat && order.location.lng) {
                           document.getElementById('trackingMapContainer').style.display = 'block';
                           setTimeout(() => initTrackingMap(order.location.lat, order.location.lng), 500);
                      }
-                 } else {
-                     document.getElementById('deliveryStep').style.display = 'none';
                  }
              } else {
                  showToast('لم يتم العثور على الطلب', 'error');
@@ -413,11 +405,18 @@
                 step.classList.remove('active', 'completed');
             });
             
+            // Adjusted indices after removing 'onTheWay'
+            // 0: Received
+            // 1: Preparing
+            // 2: Ready
+            // 3: Delivered
+            
             let activeIndex = 0;
             if (currentStatus === 'preparing') activeIndex = 1;
             if (currentStatus === 'ready') activeIndex = 2;
-            if (currentStatus === 'onTheWay' || currentStatus === 'delivery') activeIndex = 3;
-            if (currentStatus === 'delivered') activeIndex = 4;
+            if (currentStatus === 'delivered') activeIndex = 3;
+            // Map 'onTheWay' to 'Ready' just in case old data exists
+            if (currentStatus === 'onTheWay') activeIndex = 2; 
             
             steps.forEach((step, index) => {
                 if (index < activeIndex) {
