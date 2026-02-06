@@ -143,13 +143,39 @@ async function initializeData(options = {}) {
                 console.error(`Failed to load ${key}`, err);
                 return false;
             }).finally(() => {
-                loadingPromises[key] = null; // Clear promise so we can retry later if needed
+                loadingPromises[key] = null;
             });
             
             return loadingPromises[key];
         }
-        return Promise.resolve(true); // Already loaded
+        return Promise.resolve(true); 
     };
+
+    // ⚡ DOUBLE-CHECK SAFETY NET ⚡
+    // Even if we hydrated from server, we schedule a silent background verification
+    // 5 seconds after load to catch any "stale browser cache" edge cases.
+    if (window.INITIAL_DATA && !window.__VERIFIED) {
+        window.__VERIFIED = true;
+        setTimeout(() => {
+             if (document.visibilityState === 'visible') {
+                 console.log('🛡️ Performing silent data consistency check...');
+                 // Re-fetch only hashes or light data? No, just full fetch is fine for safety,
+                 // the browser caching will handle 304s if nothing changed on server.
+                 // We use force=true but handle UI update gently (only if changed).
+                 // Actually, let's just use the fetchers.
+                 ApiClient.getCategories().then(newData => {
+                     // Deep compare to see if we need to update
+                     if (JSON.stringify(newData) !== JSON.stringify(appState.categories)) {
+                         console.warn('⚠️ Data mismatch detected! Updating UI...');
+                         appState.categories = newData;
+                         document.dispatchEvent(new CustomEvent('categories-updated'));
+                     }
+                 });
+                 // We do same for meals if critical
+             }
+        }, 5000); // 5s delay to let everything settle
+    }
+
 
     const isAdminPage = window.location.pathname.includes('admin');
     const tasks = [];
