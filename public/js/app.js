@@ -56,11 +56,16 @@ async function initializeApp() {
     setupSearch();
     setupHeaderScroll();
 
-    // إخفاء التحميل فوراً - لا تنتظر الصور!
+    // إخفاء التحميل بسلاسة فائقة
     const loader = document.getElementById('loadingOverlay');
     if (loader) {
-        loader.classList.add('fade-out');
-        setTimeout(() => loader.remove(), 300);
+        // استخدام Double RequestAnimationFrame لضمان سلاسة البدء
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                loader.classList.add('fade-out');
+                setTimeout(() => loader.remove(), 850);
+            });
+        });
     }
     
     // ⚡ تحميل الصور في الخلفية بعد عرض الواجهة

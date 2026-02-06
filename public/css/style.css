@@ -1379,7 +1379,8 @@ button, input { font-family: inherit; }
   justify-content: center; 
   gap: var(--space-6); 
   z-index: 9999; 
-  transition: opacity 0.5s ease, visibility 0.5s;
+  transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+  will-change: opacity;
 }
 
 .loading-overlay.fade-out {
@@ -1428,6 +1429,7 @@ button, input { font-family: inherit; }
   border: 3px solid rgba(249, 115, 22, 0.1);
   border-top-color: var(--primary);
   animation: spin-ring 1s linear infinite;
+  will-change: transform;
 }
 
 .spinner-ring::before {
