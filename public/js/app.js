@@ -47,37 +47,30 @@ async function initializeApp() {
         await initializeData();
     }
     
-    // تحميل إعدادات المطعم مرة أخرى (لضمان التحديث)
+    // تحميل إعدادات المطعم مرة أخرى
     loadRestaurantSettings();
     
-    // ⚡ جدولة العرض في إطارات (Frames) منفصلة لمنع تجمد المتصفح
-    // هذا يحل مشكلة توقف الحركة الدورانية
+    // ⚡ عرض المحتوى فوراً بدون انتظار الصور
+    renderCategories();
+    renderMeals();
+    setupSearch();
+    setupHeaderScroll();
+
+    // إخفاء التحميل فوراً - لا تنتظر الصور!
+    const loader = document.getElementById('loadingOverlay');
+    if (loader) {
+        loader.classList.add('fade-out');
+        setTimeout(() => loader.remove(), 300);
+    }
     
-    requestAnimationFrame(() => {
-        renderCategories();
-        
-        requestAnimationFrame(() => {
-            renderMeals();
-            setupSearch();
-            setupHeaderScroll();
-            
-            // إخفاء التحميل بعد انتهاء العرض
-             requestAnimationFrame(() => {
-                const loader = document.getElementById('loadingOverlay');
-                if (loader) {
-                    loader.classList.add('fade-out');
-                    setTimeout(() => loader.remove(), 400); // زيادة طفيفة للتأكد من السلاسة
-                }
-                
-                // ⚡ تحميل الصور في الخلفية
-                if ('requestIdleCallback' in window) {
-                    requestIdleCallback(() => preloadVisibleImages());
-                } else {
-                    setTimeout(preloadVisibleImages, 200);
-                }
-             });
+    // ⚡ تحميل الصور في الخلفية بعد عرض الواجهة
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+            preloadVisibleImages();
         });
-    });
+    } else {
+        setTimeout(preloadVisibleImages, 100);
+    }
 }
 
 // ⚡ تحميل الصور المرئية في الخلفية
